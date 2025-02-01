@@ -1,0 +1,33 @@
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Ripplee.ViewModels"
+             x:Class="Ripplee.Views.MainPage">
+    
+
+    <ContentPage.BindingContext>
+        <vm:MainViewModel/>
+    </ContentPage.BindingContext>
+    
+    <VerticalStackLayout Padding="20" Spacing="15">
+        <Label Text="Алексей" FontSize="24" HorizontalOptions="Center"/>
+        <Border BackgroundColor="Gray">
+            <VerticalStackLayout Spacing="10">
+                <Label Text="Какой пол подбирать" FontSize="18"/>
+                <HorizontalStackLayout>
+                    <Button Text="Мужчин" 
+                            Command="{Binding SelectGenderCommand}" 
+                            CommandParameter="Мужчина" 
+                            BackgroundColor="{Binding User.GenderSelection, Converter={StaticResource GenderToColorConverter}, ConverterParameter=Мужчина}"/>
+                    <Button Text="Женщин" 
+                            Command="{Binding SelectGenderCommand}" 
+                            CommandParameter="Женщина" 
+                            BackgroundColor="{Binding User.GenderSelection, Converter={StaticResource GenderToColorConverter}, ConverterParameter=Женщина}"/>
+                </HorizontalStackLayout>
+                <Picker Title="Выберите город" ItemsSource="{Binding Cities}" SelectedItem="{Binding User.CitySelection}"/>
+                <Picker Title="Выберите тему" ItemsSource="{Binding Topics}" SelectedItem="{Binding User.TopicSelection}"/>
+                <Button Text="Найти собеседника!" Command="{Binding FindCompanionCommand}" BackgroundColor="Black" TextColor="White"/>
+            </VerticalStackLayout>
+        </Border>
+    </VerticalStackLayout>
+    
+</ContentPage>
