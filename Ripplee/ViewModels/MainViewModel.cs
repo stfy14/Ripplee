@@ -1,10 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using Ripplee.Services;
-using Ripplee.Models; 
-
+using Ripplee.Models;
+using Ripplee.Core.Services;
+//тут только визуалы (логика передачи данных от сюда в в userModel)
 namespace Ripplee.ViewModels
 {
     public partial class MainViewModel : ObservableObject
