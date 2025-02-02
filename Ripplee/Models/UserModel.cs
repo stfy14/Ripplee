@@ -4,7 +4,7 @@ namespace Ripplee.Models
 {
     public partial class UserModel: ObservableObject
     {
-        public string Username { get; set; } = "Алексей";
+        public string Username { get; set; } = "стфу";
 
         [ObservableProperty]
         private string genderSelection = "";

@@ -13,7 +13,7 @@ namespace Ripplee.ViewModels
 
         [ObservableProperty]
         private UserModel user = new(); 
-
+        //поменять на json
         public ObservableCollection<string> Cities { get; } = ["Москва", "Санкт-Петербург", "Новосибирск"];
         public ObservableCollection<string> Topics { get; } = ["Технологии", "Искусство", "Музыка"];
 
