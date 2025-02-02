@@ -40,7 +40,8 @@ namespace Ripplee.Core.Services
 
         internal async Task<string> FindCompanionAsync(string genderSelection, string citySelection, string topicSelection)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException(); красава бля просто эксепшен кинул а хули нет то
+            return $"Найден собеседник ({genderSelection}) по теме '{topicSelection}' в городе '{citySelection}'!";
         }
     }
 }
