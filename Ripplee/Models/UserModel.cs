@@ -7,12 +7,12 @@ namespace Ripplee.Models
         public string Username { get; set; } = "Алексей";
 
         [ObservableProperty]
-        private string genderSelection = "";
+        public partial string? GenderSelection { get; set; }
 
         [ObservableProperty]
-        private string citySelection = "";
+        public partial string? CitySelection { get; set; }
 
         [ObservableProperty]
-        private string topicSelection = "";
+        public partial string? TopicSelection { get; set; }
     }
 }

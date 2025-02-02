@@ -11,19 +11,17 @@ namespace Ripplee.ViewModels
         private readonly ChatService _chatService = new();
 
         [ObservableProperty]
-        private UserModel user = new(); 
+        public partial UserModel User { get; set; } = new();
+
         //поменять на json
         public ObservableCollection<string> Cities { get; } = ["Москва", "Санкт-Петербург", "Новосибирск"];
         public ObservableCollection<string> Topics { get; } = ["Технологии", "Искусство", "Музыка"];
 
-
-        //...ЗАГЛУШКА Я НЕ ЕБУ ЧЕ ДЕЛАТЬ
         [RelayCommand]
         private void SelectGender(string gender)
         {
             User.GenderSelection = gender;
         }
-        //...
 
         [RelayCommand]
         private async Task FindCompanion()

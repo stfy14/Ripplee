@@ -9,24 +9,24 @@ namespace Ripplee.Models
 {
     public class CompanionRequest
     {
-        public string Gender { get; set; }
-        public string City { get; set; }
-        public string Topic { get; set; }
-        public int Age { get; set; }
+        public required string Gender { get; set; }
+        public required string City { get; set; }
+        public required string Topic { get; set; }
+        public required int Age { get; set; }
     }
 
     public class CompanionResponse
     {
         public bool Success { get; set; }
-        public string Message { get; set; }
-        public CompanionData Data { get; set; }
+        public required string Message { get; set; }
+        public CompanionData Data { get; set; } //втф че? зачем? 
     }
 
     public class CompanionData
     {
-        public string CompanionName { get; set; }
-        public string CompanionGender { get; set; }
-        public string CompanionCity { get; set; }
-        public string CompanionTopic { get; set; }
+        public required string CompanionName { get; set; }
+        public required string CompanionGender { get; set; }
+        public required string CompanionCity { get; set; }
+        public required string CompanionTopic { get; set; }
     }
 }
