@@ -14,20 +14,15 @@ namespace Ripplee.ViewModels
         [ObservableProperty]
         private UserModel user = new(); 
 
-        public ObservableCollection<string> Cities { get; } = new() { "Москва", "Санкт-Петербург", "Новосибирск" };
-        public ObservableCollection<string> Topics { get; } = new() { "Технологии", "Искусство", "Музыка" };
+        public ObservableCollection<string> Cities { get; } = ["Москва", "Санкт-Петербург", "Новосибирск"];
+        public ObservableCollection<string> Topics { get; } = ["Технологии", "Искусство", "Музыка"];
 
 
         //...ЗАГЛУШКА Я НЕ ЕБУ ЧЕ ДЕЛАТЬ
         [RelayCommand]
         private void SelectGender(string gender)
         {
-            User = new UserModel
-            {
-                GenderSelection = gender,
-                CitySelection = User.CitySelection,
-                TopicSelection = User.TopicSelection
-            };
+            User.GenderSelection = gender;
         }
         //...
 

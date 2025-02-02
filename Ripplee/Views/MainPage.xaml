@@ -10,7 +10,7 @@
     
     <VerticalStackLayout Padding="20" Spacing="15">
         <Label Text="Алексей" FontSize="24" HorizontalOptions="Center"/>
-        <Border BackgroundColor="Gray">
+        <Border CornerRadius="45" BackgroundColor="Gray">
             <VerticalStackLayout Spacing="10">
                 <Label Text="Какой пол подбирать" FontSize="18"/>
                 <HorizontalStackLayout>
