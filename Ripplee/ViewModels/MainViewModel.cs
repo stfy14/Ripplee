@@ -11,7 +11,7 @@ namespace Ripplee.ViewModels
         private readonly ChatService _chatService = new();
 
         [ObservableProperty]
-        public partial UserModel User { get; set; } = new();
+        private UserModel user = new();
 
         //поменять на json
         public ObservableCollection<string> Cities { get; } = ["Москва", "Санкт-Петербург", "Новосибирск"];
