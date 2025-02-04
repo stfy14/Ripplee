@@ -1,33 +1,34 @@
 ﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Ripplee.ViewModels"
-             x:Class="Ripplee.Views.MainPage">
-    
+             x:Class="Ripplee.Views.MainPage"
+             x:DataType="vm:MainViewModel">
 
-    <ContentPage.BindingContext>
-        <vm:MainViewModel/>
-    </ContentPage.BindingContext>
-    
-    <VerticalStackLayout Padding="20" Spacing="15">
-        <Label Text="{Binding User.Username}" FontSize="24" HorizontalOptions="Center"/>
-        <Border BackgroundColor="Gray">
-            <VerticalStackLayout Spacing="10">
+    <AbsoluteLayout Padding="20" BackgroundColor="#282A2E">
+        <Label Text="{Binding User.Username}"
+               AbsoluteLayout.LayoutBounds="0.5,0.1,-1,-1"
+               AbsoluteLayout.LayoutFlags="PositionProportional"/>
+        <Border BackgroundColor="#1B1B1B" StrokeShape="RoundRectangle 40,40,40,40" 
+                AbsoluteLayout.LayoutBounds="0,1,1,0.5"
+                AbsoluteLayout.LayoutFlags="All">
+            <VerticalStackLayout Spacing="20" Padding="20">
                 <Label Text="Какой пол подбирать" FontSize="18"/>
-                <HorizontalStackLayout>
+                <FlexLayout Direction="Row" JustifyContent="SpaceAround" AlignItems="Center">
                     <Button Text="Мужчин" 
                             Command="{Binding SelectGenderCommand}" 
                             CommandParameter="Мужчина" 
                             BackgroundColor="{Binding User.GenderSelection, Converter={StaticResource GenderToColorConverter}, ConverterParameter=Мужчина}"/>
-                    <Button Text="Женщин" 
+                    <Button Text="Женщин"  
                             Command="{Binding SelectGenderCommand}" 
                             CommandParameter="Женщина" 
                             BackgroundColor="{Binding User.GenderSelection, Converter={StaticResource GenderToColorConverter}, ConverterParameter=Женщина}"/>
-                </HorizontalStackLayout>
+                </FlexLayout>
                 <Picker Title="Выберите город" ItemsSource="{Binding Cities}" SelectedItem="{Binding User.CitySelection}"/>
                 <Picker Title="Выберите тему" ItemsSource="{Binding Topics}" SelectedItem="{Binding User.TopicSelection}"/>
-                <Button Text="Найти собеседника!" Command="{Binding FindCompanionCommand}" BackgroundColor="Black" TextColor="White"/>
+                <Button Text="Найти собеседника!" Command="{Binding FindCompanionCommand}" 
+                        BackgroundColor="#131313" CornerRadius="20"/>
             </VerticalStackLayout>
         </Border>
-    </VerticalStackLayout>
-    
+    </AbsoluteLayout>
+ 
 </ContentPage>

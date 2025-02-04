@@ -8,6 +8,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <converter:GenderToColorConverter x:Key="GenderToColorConverter"/>
+            <ResourceDictionary Source="Resources/Styles/Styles.xaml"/> 
         </ResourceDictionary>
     </Application.Resources>
     

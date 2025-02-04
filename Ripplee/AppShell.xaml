@@ -5,11 +5,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:Ripplee.Views"
     Shell.FlyoutBehavior="Flyout"
+    BackgroundColor="#282A2E"
+    FlyoutBackgroundColor="#1B1B1B"
     Title="Ripplee">
 
     <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+        ContentTemplate="{DataTemplate local:MainPage}" />
 
 </Shell>
