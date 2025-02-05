@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using CommunityToolkit.Maui;
 
 namespace Ripplee
 {
@@ -7,19 +8,16 @@ namespace Ripplee
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
-            builder
-                .UseMauiApp<App>()
-                .ConfigureFonts(fonts =>
-                {
-                    fonts.AddFont("Roboto-Regular.ttf", "RobotoRegular");
-                    fonts.AddFont("Roboto-Light.ttf", "RobotoLight");
-                    fonts.AddFont("Roboto-ExtraLight.ttf", "RobotoExtraLight");
-                });
-
+            builder.UseMauiApp<App>().ConfigureFonts(fonts =>
+            {
+                fonts.AddFont("Roboto-Regular.ttf", "RobotoRegular");
+                fonts.AddFont("Roboto-Light.ttf", "RobotoLight");
+                fonts.AddFont("Roboto-ExtraLight.ttf", "RobotoExtraLight");
+            })
+            .UseMauiCommunityToolkit();
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
-
             return builder.Build();
         }
     }
