@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Ripplee.Views.MenuPanel"
+             x:Name="menuView">
+
+    <Grid>
+        <Border x:Name="menuPanel"
+               BackgroundColor="#F0F0F0"
+               HorizontalOptions="FillAndExpand"
+               TranslationY="{Binding Source={x:Reference menuView}, Path=Height}">
+
+            <VerticalStackLayout Spacing="0">
+                <Button Text="Пункт 1"/>
+                <Button Text="Пункт 2"/>
+                <Button Text="Пункт 3"/>
+                <Button Text="Пункт 4"/>
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</ContentView>
