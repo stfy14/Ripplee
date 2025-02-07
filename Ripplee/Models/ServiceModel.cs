@@ -12,6 +12,7 @@ namespace Ripplee.Models
         public required string Gender { get; set; }
         public required string City { get; set; }
         public required string Topic { get; set; }
+        public required string Chat {  get; set; }
         public required int Age { get; set; }
     }
 
@@ -28,5 +29,6 @@ namespace Ripplee.Models
         public required string CompanionGender { get; set; }
         public required string CompanionCity { get; set; }
         public required string CompanionTopic { get; set; }
+        public required string CompanionChat { get; set; }
     }
 }

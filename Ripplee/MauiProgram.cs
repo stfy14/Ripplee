@@ -7,14 +7,15 @@ namespace Ripplee
     {
         public static MauiApp CreateMauiApp()
         {
-            var builder = MauiApp.CreateBuilder();
+                var builder = MauiApp.CreateBuilder();
             builder.UseMauiApp<App>().ConfigureFonts(fonts =>
             {
-                fonts.AddFont("Roboto-Regular.ttf", "RobotoRegular");
-                fonts.AddFont("Roboto-Light.ttf", "RobotoLight");
-                fonts.AddFont("Roboto-ExtraLight.ttf", "RobotoExtraLight");
+                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                fonts.AddFont("OpenSans-Semibold", "OpenSansSemibold");
             })
             .UseMauiCommunityToolkit();
+
+
 #if DEBUG
             builder.Logging.AddDebug();
 #endif

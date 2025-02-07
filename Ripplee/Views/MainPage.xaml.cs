@@ -1,25 +1,43 @@
-﻿using CommunityToolkit.Maui.Views;
+﻿using System.Security.Cryptography.X509Certificates;
+using CommunityToolkit.Maui.Views;
+using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Maui.Graphics;
+using Ripplee.Misc.UI;
 
 namespace Ripplee.Views;
-
 public partial class MainPage : ContentPage
 {
     public MainPage()
     {
         InitializeComponent();
         BindingContext = new ViewModels.MainViewModel();
-    }
-    private async void OnMenuButtonClicked(object sender, EventArgs e)
-    {
-        if (menuControl.IsMenuOpen) 
+
+        WeakReferenceMessenger.Default.Register<CloseMenuMessage>(this, (r, m) =>
         {
-            await menuControl.ToggleMenuAsync();
-            await menuButton.RotateTo(0, 300); 
+            if (menuControl.IsMenuOpen)
+            {
+                menuControl.ToggleMenu();
+                menuButton.RotateTo(0, 300);
+            }
+        });
+    }
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        WeakReferenceMessenger.Default.Unregister<CloseMenuMessage>(this);
+    }
+
+    private void OnMenuButtonClicked(object sender, EventArgs e)
+    {
+        if (menuControl.IsMenuOpen)
+        {
+            menuButton.RotateTo(0, 300);
+            menuControl.ToggleMenu();
         }
         else
         {
-            await menuControl.ToggleMenuAsync();
-            await menuButton.RotateTo(90, 300); 
+            menuButton.RotateTo(90, 300);
+            menuControl.ToggleMenu();
         }
     }
 }

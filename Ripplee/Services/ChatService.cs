@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
-using Ripplee.Core.Data;
+using Ripplee.Services.Data;
 using Ripplee.Models;
 
-namespace Ripplee.Core.Services
+namespace Ripplee.Services.Services
 {
     public class ChatService
     {
@@ -17,14 +17,15 @@ namespace Ripplee.Core.Services
             _apiClient = apiClient;
         }
 
-        public async Task<string> FindCompanionAsync(string gender, string city, string topic, int age)
+        public async Task<string> FindCompanionAsync(string gender, string city, string topic, string chat, int age) //(string gender, string city, string topic, int age)
         {
             var request = new CompanionRequest
             {
                 Gender = gender,
                 City = city,
                 Topic = topic,
-                Age = age
+                Age = age,
+                Chat = chat  
             };
 
             var response = await _apiClient.FindCompanionAsync(request);
@@ -38,10 +39,10 @@ namespace Ripplee.Core.Services
             return $"Ошибка: {response.Message}";
         }
 
-        internal async Task<string> FindCompanionAsync(string genderSelection, string citySelection, string topicSelection)
+        internal async Task<string> FindCompanionAsync(string genderSelection, string citySelection, string topicSelection, string chatSelections)
         {
             //throw new NotImplementedException(); красава бля просто эксепшен кинул а хули нет то
-            return $"Найден собеседник ({genderSelection}) по теме '{topicSelection}' в городе '{citySelection}'!";
+            return $"Найден собеседник ({genderSelection}) по теме '{topicSelection}' в городе '{citySelection}'! | '({chatSelections})'";
         }
     }
 }

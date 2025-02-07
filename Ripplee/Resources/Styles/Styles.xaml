@@ -2,23 +2,25 @@
 <?xaml-comp compile="true" ?>
 <ResourceDictionary 
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit">
 
     <Style TargetType="Button">
         <Setter Property="TextColor" Value="White"/>
-        <Setter Property="FontFamily" Value="RobotoRegular"/>
+        <Setter Property="FontFamily" Value="OpenSansRegular"/>
         <Setter Property="FontSize" Value="18"/>
         <Setter Property="CornerRadius" Value="10"/>
     </Style>
     <Style TargetType="Label">
         <Setter Property="TextColor" Value="White"/>
-        <Setter Property="FontFamily" Value="RobotoLight"/>
+        <Setter Property="FontFamily" Value="OpenSansRegular"/>
         <Setter Property="FontSize" Value="24"/>
     </Style>
     <Style TargetType="Picker">
-        <Setter Property="TitleColor" Value="White"/>
-        <Setter Property="FontFamily" Value="RobotoRegular"/>
+        <Setter Property="TitleColor" Value="{OnPlatform WinUI=White, Android=#202020}"/> 
+        <Setter Property="TextColor" Value="#CACACA"/>
+        <Setter Property="FontFamily" Value="OpenSansRegular"/>
         <Setter Property="FontSize" Value="18"/>
-        <Setter Property="BackgroundColor" Value="Gray"/>
+        <Setter Property="BackgroundColor" Value="#5B5B5B"/>
     </Style>
 </ResourceDictionary>

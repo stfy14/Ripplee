@@ -3,7 +3,7 @@ namespace Ripplee.Views;
 public partial class MenuPanel : ContentView
 {
     private bool _isMenuOpen;
-    private const uint AnimationDuration = 300;
+    private const uint AnimationDuration = 500;
 
     public bool IsMenuOpen => _isMenuOpen; 
 
@@ -18,15 +18,16 @@ public partial class MenuPanel : ContentView
         menuPanel.TranslationY = -Height;
     }
 
-    public async Task ToggleMenuAsync()
+    public void ToggleMenu()
     {
         if (_isMenuOpen)
         {
-            await menuPanel.TranslateTo(0, -Height, AnimationDuration, Easing.CubicOut);
+            menuPanel.TranslateTo(0, -Height, AnimationDuration, Easing.CubicOut);
         }
         else
+
         {
-            await menuPanel.TranslateTo(0, 0, AnimationDuration, Easing.CubicOut);
+            menuPanel.TranslateTo(0, 0, AnimationDuration, Easing.CubicOut);
         }
         _isMenuOpen = !_isMenuOpen;
     }

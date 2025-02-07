@@ -6,15 +6,21 @@
 
     <Grid>
         <Border x:Name="menuPanel"
-               BackgroundColor="#F0F0F0"
-               HorizontalOptions="FillAndExpand"
-               TranslationY="{Binding Source={x:Reference menuView}, Path=Height}">
+                StrokeShape="RoundRectangle 0,0,30,30"
+                BackgroundColor="#1B1B1B"
+                HorizontalOptions="FillAndExpand"
+                Margin="0,0,0,0"
+                TranslationY="{Binding Source={x:Reference menuView}, Path=Height}">
 
-            <VerticalStackLayout Spacing="0">
-                <Button Text="Пункт 1"/>
-                <Button Text="Пункт 2"/>
-                <Button Text="Пункт 3"/>
-                <Button Text="Пункт 4"/>
+
+
+            <VerticalStackLayout Spacing="25" Margin="40,100,40,0">
+                <Button Text="Голосовой чат" Command="{Binding SelectChatCommand}" CommandParameter="Голосовой чат"
+                        HeightRequest="50"/>
+                <Button Text="Текстовый чат" Command="{Binding SelectChatCommand}" CommandParameter="Текстовый чат"
+                        HeightRequest="50"/>
+                <Button Text="Настройки"
+                        Margin="0,70,0,0"/>
             </VerticalStackLayout>
         </Border>
     </Grid>

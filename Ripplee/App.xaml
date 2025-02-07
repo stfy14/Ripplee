@@ -8,7 +8,8 @@
     <Application.Resources>
         <ResourceDictionary>
             <converter:GenderToColorConverter x:Key="GenderToColorConverter"/>
-            <ResourceDictionary Source="Resources/Styles/Styles.xaml"/> 
+            <ResourceDictionary Source="Resources/Styles/Styles.xaml"/>
+            <x:Double x:Key="ComboBoxArrowThemeFontSize">0</x:Double>
         </ResourceDictionary>
     </Application.Resources>
     
