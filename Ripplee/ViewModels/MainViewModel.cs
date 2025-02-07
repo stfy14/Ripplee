@@ -2,7 +2,9 @@
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using Ripplee.Models;
-using Ripplee.Core.Services;
+using Ripplee.Services.Services;
+using CommunityToolkit.Mvvm.Messaging;
+using Ripplee.Misc.UI;
 //тут только визуалы (логика передачи данных от сюда в в userModel)
 namespace Ripplee.ViewModels
 {
@@ -24,9 +26,16 @@ namespace Ripplee.ViewModels
         }
 
         [RelayCommand]
+        private void SelectChat(string chat)
+        {
+            User.ChatSelection = chat;
+            WeakReferenceMessenger.Default.Send(new CloseMenuMessage());
+        }
+
+        [RelayCommand]
         private async Task FindCompanion()
         {
-            string result = await _chatService.FindCompanionAsync(User.GenderSelection, User.CitySelection, User.TopicSelection);
+            string result = await _chatService.FindCompanionAsync(User.GenderSelection, User.CitySelection, User.TopicSelection, User.ChatSelection);
             await Shell.Current.DisplayAlert("Результат", result, "OK");
         }
     }

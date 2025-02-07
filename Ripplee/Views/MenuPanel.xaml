@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Ripplee.Views.MenuPanel"
+             x:Name="menuView">
+
+    <Grid>
+        <Border x:Name="menuPanel"
+                StrokeShape="RoundRectangle 0,0,30,30"
+                BackgroundColor="#1B1B1B"
+                HorizontalOptions="FillAndExpand"
+                Margin="0,0,0,0"
+                TranslationY="{Binding Source={x:Reference menuView}, Path=Height}">
+
+
+
+            <VerticalStackLayout Spacing="25" Margin="40,100,40,0">
+                <Button Text="Голосовой чат" Command="{Binding SelectChatCommand}" CommandParameter="Голосовой чат"
+                        HeightRequest="50"/>
+                <Button Text="Текстовый чат" Command="{Binding SelectChatCommand}" CommandParameter="Текстовый чат"
+                        HeightRequest="50"/>
+                <Button Text="Настройки"
+                        Margin="0,70,0,0"/>
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</ContentView>

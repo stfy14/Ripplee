@@ -14,5 +14,8 @@ namespace Ripplee.Models
 
         [ObservableProperty]
         public partial string TopicSelection { get; set; } = string.Empty;
+
+        [ObservableProperty]
+        public partial string ChatSelection { get; set; } = "Голосовой чат";
     }
 }

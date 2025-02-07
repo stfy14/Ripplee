@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using Ripplee.Models;
 // скорее всего придётся отказаться от этого метода (НО ПОКА ПУСТЬ БУДЕТ)
 
-namespace Ripplee.Core.Data
+namespace Ripplee.Services.Data
 {
     public class ChatApiClient
     {
