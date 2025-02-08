@@ -1,7 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using CommunityToolkit.Maui.Views;
-using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.Maui.Graphics;
+﻿using CommunityToolkit.Mvvm.Messaging;
 using Ripplee.Misc.UI;
 
 namespace Ripplee.Views;
