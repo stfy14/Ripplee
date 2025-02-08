@@ -86,4 +86,8 @@
 	  </MauiXaml>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Platforms\Android\values\" />
+	</ItemGroup>
+
 </Project>

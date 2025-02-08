@@ -5,7 +5,7 @@
              xmlns:controls="clr-namespace:Ripplee.Views"
              x:Class="Ripplee.Views.MainPage"
              x:DataType="vm:MainViewModel"
-             BackgroundColor="#282A2E">
+             BackgroundColor="#202020">
 
     <ContentPage.Resources>
         <DataTemplate x:Key="ContainerTemplate">
@@ -24,35 +24,42 @@
 
     <Grid RowDefinitions="Auto,*">
         <Grid Grid.Row="2" RowDefinitions="Auto,Auto,*" ColumnDefinitions="*">
-            
+
             <controls:MenuPanel x:Name="menuControl" Grid.RowSpan="2" ZIndex="2"/>
-            
-            <Border BackgroundColor="#1B1B1B" 
-                    StrokeShape="RoundRectangle 30,30,30,30"
-                    Margin="20,20,20,5"
-                    Grid.Row="0"/>
-            <Label Text="{Binding User.ChatSelection}" TextColor="White" HorizontalOptions="Center" Margin="0,41,0,0"/>
-            <Button x:Name="menuButton"
-                    BackgroundColor="White"
-                    Clicked="OnMenuButtonClicked"
-                    HeightRequest="40"
-                    WidthRequest="40"
-                    HorizontalOptions="End"
-                    VerticalOptions="Start"
-                    Margin="0,40,41,25"
-                    ZIndex="3"
-                    Grid.Row="0"/>
+            <Grid ZIndex="3" Margin="0,10,0,0">
+                <Border BackgroundColor="#202020" 
+                        StrokeShape="RoundRectangle 0,0,20,20"
+                        Margin="20,-11,20,10"
+                        Grid.Row="0"/>
+                <Border BackgroundColor="#1B1B1B" 
+                        StrokeShape="RoundRectangle 20,20,20,20"
+                        Margin="20,-1,20,10"
+                        Grid.Row="0"/>
+                <Label Text="{Binding User.ChatSelection}" 
+                       TextColor="White" 
+                       HorizontalOptions="Center"
+                       Margin="0,11,125,0"/>
+                <Button x:Name="menuButton"
+                        BackgroundColor="#131313"
+                        Clicked="OnMenuButtonClicked"
+                        HeightRequest="40"
+                        WidthRequest="40"
+                        HorizontalOptions="End"
+                        VerticalOptions="Start"
+                        Margin="0,9,40,20"
+                        Grid.Row="0"/>
+            </Grid>
 
             <Grid Grid.Row="1" Margin="0,60,0,50" ZIndex="1">
                 <Ellipse WidthRequest="100" HeightRequest="100" Fill="Gray"/>
                 <Label Text="{Binding User.Username}" TextColor="White" HorizontalOptions="Center" Margin="0,150,0,0"/>
             </Grid>
 
-            <Border Grid.Row="2" BackgroundColor="#1B1B1B" StrokeShape="RoundRectangle 30,30,30,30" Margin="20,30,20,15">
+            <Border VerticalOptions="End" Grid.Row="2" BackgroundColor="#1B1B1B" StrokeShape="RoundRectangle 30,30,30,30" Margin="20,30,20,0">
                 <ContentView>
                     <OnPlatform x:TypeArguments="View">
                         <On Platform="Android">
-                            <VerticalStackLayout Spacing="20" Padding="30,30,30,0">
+                            <VerticalStackLayout Spacing="20" Padding="30,30,30,20">
                                 <Label Text="Какой пол подбирать" FontSize="18" TextColor="White" HorizontalOptions="Center"/>
                                 <FlexLayout JustifyContent="SpaceAround" Wrap="Wrap" Margin="0,0,0,20">
                                     <Button Text="Мужчин" Command="{Binding SelectGenderCommand}" CommandParameter="Мужчина" HeightRequest="45" MinimumWidthRequest="110" BackgroundColor="{Binding User.GenderSelection, Converter={StaticResource GenderToColorConverter}, ConverterParameter=Мужчина}" />
