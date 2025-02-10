@@ -4,11 +4,12 @@
              xmlns:local="clr-namespace:Ripplee"
              xmlns:converter="clr-namespace:Ripplee.Misc.UI"
              x:Class="Ripplee.App">
-    
+
     <Application.Resources>
         <ResourceDictionary>
             <converter:GenderToColorConverter x:Key="GenderToColorConverter"/>
+            <ResourceDictionary Source="Resources/Styles/Styles.xaml"/>
         </ResourceDictionary>
     </Application.Resources>
-    
+
 </Application>
