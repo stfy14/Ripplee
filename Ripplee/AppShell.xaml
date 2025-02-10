@@ -9,6 +9,6 @@
     BackgroundColor="#202020">
 
     <ShellContent
-        ContentTemplate="{DataTemplate local:AuthPage}" />
+        ContentTemplate="{DataTemplate local:MainPage}" />
 
 </Shell>

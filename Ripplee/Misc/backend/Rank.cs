@@ -9,6 +9,6 @@ namespace Ripplee.Misc.backend
     //присваеваем каждому пользователю 1000 рейтинга 
     internal class Rank
     {
-
+       
     }   
 }
