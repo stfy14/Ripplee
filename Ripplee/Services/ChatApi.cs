@@ -31,6 +31,7 @@ namespace Ripplee.Core.Data
                 response.EnsureSuccessStatusCode();
 
                 var responseString = await response.Content.ReadAsStringAsync();
+                //перестать возвращать в json  
                 return JsonConvert.DeserializeObject<CompanionResponse>(responseString);
             }
             catch (HttpRequestException e)

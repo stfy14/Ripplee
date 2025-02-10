@@ -10,6 +10,7 @@ namespace Ripplee.Core.Services
 
         public ChatService()
         {
+            // конектыыыы
         }
 
         public ChatService(ChatApiClient apiClient)

@@ -14,7 +14,7 @@ namespace Ripplee.Models
         public required string Topic { get; set; }
         public required int Age { get; set; }
     }
-
+    //
     public class CompanionResponse
     {
         public bool Success { get; set; }
