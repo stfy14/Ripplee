@@ -31,4 +31,13 @@ public partial class MenuPanel : ContentView
         }
         _isMenuOpen = !_isMenuOpen;
     }
+    private async void OnSettingsButtonClicked(object sender, EventArgs e)
+    {
+        var settingsPage = new SettingsPage();
+
+        if (Application.Current?.MainPage != null)
+        {
+            await Application.Current.MainPage.Navigation.PushModalAsync(settingsPage, true);
+        }
+    }
 }

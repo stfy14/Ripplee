@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Ripplee.Views.SettingsPage" 
+             Title="Настройки"
+             BackgroundColor="#222222"
+             Shell.NavBarIsVisible="False">
+ 
+
+    <Grid RowDefinitions="Auto, *" Margin="0">
+        <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Padding="20,15,20,10">
+            <Label Text="Stfy" 
+                   TextColor="White"
+                   FontSize="24"
+                   VerticalOptions="Center"
+                   HorizontalOptions="Start"/>
+
+            <Button x:Name="CloseSettingsButton"
+                    Text="↓" 
+                    FontSize="24"
+                    FontAttributes="Bold"
+                    TextColor="WhiteSmoke"
+                    BackgroundColor="Transparent"
+                    BorderColor="Transparent"
+                    Clicked="CloseSettingsButton_Clicked"
+                    HorizontalOptions="End"
+                    VerticalOptions="Center"
+                    WidthRequest="40"
+                    HeightRequest="40"/>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="20" Padding="30,10,30,30">
+                <Frame WidthRequest="120" 
+                       HeightRequest="120"
+                       CornerRadius="60" 
+                       HorizontalOptions="Center"
+                       BackgroundColor="#505050"
+                       Padding="0"
+                       IsClippedToBounds="True">
+                    <Label Text="A" 
+                           TextColor="WhiteSmoke"
+                           FontSize="48"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+                </Frame>
+
+                <Button Text="Поменять фото"
+                        BackgroundColor="#3a3a3a"
+                        TextColor="WhiteSmoke"
+                        CornerRadius="10"
+                        HeightRequest="50"
+                        Command="{Binding ChangePhotoCommand}"/>
+
+                <Button Text="Изменить пароль"
+                        BackgroundColor="#3a3a3a"
+                        TextColor="WhiteSmoke"
+                        CornerRadius="20"
+                        HeightRequest="55"
+                        Command="{Binding ChangePasswordCommand}"/>
+
+                <Button Text="Изменить почту"
+                        BackgroundColor="#3a3a3a"
+                        TextColor="WhiteSmoke"
+                        CornerRadius="20"
+                        HeightRequest="55"
+                        Command="{Binding ChangeEmailCommand}"/>
+
+                <BoxView HeightRequest="1" Color="#404040" Margin="0,20"/>
+
+                <Button Text="Удалить аккаунт"
+                        BackgroundColor="#A00000"
+                        TextColor="WhiteSmoke"
+                        CornerRadius="20"
+                        HeightRequest="55"
+                        Command="{Binding DeleteAccountCommand}"
+                        Margin="0,10,0,0"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

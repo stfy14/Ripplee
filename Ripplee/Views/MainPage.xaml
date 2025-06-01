@@ -8,22 +8,24 @@
              BackgroundColor="#202020">
 
     <ContentPage.Resources>
-        <DataTemplate x:Key="ContainerTemplate">
-            <OnPlatform x:TypeArguments="View">
-                <On Platform="Android">
-                    <ScrollView>
+        <ResourceDictionary>
+            <DataTemplate x:Key="ContainerTemplate">
+                <OnPlatform x:TypeArguments="View">
+                    <On Platform="Android">
+                        <ScrollView>
+                            <VerticalStackLayout/>
+                        </ScrollView>
+                    </On>
+                    <On Platform="UWP, WinUI">
                         <VerticalStackLayout/>
-                    </ScrollView>
-                </On>
-                <On Platform="UWP, WinUI">
-                    <VerticalStackLayout/>
-                </On>
-            </OnPlatform>
-        </DataTemplate>
+                    </On>
+                </OnPlatform>
+            </DataTemplate>
+        </ResourceDictionary>
     </ContentPage.Resources>
 
     <Grid RowDefinitions="Auto,*">
-        <Grid Grid.Row="2" RowDefinitions="Auto,Auto,*" ColumnDefinitions="*">
+        <Grid Grid.Row="1" RowDefinitions="Auto,Auto,*" ColumnDefinitions="*">
 
             <controls:MenuPanel x:Name="menuControl" Grid.RowSpan="2" ZIndex="2"/>
             <Grid ZIndex="3" Margin="0,10,0,0">
@@ -40,7 +42,7 @@
                        Margin="55,11,125,0"
                        Grid.Row="0"/>
                 <Button x:Name="menuButton"
-                        BackgroundColor="#131313"
+                        BackgroundColor="#131313" 
                         Clicked="OnMenuButtonClicked"
                         HeightRequest="40"
                         WidthRequest="40"
@@ -60,13 +62,40 @@
                     <OnPlatform x:TypeArguments="View">
                         <On Platform="Android">
                             <VerticalStackLayout Spacing="20" Padding="30,30,30,20">
-                                <Label Text="Какой пол подбирать" FontSize="18" TextColor="White" HorizontalOptions="Center"/>
+                                <Label Text="Какой пол подбирать" FontSize="20" TextColor="White" HorizontalOptions="Center"/>
                                 <FlexLayout JustifyContent="SpaceAround" Wrap="Wrap" Margin="0,0,0,20">
-                                    <Button Text="Мужчин" Command="{Binding SelectGenderCommand}" CommandParameter="Мужчина" HeightRequest="45" MinimumWidthRequest="110" BackgroundColor="{Binding User.GenderSelection, Converter={StaticResource GenderToColorConverter}, ConverterParameter=Мужчина}" />
-                                    <Button Text="Женщин" Command="{Binding SelectGenderCommand}" CommandParameter="Женщина" HeightRequest="45" MinimumWidthRequest="110" BackgroundColor="{Binding User.GenderSelection, Converter={StaticResource GenderToColorConverter}, ConverterParameter=Женщина}" />
+                                    <Button Text="Мужчин" 
+                                            Command="{Binding SelectGenderCommand}" 
+                                            CommandParameter="Мужчина" 
+                                            HeightRequest="45" 
+                                            MinimumWidthRequest="110" 
+                                            CornerRadius="10" 
+                                            TextColor="{Binding User.GenderSelection, Converter={StaticResource GenderToTextColorConverter}, ConverterParameter=Мужчина}"
+                                            BackgroundColor="{Binding User.GenderSelection, Converter={StaticResource GenderToBgColorConverter}, ConverterParameter=Мужчина}" />
+                                    <Button Text="Женщин" 
+                                            Command="{Binding SelectGenderCommand}" 
+                                            CommandParameter="Женщина" 
+                                            HeightRequest="45" 
+                                            MinimumWidthRequest="110" 
+                                            CornerRadius="10" 
+                                            TextColor="{Binding User.GenderSelection, Converter={StaticResource GenderToTextColorConverter}, ConverterParameter=Женщина}"
+                                            BackgroundColor="{Binding User.GenderSelection, Converter={StaticResource GenderToBgColorConverter}, ConverterParameter=Женщина}" />
                                 </FlexLayout>
-                                <Picker Title="Выберите город" ItemsSource="{Binding Cities}" SelectedItem="{Binding User.CitySelection}" />
-                                <Picker Title="Выберите тему" ItemsSource="{Binding Topics}" SelectedItem="{Binding User.TopicSelection}" />
+                                
+                                <Border Style="{StaticResource PickerBorderStyle}">
+                                    <Picker Title="Выберите город" 
+                                            ItemsSource="{Binding Cities}" 
+                                            SelectedItem="{Binding User.CitySelection}"
+                                            Style="{StaticResource CustomPickerStyle}"/>
+                                </Border>
+
+                                <Border Style="{StaticResource PickerBorderStyle}">
+                                    <Picker Title="Выберите тему" 
+                                            ItemsSource="{Binding Topics}" 
+                                            SelectedItem="{Binding User.TopicSelection}"
+                                            Style="{StaticResource CustomPickerStyle}"/>
+                                </Border>
+
                                 <Button Text="Найти собеседника!" Command="{Binding FindCompanionCommand}" 
                                         BackgroundColor="#131313" 
                                         FontFamily="OpenSansSemibold" 
@@ -78,19 +107,46 @@
                         <On Platform="UWP, WinUI">
                             <ScrollView>
                                 <VerticalStackLayout Spacing="20" Padding="60,20,60,20">
-                                <Label Text="Какой пол подбирать" FontSize="18" TextColor="White" />
-                                <FlexLayout JustifyContent="SpaceAround" Wrap="Wrap" Margin="0,0,0,20">
-                                    <Button Text="Мужчин" Command="{Binding SelectGenderCommand}" CommandParameter="Мужчина" HeightRequest="40" MinimumWidthRequest="100" BackgroundColor="{Binding User.GenderSelection, Converter={StaticResource GenderToColorConverter}, ConverterParameter=Мужчина}" />
-                                    <Button Text="Женщин" Command="{Binding SelectGenderCommand}" CommandParameter="Женщина" HeightRequest="40" MinimumWidthRequest="100" BackgroundColor="{Binding User.GenderSelection, Converter={StaticResource GenderToColorConverter}, ConverterParameter=Женщина}" />
-                                </FlexLayout>
-                                <Picker Title="Выберите город" ItemsSource="{Binding Cities}" SelectedItem="{Binding User.CitySelection}" />
-                                <Picker Title="Выберите тему" ItemsSource="{Binding Topics}" SelectedItem="{Binding User.TopicSelection}" />
-                                <Button Text="Найти собеседника!" Command="{Binding FindCompanionCommand}" 
-                                        BackgroundColor="#131313" 
-                                        FontFamily="OpenSansSemibold" 
-                                        CornerRadius="20" 
-                                        HeightRequest="65" 
-                                        HorizontalOptions="Fill"/>
+                                    <Label Text="Какой пол подбирать" FontSize="20" TextColor="White" />
+                                    <FlexLayout JustifyContent="SpaceAround" Wrap="Wrap" Margin="0,0,0,20">
+                                        <Button Text="Мужчин" 
+                                            Command="{Binding SelectGenderCommand}" 
+                                            CommandParameter="Мужчина" 
+                                            HeightRequest="45" 
+                                            MinimumWidthRequest="110" 
+                                            CornerRadius="10" 
+                                            TextColor="{Binding User.GenderSelection, Converter={StaticResource GenderToTextColorConverter}, ConverterParameter=Мужчина}"
+                                            BackgroundColor="{Binding User.GenderSelection, Converter={StaticResource GenderToBgColorConverter}, ConverterParameter=Мужчина}" />
+                                        <Button Text="Женщин" 
+                                            Command="{Binding SelectGenderCommand}" 
+                                            CommandParameter="Женщина" 
+                                            HeightRequest="45" 
+                                            MinimumWidthRequest="110" 
+                                            CornerRadius="10" 
+                                            TextColor="{Binding User.GenderSelection, Converter={StaticResource GenderToTextColorConverter}, ConverterParameter=Женщина}"
+                                            BackgroundColor="{Binding User.GenderSelection, Converter={StaticResource GenderToBgColorConverter}, ConverterParameter=Женщина}" />
+                                    </FlexLayout>
+
+                                    <Border Style="{StaticResource PickerBorderStyle}">
+                                        <Picker Title="Выберите город" 
+                                                ItemsSource="{Binding Cities}" 
+                                                SelectedItem="{Binding User.CitySelection}"
+                                                Style="{StaticResource CustomPickerStyle}"/>
+                                    </Border>
+
+                                    <Border Style="{StaticResource PickerBorderStyle}">
+                                        <Picker Title="Выберите тему" 
+                                                ItemsSource="{Binding Topics}" 
+                                                SelectedItem="{Binding User.TopicSelection}"
+                                                Style="{StaticResource CustomPickerStyle}"/>
+                                    </Border>
+
+                                    <Button Text="Найти собеседника!" Command="{Binding FindCompanionCommand}" 
+                                            BackgroundColor="#131313" 
+                                            FontFamily="OpenSansSemibold" 
+                                            CornerRadius="20" 
+                                            HeightRequest="65" 
+                                            HorizontalOptions="Fill"/>
                                 </VerticalStackLayout>
                             </ScrollView>
                         </On>

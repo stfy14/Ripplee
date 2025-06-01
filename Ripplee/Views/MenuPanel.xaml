@@ -8,19 +8,22 @@
         <Border x:Name="menuPanel"
                 StrokeShape="RoundRectangle 0,0,30,30"
                 BackgroundColor="#181818"
-                HorizontalOptions="FillAndExpand"
+                HorizontalOptions="Fill"
                 Margin="20,0,20,0"
                 TranslationY="{Binding Source={x:Reference menuView}, Path=Height}">
 
-
-
             <VerticalStackLayout Spacing="15" Margin="20,85,20,0">
-                <Button Text="Голосовой чат" Command="{Binding SelectChatCommand}" CommandParameter="Голосовой чат"
-                        HeightRequest="50"/>
-                <Button Text="Текстовый чат" Command="{Binding SelectChatCommand}" CommandParameter="Текстовый чат"
-                        HeightRequest="50"/>
-                <Button Text="Настройки"
-                        Margin="0,90,0,0"/>
+                <Button Text="Голосовой чат" Command="{Binding SelectChatCommand}" 
+                        CommandParameter="Голосовой чат"
+                        HeightRequest="50"
+                        BackgroundColor="#3b3b3b"/>
+                <Button Text="Текстовый чат" Command="{Binding SelectChatCommand}" 
+                        CommandParameter="Текстовый чат"
+                        HeightRequest="50"
+                        BackgroundColor="#3b3b3b"/>
+                <Button Text="Настройки" Clicked="OnSettingsButtonClicked"
+                        Margin="0,90,0,0"
+                        BackgroundColor="#583535"/>
             </VerticalStackLayout>
         </Border>
     </Grid>

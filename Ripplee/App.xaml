@@ -2,12 +2,13 @@
 <Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:Ripplee"
-             xmlns:converter="clr-namespace:Ripplee.Misc.UI"
+             xmlns:miscui="clr-namespace:Ripplee.Misc.UI"
              x:Class="Ripplee.App">
 
     <Application.Resources>
         <ResourceDictionary>
-            <converter:GenderToColorConverter x:Key="GenderToColorConverter"/>
+            <miscui:GenderToBackgroundColorConverter x:Key="GenderToBgColorConverter" />
+            <miscui:GenderToTextColorConverter x:Key="GenderToTextColorConverter" />
             <ResourceDictionary Source="Resources/Styles/Styles.xaml"/>
         </ResourceDictionary>
     </Application.Resources>

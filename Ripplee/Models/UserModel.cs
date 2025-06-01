@@ -4,18 +4,19 @@ namespace Ripplee.Models
 {
     public partial class UserModel : ObservableObject
     {
-        public string Username { get; set; } = "Алексей";
+        [ObservableProperty]
+        private string username = "Алексей";
 
         [ObservableProperty]
-        public partial string GenderSelection { get; set; } = string.Empty;
+        private string genderSelection = string.Empty;
 
         [ObservableProperty]
-        public partial string CitySelection { get; set; } = string.Empty;
+        private string citySelection = string.Empty;
 
         [ObservableProperty]
-        public partial string TopicSelection { get; set; } = string.Empty;
+        private string topicSelection = string.Empty;
 
         [ObservableProperty]
-        public partial string ChatSelection { get; set; } = "Голосовой чат";
+        private string chatSelection = "Голосовой чат";
     }
 }
