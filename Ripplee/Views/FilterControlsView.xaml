@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Ripplee.Views.FilterControlsView">
+    <VerticalStackLayout Spacing="20">
+        <Label Text="Какой пол подбирать" FontSize="20" TextColor="White" HorizontalOptions="Center"/>
+        <FlexLayout JustifyContent="SpaceAround" Wrap="Wrap" Margin="0,0,0,20">
+            <Button Text="Мужчин" 
+                    Command="{Binding SelectGenderCommand}" 
+                    CommandParameter="Мужчина" 
+                    HeightRequest="45" 
+                    MinimumWidthRequest="110" 
+                    CornerRadius="10" 
+                    TextColor="{Binding User.GenderSelection, Converter={StaticResource GenderToTextColorConverter}, ConverterParameter=Мужчина}"
+                    BackgroundColor="{Binding User.GenderSelection, Converter={StaticResource GenderToBgColorConverter}, ConverterParameter=Мужчина}" />
+            <Button Text="Женщин" 
+                    Command="{Binding SelectGenderCommand}" 
+                    CommandParameter="Женщина" 
+                    HeightRequest="45" 
+                    MinimumWidthRequest="110" 
+                    CornerRadius="10" 
+                    TextColor="{Binding User.GenderSelection, Converter={StaticResource GenderToTextColorConverter}, ConverterParameter=Женщина}"
+                    BackgroundColor="{Binding User.GenderSelection, Converter={StaticResource GenderToBgColorConverter}, ConverterParameter=Женщина}" />
+        </FlexLayout>
+
+        <OnPlatform x:TypeArguments="View">
+            <On Platform="Android, iOS">
+                <Border Style="{StaticResource PickerBorderStyle}">
+                    <Picker Title="Выберите город" 
+                            ItemsSource="{Binding Cities}" 
+                            SelectedItem="{Binding User.CitySelection}"
+                            Style="{StaticResource CustomPickerStyle}"/>
+                </Border>
+            </On>
+            <On Platform="WinUI">
+                <Picker Title="Выберите город" 
+                        ItemsSource="{Binding Cities}" 
+                        SelectedItem="{Binding User.CitySelection}"
+                        Style="{StaticResource CustomPickerStyle}" 
+                        Margin="0,0"/>
+            </On>
+        </OnPlatform>
+
+        <OnPlatform x:TypeArguments="View">
+            <On Platform="Android, iOS">
+                <Border Style="{StaticResource PickerBorderStyle}">
+                    <Picker Title="Выберите тему" 
+                            ItemsSource="{Binding Topics}" 
+                            SelectedItem="{Binding User.TopicSelection}"
+                            Style="{StaticResource CustomPickerStyle}"/>
+                </Border>
+            </On>
+            <On Platform="WinUI">
+                <Picker Title="Выберите тему" 
+                        ItemsSource="{Binding Topics}" 
+                        SelectedItem="{Binding User.TopicSelection}"
+                        Style="{StaticResource CustomPickerStyle}"
+                        Margin="0,0"/>
+            </On>
+        </OnPlatform>
+
+        <Button Text="Найти собеседника!" Command="{Binding FindCompanionCommand}" 
+                BackgroundColor="#131313" 
+                FontFamily="OpenSansSemibold" 
+                CornerRadius="20" 
+                HeightRequest="65" 
+                HorizontalOptions="Fill" />
+    </VerticalStackLayout>
+</ContentView>

@@ -7,8 +7,8 @@
              Shell.NavBarIsVisible="False">
  
 
-    <Grid RowDefinitions="Auto, *" Margin="0">
-        <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Padding="20,15,20,10">
+    <Grid RowDefinitions="Auto, *" Margin="10">
+        <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Padding="20,10,20,30">
             <Label Text="Stfy" 
                    TextColor="White"
                    FontSize="24"
@@ -25,8 +25,8 @@
                     Clicked="CloseSettingsButton_Clicked"
                     HorizontalOptions="End"
                     VerticalOptions="Center"
-                    WidthRequest="40"
-                    HeightRequest="40"/>
+                    WidthRequest="50"
+                    HeightRequest="50"/>
         </Grid>
 
         <ScrollView Grid.Row="1">
@@ -50,6 +50,8 @@
                         TextColor="WhiteSmoke"
                         CornerRadius="10"
                         HeightRequest="50"
+                        WidthRequest="200"
+                        Margin="0,20,0,200"
                         Command="{Binding ChangePhotoCommand}"/>
 
                 <Button Text="Изменить пароль"
@@ -73,8 +75,7 @@
                         TextColor="WhiteSmoke"
                         CornerRadius="20"
                         HeightRequest="55"
-                        Command="{Binding DeleteAccountCommand}"
-                        Margin="0,10,0,0"/>
+                        Command="{Binding DeleteAccountCommand}"/>
 
             </VerticalStackLayout>
         </ScrollView>

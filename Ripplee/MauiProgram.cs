@@ -1,15 +1,15 @@
-﻿using Microsoft.Extensions.Logging;
+﻿// Файл: MauiProgram.cs
+using Microsoft.Extensions.Logging;
 using CommunityToolkit.Maui;
-using Microsoft.Maui.Handlers; // Для PickerHandler
+using Microsoft.Maui.Handlers;
 
 #if ANDROID
-// Эти using'и могут понадобиться для работы с нативными типами Android, если будете делать более сложную кастомизацию.
-// Для h.PlatformView.Background = null; они обычно не требуются.
-// using Android.Graphics.Drawables;
-// using Microsoft.Maui.Controls.Platform;
+using Android.Widget; 
 #endif
 
-namespace Ripplee // Убедитесь, что это ваш правильный namespace
+// Using'и для Windows и iOS пока не трогаем, если там не делаем специфичных смещений
+
+namespace Ripplee
 {
     public static class MauiProgram
     {
@@ -27,14 +27,28 @@ namespace Ripplee // Убедитесь, что это ваш правильны
                 .ConfigureMauiHandlers(handlers =>
                 {
 #if ANDROID
-                    Microsoft.Maui.Handlers.PickerHandler.Mapper.AppendToMapping("NoUnderline", (handler, view) => // handler здесь это PickerHandler, view это Picker
+                    PickerHandler.Mapper.AppendToMapping("CustomPickerAppearance", (handler, view) => 
                     {
-                        if (handler.PlatformView != null) // PlatformView для Picker на Android это Android.Widget.EditText
+                        if (handler.PlatformView is EditText editText && view is Picker mauiPicker)
                         {
-                            handler.PlatformView.Background = null;
+                            editText.Background = null;
+
+                            var context = editText.Context;
+                            if (context?.Resources?.DisplayMetrics != null)
+                            {
+                                float density = context.Resources.DisplayMetrics.Density;
+                                
+                                int topPadding = (int)(12 * density);   
+                                int leftPadding = (int)(16 * density);                               
+                                int rightPadding = editText.PaddingRight; 
+                                int bottomPadding = editText.PaddingBottom; 
+
+                                editText.SetPadding(leftPadding, topPadding, rightPadding, bottomPadding);
+                            }
                         }
                     });
 #endif
+                    // Здесь могут быть обработчики для других платформ, если решим их добавлять
                 });
 
 #if DEBUG

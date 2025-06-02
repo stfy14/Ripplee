@@ -32,7 +32,6 @@
         <Setter Property="StrokeShape">
             <RoundRectangle CornerRadius="10"/>
         </Setter>
-        <Setter Property="Padding" Value="15,0" />
         <Setter Property="HeightRequest" Value="50" />
         <Setter Property="VerticalOptions" Value="Center" />
     </Style>
@@ -40,9 +39,8 @@
     <Style x:Key="CustomPickerStyle" TargetType="Picker">
         <Setter Property="TextColor" Value="White" />
         <Setter Property="TitleColor" Value="Gray" />
-        <Setter Property="BackgroundColor" Value="Transparent" />
-        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="BackgroundColor" Value="{OnPlatform Android=Transparent, iOS=Transparent, WinUI=#2a2a2a}"/>
         <Setter Property="HorizontalOptions" Value="Fill" />
     </Style>
-    
+
 </ResourceDictionary>
