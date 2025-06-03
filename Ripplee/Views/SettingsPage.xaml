@@ -8,29 +8,33 @@
  
 
     <Grid RowDefinitions="Auto, *" Margin="10">
-        <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Padding="20,10,20,30">
+        <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Padding="20,0,20,0">
+            <Border BackgroundColor="#1c1c1c" 
+                    StrokeShape="RoundRectangle 20,20,20,20"
+                    HeightRequest="60"/>
             <Label Text="Stfy" 
                    TextColor="White"
                    FontSize="24"
                    VerticalOptions="Center"
-                   HorizontalOptions="Start"/>
+                   HorizontalOptions="Start"
+                   Margin="20,-2,0,0"/>
 
             <Button x:Name="CloseSettingsButton"
-                    Text="↓" 
                     FontSize="24"
                     FontAttributes="Bold"
                     TextColor="WhiteSmoke"
-                    BackgroundColor="Transparent"
+                    BackgroundColor="#131313" 
                     BorderColor="Transparent"
                     Clicked="CloseSettingsButton_Clicked"
                     HorizontalOptions="End"
                     VerticalOptions="Center"
-                    WidthRequest="50"
-                    HeightRequest="50"/>
+                    WidthRequest="40"
+                    HeightRequest="40"
+                    Margin="0,0,15,0"/>
         </Grid>
 
         <ScrollView Grid.Row="1">
-            <VerticalStackLayout Spacing="20" Padding="30,10,30,30">
+            <VerticalStackLayout Spacing="20" Padding="30,60,30,30">
                 <Frame WidthRequest="120" 
                        HeightRequest="120"
                        CornerRadius="60" 
@@ -49,8 +53,8 @@
                         BackgroundColor="#3a3a3a"
                         TextColor="WhiteSmoke"
                         CornerRadius="10"
-                        HeightRequest="50"
-                        WidthRequest="200"
+                        HeightRequest="45"
+                        WidthRequest="180"
                         Margin="0,20,0,200"
                         Command="{Binding ChangePhotoCommand}"/>
 
