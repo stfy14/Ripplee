@@ -2,15 +2,20 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Ripplee.Views.MenuPanel"
-             x:Name="menuView">
+             x:Name="this"
+             IsOpen="{Binding IsMenuOpen}"
+             BackgroundColor="Transparent">
 
     <Grid>
+
+        <Grid.GestureRecognizers>
+            <TapGestureRecognizer/>
+        </Grid.GestureRecognizers>
         <Border x:Name="menuPanel"
                 StrokeShape="RoundRectangle 0,0,30,30"
                 BackgroundColor="#181818"
                 HorizontalOptions="Fill"
-                Margin="20,0,20,0"
-                TranslationY="{Binding Source={x:Reference menuView}, Path=Height}">
+                Margin="20,0,20,0">
 
             <VerticalStackLayout Spacing="15" Margin="20,85,20,0">
                 <Button Text="Голосовой чат" Command="{Binding SelectChatCommand}" 
@@ -21,7 +26,7 @@
                         CommandParameter="Текстовый чат"
                         HeightRequest="50"
                         BackgroundColor="#3b3b3b"/>
-                <Button Text="Настройки" Clicked="OnSettingsButtonClicked"
+                <Button Text="Настройки" Command="{Binding GoToSettingsCommand}"
                         Margin="0,90,0,0"
                         BackgroundColor="#583535"/>
             </VerticalStackLayout>

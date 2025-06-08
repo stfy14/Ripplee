@@ -2,42 +2,62 @@ namespace Ripplee.Views;
 
 public partial class MenuPanel : ContentView
 {
-    private bool _isMenuOpen;
-    private const uint AnimationDuration = 500;
+    private const uint AnimationDuration = 400;
 
-    public bool IsMenuOpen => _isMenuOpen; 
+    public static readonly BindableProperty IsOpenProperty =
+        BindableProperty.Create(nameof(IsOpen), typeof(bool), typeof(MenuPanel), false,
+            propertyChanged: OnIsOpenChanged);
+
+    public bool IsOpen
+    {
+        get => (bool)GetValue(IsOpenProperty);
+        set => SetValue(IsOpenProperty, value);
+    }
 
     public MenuPanel()
     {
         InitializeComponent();
-        SizeChanged += OnSizeChanged;
+
+        // 1. ѕодписываемс€ на событие SizeChanged
+        this.SizeChanged += MenuPanel_SizeChanged;
+
+        // ¬ременно ставим панель очень высоко, чтобы она не "мелькнула" при первой загрузке
+        this.TranslationY = -10000;
     }
 
-    private void OnSizeChanged(object sender, EventArgs e)
+    // 2. —оздаем обработчик дл€ событи€ SizeChanged
+    private void MenuPanel_SizeChanged(object? sender, EventArgs e)
     {
-        menuPanel.TranslationY = -Height;
+        //  ак только размер стал известен, мы можем отписатьс€, 
+        // чтобы этот код не выполн€лс€ при каждом изменении размера окна.
+        this.SizeChanged -= MenuPanel_SizeChanged;
+
+        // “еперь, зна€ реальную высоту, ставим меню в правильное начальное положение (за экраном)
+        // Ётот код выполнитс€ только один раз.
+        this.TranslationY = -this.Height;
     }
 
-    public void ToggleMenu()
+    private static void OnIsOpenChanged(BindableObject bindable, object oldValue, object newValue)
     {
-        if (_isMenuOpen)
+        if (bindable is MenuPanel menu && newValue is bool isNowOpen)
         {
-            menuPanel.TranslateTo(0, -Height, AnimationDuration, Easing.CubicOut);
+            menu.AnimateMenu(isNowOpen);
+        }
+    }
+
+    private void AnimateMenu(bool open)
+    {
+        // ѕровер€ем, что высота уже была рассчитана, чтобы избежать анимации с высотой -1 или 0
+        if (this.Height <= 0)
+            return;
+
+        if (open)
+        {
+            this.TranslateTo(0, 0, AnimationDuration, Easing.CubicOut);
         }
         else
-
         {
-            menuPanel.TranslateTo(0, 0, AnimationDuration, Easing.CubicOut);
-        }
-        _isMenuOpen = !_isMenuOpen;
-    }
-    private async void OnSettingsButtonClicked(object sender, EventArgs e)
-    {
-        var settingsPage = new SettingsPage();
-
-        if (Application.Current?.MainPage != null)
-        {
-            await Application.Current.MainPage.Navigation.PushModalAsync(settingsPage, true);
+            this.TranslateTo(0, -this.Height, AnimationDuration, Easing.CubicIn);
         }
     }
 }

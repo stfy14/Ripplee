@@ -1,49 +1,29 @@
-﻿using System.Threading.Tasks;
+﻿using Ripplee.Models;
 using Ripplee.Services.Data;
-using Ripplee.Models;
+using Ripplee.Services.Interfaces; // Добавили using
+using System.Threading.Tasks;
 
 namespace Ripplee.Services.Services
 {
-    public class ChatService
+    // Реализуем интерфейс
+    public class ChatService : IChatService
     {
-        private readonly ChatApiClient _apiClient;
+        // Убираем создание apiClient отсюда. Будем получать его через DI.
+        // private readonly ChatApiClient _apiClient;
 
-        public ChatService()
+        public ChatService(/* ChatApiClient apiClient */)
         {
-            // конектыыыы
+            // _apiClient = apiClient;
+            // Конструктор пока пуст, DI все сделает за нас
         }
 
-        public ChatService(ChatApiClient apiClient)
+        // Убираем лишний метод, оставляем один публичный из интерфейса
+        public async Task<string> FindCompanionAsync(string gender, string city, string topic, string chat)
         {
-            _apiClient = apiClient;
-        }
-
-        public async Task<string> FindCompanionAsync(string gender, string city, string topic, string chat, int age) //(string gender, string city, string topic, int age)
-        {
-            var request = new CompanionRequest
-            {
-                Gender = gender,
-                City = city,
-                Topic = topic,
-                Age = age,
-                Chat = chat  
-            };
-
-            var response = await _apiClient.FindCompanionAsync(request);
-
-            if (response.Success)
-            {
-                var companion = response.Data;
-                return $"Найден компаньон: {companion.CompanionName} ({companion.CompanionGender}) по теме '{companion.CompanionTopic}' в городе '{companion.CompanionCity}'.";
-            }
-
-            return $"Ошибка: {response.Message}";
-        }
-
-        internal async Task<string> FindCompanionAsync(string genderSelection, string citySelection, string topicSelection, string chatSelections)
-        {
-            //throw new NotImplementedException(); красава бля просто эксепшен кинул а хули нет то
-            return $"Найден собеседник ({genderSelection}) по теме '{topicSelection}' в городе '{citySelection}'! | '({chatSelections})'";
+            // Здесь будет логика с вызовом API, пока оставляем заглушку
+            // Имитируем асинхронную операцию
+            await Task.Delay(100);
+            return $"Идет поиск: ({gender}) по теме '{topic}' в городе '{city}' в чате '{chat}'!";
         }
     }
 }

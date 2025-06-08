@@ -1,46 +1,26 @@
-namespace Ripplee.Views;
+using Ripplee.ViewModels; // Добавили
 
+namespace Ripplee.Views;
 public partial class SettingsPage : ContentPage
 {
-    public SettingsPage()
+    public SettingsPage(SettingsViewModel viewModel) // Запрашиваем ViewModel
     {
         InitializeComponent();
-        this.Opacity = 0;
+        BindingContext = viewModel; // Присваиваем
     }
 
-    protected override async void OnAppearing()
+    protected override void OnAppearing()
     {
         base.OnAppearing();
-#if WINDOWS
-        double screenHeight = DeviceDisplay.MainDisplayInfo.Height / DeviceDisplay.MainDisplayInfo.Density;
-        this.TranslationY = screenHeight; 
-
-        await Task.WhenAll(
-            this.TranslateTo(0, 0, 300, Easing.CubicOut), // Длительность 300мс
-            this.FadeTo(1, 250) // Длительность 250мс
-        );
-#else
-        this.Opacity = 1;
-#endif
     }
 
     private async void CloseSettingsButton_Clicked(object sender, EventArgs e)
     {
-#if WINDOWS
-        // Только для Windows применяем кастомную анимацию "исчезновения"
-        double screenHeight = DeviceDisplay.MainDisplayInfo.Height / DeviceDisplay.MainDisplayInfo.Density;
+        // Вместо прямого вызова Navigation.PopModalAsync, мы будем использовать Shell-навигацию
+        // ".." означает "вернуться назад"
+        await Shell.Current.GoToAsync("..", true);
 
-        // Анимируем исчезновение: сдвиг вниз и затухание
-        await Task.WhenAll(
-            this.TranslateTo(0, screenHeight, 300, Easing.CubicIn),
-            this.FadeTo(0, 250)
-        );
-
-        // Закрываем модальное окно БЕЗ стандартной анимации Windows
-        await Navigation.PopModalAsync(false);
-#else
-        // Для других платформ используем стандартное закрытие с их анимацией
-        await Navigation.PopModalAsync(true);
-#endif
+        // Логику анимации можно оставить, если она нужна перед закрытием,
+        // но Shell-анимация (true в GoToAsync) часто выглядит достаточно хорошо.
     }
 }

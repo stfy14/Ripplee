@@ -9,6 +9,7 @@
         <ResourceDictionary>
             <miscui:GenderToBackgroundColorConverter x:Key="GenderToBgColorConverter" />
             <miscui:GenderToTextColorConverter x:Key="GenderToTextColorConverter" />
+            <miscui:InverseBoolConverter x:Key="InverseBoolConverter" />
             <ResourceDictionary Source="Resources/Styles/Styles.xaml"/>
         </ResourceDictionary>
     </Application.Resources>

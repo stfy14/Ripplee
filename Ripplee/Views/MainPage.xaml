@@ -1,22 +1,20 @@
-﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Ripplee.ViewModels"
              xmlns:controls="clr-namespace:Ripplee.Views"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="Ripplee.Views.MainPage"
              x:DataType="vm:MainViewModel"
              BackgroundColor="#202020">
-
-    <ContentPage.Resources>
-        <ResourceDictionary>
-            
-        </ResourceDictionary>
-    </ContentPage.Resources>
-
+    
     <Grid RowDefinitions="Auto,*">
-        <Grid Grid.Row="1" RowDefinitions="Auto,Auto,*" ColumnDefinitions="*">
+        <Grid.GestureRecognizers>
+            <TapGestureRecognizer Command="{Binding CloseMenuCommand}"/>
+        </Grid.GestureRecognizers>
+        
+        <Grid Grid.Row="1" RowDefinitions="Auto,Auto,*" ColumnDefinitions="*" BackgroundColor="Transparent">
 
-            <controls:MenuPanel x:Name="menuControl" Grid.RowSpan="2" ZIndex="2"/>
             <Grid ZIndex="3" Margin="0,11,0,0">
                 <Border BackgroundColor="#202020" 
                         StrokeShape="RoundRectangle 0,0,40,40"
@@ -31,16 +29,21 @@
                        Margin="55,11,0,0" 
                        VerticalOptions="Start"
                        Grid.Row="0"/>
-                <Button x:Name="menuButton"
-                    BackgroundColor="#131313" 
-                    Clicked="OnMenuButtonClicked"
-                    HeightRequest="40"
-                    WidthRequest="40"
-                    HorizontalOptions="End"
-                    VerticalOptions="Start"
-                    Margin="0,9,40,20"
-                    Grid.Row="0"/>
+                <ImageButton x:Name="menuButton"
+                             Source="menu_icon.svg"
+                             Command="{Binding ToggleMenuCommand}"
+                             HeightRequest="40"
+                             WidthRequest="40"
+                             HorizontalOptions="End"
+                             VerticalOptions="Start"
+                             Margin="0,9,40,20"
+                             BackgroundColor="#131313"
+                             CornerRadius="10"
+                             Padding="5">
+                </ImageButton>
             </Grid>
+
+            <controls:MenuPanel x:Name="menuControl" Grid.RowSpan="2" ZIndex="2" BindingContext="{Binding .}"/>
 
             <Grid Grid.Row="1" Margin="0,60,0,50" ZIndex="1">
                 <Ellipse WidthRequest="100" HeightRequest="100" Fill="Gray"/>

@@ -1,40 +1,41 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
-using Ripplee.Misc.UI;
+﻿// Файл: Views/MainPage.xaml.cs
+using Ripplee.ViewModels;
+using System.ComponentModel;
 
 namespace Ripplee.Views;
 public partial class MainPage : ContentPage
 {
-    public MainPage()
+    private MainViewModel _viewModel;
+    // Создаем константу для длительности анимации, такую же, как в MenuPanel.xaml.cs
+    private const uint ButtonRotationDuration = 400; // <--- ИЗМЕНИТЕ ЭТО ЗНАЧЕНИЕ ПРИ НЕОБХОДИМОСТИ
+
+    public MainPage(MainViewModel viewModel)
     {
         InitializeComponent();
-        BindingContext = new ViewModels.MainViewModel();
+        _viewModel = viewModel;
+        BindingContext = _viewModel;
+        _viewModel.PropertyChanged += ViewModel_PropertyChanged;
+        this.Unloaded += MainPage_Unloaded;
+    }
 
-        WeakReferenceMessenger.Default.Register<CloseMenuMessage>(this, (r, m) =>
+    private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(MainViewModel.IsMenuOpen))
         {
-            if (menuControl.IsMenuOpen)
+            if (_viewModel.IsMenuOpen)
             {
-                menuControl.ToggleMenu();
-                menuButton.RotateTo(0, 300);
+                menuButton.RotateTo(90, ButtonRotationDuration, Easing.CubicOut);
             }
-        });
-    }
-    protected override void OnDisappearing()
-    {
-        base.OnDisappearing();
-        WeakReferenceMessenger.Default.Unregister<CloseMenuMessage>(this);
+            else
+            {
+                menuButton.RotateTo(0, ButtonRotationDuration, Easing.CubicIn);
+            }
+        }
     }
 
-    private void OnMenuButtonClicked(object sender, EventArgs e)
+    private void MainPage_Unloaded(object? sender, EventArgs e)
     {
-        if (menuControl.IsMenuOpen)
-        {
-            menuButton.RotateTo(0, 300);
-            menuControl.ToggleMenu();
-        }
-        else
-        {
-            menuButton.RotateTo(90, 300);
-            menuControl.ToggleMenu();
-        }
+        _viewModel.PropertyChanged -= ViewModel_PropertyChanged;
+        this.Unloaded -= MainPage_Unloaded;
     }
 }
