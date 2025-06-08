@@ -1,10 +1,22 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Ripplee.ViewModels;
 
 namespace Ripplee.ViewModels
 {
     public partial class SettingsViewModel : ObservableObject
     {
+
+        [ObservableProperty]
+        private string? username;
+
+        // ИЗМЕНЕНО: Конструктор теперь не зависит от MainViewModel
+        public SettingsViewModel(IUserService userService)
+        {
+            // Берем имя пользователя из общего сервиса
+            Username = userService.CurrentUser.Username;
+        }
+
         [RelayCommand]
         private void ChangePhoto()
         {

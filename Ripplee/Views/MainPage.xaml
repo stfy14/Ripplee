@@ -5,7 +5,6 @@
              xmlns:controls="clr-namespace:Ripplee.Views"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="Ripplee.Views.MainPage"
-             x:DataType="vm:MainViewModel"
              BackgroundColor="#202020">
     
     <Grid RowDefinitions="Auto,*">
@@ -36,7 +35,7 @@
                              WidthRequest="40"
                              HorizontalOptions="End"
                              VerticalOptions="Start"
-                             Margin="0,9,40,20"
+                             Margin="0,9,30,20"
                              BackgroundColor="#131313"
                              CornerRadius="10"
                              Padding="5">

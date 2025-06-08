@@ -10,26 +10,26 @@ namespace Ripplee.ViewModels
     public partial class MainViewModel : ObservableObject
     {
         private readonly IChatService _chatService;
+        private readonly IUserService _userService; // <-- ДОБАВЛЕНО
 
-        [ObservableProperty]
-        private UserModel user = new();
+        // ИЗМЕНЕНО: Теперь это свойство только для чтения, оно берет данные из сервиса
+        public UserModel User => _userService.CurrentUser;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(MenuButtonRotation))]
         [NotifyCanExecuteChangedFor(nameof(CloseMenuCommand))]
         private bool isMenuOpen = false;
 
-        // Производное свойство для анимации вращения кнопки меню
         public int MenuButtonRotation => IsMenuOpen ? 90 : 0;
 
-        // Коллекции для пикеров
         public ObservableCollection<string> Cities { get; } = new(["Москва", "Санкт-Петербург", "Новосибирск"]);
         public ObservableCollection<string> Topics { get; } = new(["Технологии", "Искусство", "Музыка"]);
 
-        // Конструктор для внедрения зависимостей
-        public MainViewModel(IChatService chatService)
+        // ИЗМЕНЕНО: Конструктор теперь принимает IUserService
+        public MainViewModel(IChatService chatService, IUserService userService)
         {
             _chatService = chatService;
+            _userService = userService; // <-- ДОБАВЛЕНО
         }
 
         // --- Команды ---

@@ -5,7 +5,9 @@ using Ripplee.ViewModels;
 using Ripplee.Views;
 using Ripplee.Services.Interfaces;
 using Ripplee.Services.Services;
-using Microsoft.Maui.Handlers; 
+using Microsoft.Maui.Handlers;
+using Ripplee.Services.Data; 
+using Microsoft.Extensions.Http; 
 
 #if ANDROID
 using Android.Widget; // <-- И ВОТ ЭТА СТРОКА нужна для EditText
@@ -32,9 +34,23 @@ namespace Ripplee
 #endif
 
             // --- Секция Dependency Injection ---
+
+            // Регистрируем HttpClient для ChatApiClient
+            builder.Services.AddHttpClient<ChatApiClient>(client =>
+            {
+                // В будущем здесь будет базовый адрес твоего API
+                // client.BaseAddress = new Uri("https://api.ripplee.com/");
+            });
+
+            // Регистрируем сервисы
+            builder.Services.AddSingleton<IUserService, UserService>(); 
             builder.Services.AddSingleton<IChatService, ChatService>();
+
+            // Регистрируем ViewModel'и
             builder.Services.AddSingleton<MainViewModel>();
             builder.Services.AddTransient<SettingsViewModel>();
+
+            // Регистрируем страницы
             builder.Services.AddSingleton<MainPage>();
             builder.Services.AddTransient<SettingsPage>();
             builder.Services.AddTransient<AuthPage>();
