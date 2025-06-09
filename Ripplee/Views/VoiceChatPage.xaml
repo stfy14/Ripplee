@@ -13,29 +13,24 @@
         <toolkit:EventToCommandBehavior EventName="Disappearing" Command="{Binding PageDisappearingCommand}" />
     </ContentPage.Behaviors>
 
-    <!-- ИЗМЕНЕНО: Добавляем еще один 'Auto' для верхней плашки -->
     <Grid RowDefinitions="Auto, *, Auto" Padding="20,10,20,20">
 
-        <!-- НОВЫЙ БЛОК: Верхняя плашка с городом и темой (Вариант 1) -->
         <Border Grid.Row="0"
                 BackgroundColor="#141414"
                 StrokeShape="RoundRectangle 25,25,25,25"
                 Padding="0,10"> 
             <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
 
-                <!-- Город -->
                 <Label Text="{Binding City}"
                        TextColor="#E0E0E0"
                        FontSize="22"
                        HorizontalOptions="Center"/>
 
-                <!-- Разделитель -->
                 <BoxView HeightRequest="1"
                          WidthRequest="100"
                          Color="#404040"
                          HorizontalOptions="Center"/>
 
-                <!-- Тема -->
                 <Label Text="{Binding Topic}"
                        TextColor="#E0E0E0"
                        FontSize="18"
@@ -44,7 +39,6 @@
             </VerticalStackLayout>
         </Border>
 
-        <!-- ИЗМЕНЕНО: Центральная часть теперь в Grid.Row="1" -->
         <Border BackgroundColor="#1B1B1B" Grid.Row="1" VerticalOptions="Center" Padding="0,40,0,30" StrokeShape="RoundRectangle 35,35,35,35">
             <VerticalStackLayout Spacing="40">
                 <Label Text="{Binding CompanionName}"
@@ -82,7 +76,6 @@
             </VerticalStackLayout>
         </Border>
 
-        <!-- ИЗМЕНЕНО: Нижние кнопки теперь в Grid.Row="2" -->
         <Border BackgroundColor="#1B1B1B" Grid.Row="2" Margin="0,0,0,20" Padding="10" HorizontalOptions="Center" StrokeShape="RoundRectangle 35,35,35,35">
             <HorizontalStackLayout HorizontalOptions="Center" Spacing="40">
                 <ImageButton WidthRequest="100"

@@ -2,6 +2,8 @@
 using CommunityToolkit.Mvvm.Input;
 using Ripplee.Services.Interfaces;
 using System.Diagnostics;
+using Ripplee.Misc.UI;
+
 
 namespace Ripplee.ViewModels
 {
@@ -15,11 +17,9 @@ namespace Ripplee.ViewModels
         private bool isGuestFlow = false;
 
         [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(NextStepCommand))]
         private string? username;
 
         [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(NextStepCommand))]
         private string? password;
 
         public OnboardingViewModel(IUserService userService)
@@ -43,9 +43,36 @@ namespace Ripplee.ViewModels
             Debug.WriteLine("Started REGISTRATION flow.");
         }
 
-        [RelayCommand(CanExecute = nameof(CanExecuteNextStep))]
+        [RelayCommand]
         private async Task NextStep()
         {
+            KeyboardHelper.HideKeyboard();
+            // --- Блок проверки полей ввода ---
+            if (isGuestFlow)
+            {
+                // Проверка для гостя
+                if (CurrentStepIndex == 1 && string.IsNullOrWhiteSpace(Username))
+                {
+                    await Shell.Current.DisplayAlert("Ошибка", "Пожалуйста, введите ваше имя.", "OK");
+                    return; // Прерываем выполнение команды
+                }
+            }
+            else // Если это регистрация
+            {
+                if (CurrentStepIndex == 1 && string.IsNullOrWhiteSpace(Username))
+                {
+                    await Shell.Current.DisplayAlert("Ошибка", "Пожалуйста, введите ваше имя.", "OK");
+                    return;
+                }
+                if (CurrentStepIndex == 2 && string.IsNullOrWhiteSpace(Password))
+                {
+                    await Shell.Current.DisplayAlert("Ошибка", "Пожалуйста, придумайте пароль.", "OK");
+                    return;
+                }
+            }
+            // --- Конец блока проверки ---
+
+
             Debug.WriteLine($"NextStep called. IsGuest: {isGuestFlow}, CurrentStep: {CurrentStepIndex}");
 
             if (isGuestFlow)
@@ -81,7 +108,6 @@ namespace Ripplee.ViewModels
                     break;
                 case 3: // После шага с аватаром
                     Debug.WriteLine("Final registration step. Calling service...");
-                    // Вызываем сервис БЕЗ темы
                     bool success = await _userService.RegisterAndLoginAsync(Username!, Password!);
                     if (success)
                     {
@@ -108,21 +134,6 @@ namespace Ripplee.ViewModels
             Debug.WriteLine("Navigation to //MainApp command sent.");
         }
 
-        private bool CanExecuteNextStep()
-        {
-            if (isGuestFlow)
-            {
-                return CurrentStepIndex == 1 && !string.IsNullOrEmpty(Username);
-            }
-
-            // Для регистрации
-            return CurrentStepIndex switch
-            {
-                1 => !string.IsNullOrEmpty(Username),
-                2 => !string.IsNullOrEmpty(Password),
-                3 => true, // На шаге аватара кнопка всегда активна
-                _ => false
-            };
-        }
+        // Метод CanExecuteNextStep больше не используется, его можно удалить.
     }
 }

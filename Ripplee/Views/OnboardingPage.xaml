@@ -6,7 +6,7 @@
              xmlns:converters="clr-namespace:Ripplee.Misc.UI"
              x:DataType="vm:OnboardingViewModel"
              Shell.NavBarIsVisible="False"
-             BackgroundColor="#282828">
+             BackgroundColor="#202020">
 
     <ContentPage.Resources>
         <!-- Регистрируем наш новый конвертер -->
@@ -20,64 +20,134 @@
             <Setter Property="Spacing" Value="25"/>
         </Style>
         <Style x:Key="OnboardingTitle" TargetType="Label">
-            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontSize" Value="32"/>
             <Setter Property="TextColor" Value="White"/>
             <Setter Property="HorizontalOptions" Value="Center"/>
         </Style>
-        <Style x:Key="OnboardingInput" TargetType="Entry">
-            <Setter Property="BackgroundColor" Value="#4A4A4A"/>
-            <Setter Property="TextColor" Value="White"/>
-            <Setter Property="PlaceholderColor" Value="#A0A0A0"/>
-            <Setter Property="HeightRequest" Value="55"/>
-        </Style>
         <Style x:Key="OnboardingButton" TargetType="Button">
-            <Setter Property="BackgroundColor" Value="#1F1F1F"/>
+            <Setter Property="BackgroundColor" Value="#2F4538"/>
             <Setter Property="HeightRequest" Value="55"/>
         </Style>
     </ContentPage.Resources>
 
-    <!-- Используем Grid как контейнер для всех шагов -->
     <Grid>
+        <Grid RowDefinitions="Auto, *, Auto">
+            <!-- Стартовый экран -->
+            <VerticalStackLayout Style="{StaticResource OnboardingContainer}"
+                                 IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='0'}">
+                <Border BackgroundColor="#1B1B1B" Margin="0,20,0,80" Grid.Row="0" StrokeShape="RoundRectangle 25" >
+                    <Label Text="Reeplee" FontSize="34" TextColor="White" HorizontalOptions="Center" Padding="5"/>
+                </Border>
 
-        <!-- Шаг 0: Стартовый экран -->
-        <VerticalStackLayout Style="{StaticResource OnboardingContainer}"
-                             IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='0'}">
-            <Label Text="Лого" FontSize="48" TextColor="White" HorizontalOptions="Center" Margin="0,0,0,50"/>
-            <Border BackgroundColor="#3D3D3D" StrokeThickness="0" Padding="20,40" StrokeShape="RoundRectangle 25">
-                <Label Text="Зарегистрируйся и общайся" Style="{StaticResource OnboardingTitle}" LineBreakMode="WordWrap" HorizontalTextAlignment="Center"/>
-            </Border>
+                <Border BackgroundColor="#1B1B1B" StrokeThickness="0" Padding="25,25" StrokeShape="RoundRectangle 25" Grid.Row="1">
+                    <VerticalStackLayout Spacing="15" Margin="0,20,0,20"  Grid.Row="1">
+                        <BoxView WidthRequest="150" HeightRequest="2" Color="#808080" Margin="0,10,0,10"/>
+                        <Label Text="Быстро" Style="{StaticResource OnboardingTitle}" HorizontalTextAlignment="Center"/>
+                        <BoxView WidthRequest="250" HeightRequest="2" Color="#808080" Margin="0,10,0,10"/>
+                        <Label Text="Интересы" Style="{StaticResource OnboardingTitle}" HorizontalTextAlignment="Center"/>
+                        <BoxView WidthRequest="250" HeightRequest="2" Color="#808080" Margin="0,10,0,10"/>
+                        <Label Text="Города" Style="{StaticResource OnboardingTitle}" HorizontalTextAlignment="Center"/>
+                        <BoxView WidthRequest="150" HeightRequest="2" Color="#808080" Margin="0,10,0,10"/>
+                    </VerticalStackLayout>
+                </Border>
+                <Border BackgroundColor="#1B1B1B" StrokeThickness="0" Padding="25,25" StrokeShape="RoundRectangle 25" Grid.Row="2">
+                    <VerticalStackLayout Spacing="20" VerticalOptions="End">
+                        <Button Text="Регистрация" Command="{Binding StartRegistrationFlowCommand}" Style="{StaticResource OnboardingButton}"/>
+                        <Button Text="Как гость" Command="{Binding StartGuestFlowCommand}" BackgroundColor="#333333" HeightRequest="55"/>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
 
-            <Button Text="Как гость" Command="{Binding StartGuestFlowCommand}" BackgroundColor="#4A4A4A" HeightRequest="55"/>
-            <Button Text="Регистрация" Command="{Binding StartRegistrationFlowCommand}" Style="{StaticResource OnboardingButton}"/>
-        </VerticalStackLayout>
+            <!-- Ввод имени -->
+            <VerticalStackLayout Style="{StaticResource OnboardingContainer}"
+                                 IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='1'}">
+                <Border BackgroundColor="#1B1B1B" Margin="0,10,0,0" Grid.Row="0" StrokeShape="RoundRectangle 25">
+                    <Label Text="Ввод логина" FontSize="28" TextColor="White" HorizontalOptions="Center" Padding="10"/>
+                </Border>
+                
+                <Border BackgroundColor="#1B1B1B" StrokeThickness="0" Padding="25,25" StrokeShape="RoundRectangle 25" Grid.Row="1">
+                    <VerticalStackLayout Spacing="15" Margin="0,0,0,0"  Grid.Row="1">
+                        <Label Text="Осталось совсем" Style="{StaticResource OnboardingTitle}"/>
+                        <Label Text="чуть-чуть" Style="{StaticResource OnboardingTitle}"/>
 
-        <!-- Шаг 1: Ввод имени -->
-        <VerticalStackLayout Style="{StaticResource OnboardingContainer}"
-                             IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='1'}">
-            <Label Text="Как тебя будут звать?" Style="{StaticResource OnboardingTitle}"/>
-            <Entry Placeholder="Писать" Text="{Binding Username}" Style="{StaticResource OnboardingInput}"/>
-            <Button Text="Дальше" Command="{Binding NextStepCommand}" Style="{StaticResource OnboardingButton}"/>
-        </VerticalStackLayout>
+                        <BoxView WidthRequest="150" HeightRequest="2" Color="#808080" Margin="0,30,0,30"/>
 
-        <!-- Шаг 2: Ввод пароля -->
-        <VerticalStackLayout Style="{StaticResource OnboardingContainer}"
-                             IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='2'}">
-            <Label Text="Придумай пароль" Style="{StaticResource OnboardingTitle}"/>
-            <Entry Placeholder="Писать" Text="{Binding Password}" IsPassword="True" Style="{StaticResource OnboardingInput}"/>
-            <Button Text="Дальше" Command="{Binding NextStepCommand}" Style="{StaticResource OnboardingButton}"/>
-        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="30">
+                            <Border Style="{StaticResource PickerBorderStyle}">
+                                <Entry Placeholder="Введите логин" Text="{Binding Username}" Style="{StaticResource CustomPlaceHolder}"/>
+                            </Border>
+                            <Button Text="Дальше" Command="{Binding NextStepCommand}" Style="{StaticResource OnboardingButton}"/>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
 
-        <!-- Шаг 3: Аватар -->
-        <!-- ИЗМЕНЕНИЕ ЗДЕСЬ: ConverterParameter='3' -->
-        <VerticalStackLayout Style="{StaticResource OnboardingContainer}"
-                             IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='3'}">
-            <Label Text="Желаешь поставить аватар?" Style="{StaticResource OnboardingTitle}" LineBreakMode="WordWrap" HorizontalTextAlignment="Center"/>
-            <Label Text="Если не хотите, не ставьте" FontSize="14" TextColor="Gray" HorizontalOptions="Center"/>
-            <Border WidthRequest="150" HeightRequest="150" StrokeShape="RoundRectangle 75" BackgroundColor="#3D3D3D" StrokeThickness="0" Margin="0,20">
-                <Image Source="edit_icon.svg" WidthRequest="60" HeightRequest="60"/>
-            </Border>
-            <Button Text="Начать общаться" Command="{Binding NextStepCommand}" Style="{StaticResource OnboardingButton}"/>
-        </VerticalStackLayout>
+            <!-- Ввод пароля -->
+            <VerticalStackLayout Style="{StaticResource OnboardingContainer}"
+                                 IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='2'}">
+                <Border BackgroundColor="#1B1B1B" Margin="0,10,0,0" Grid.Row="0" StrokeShape="RoundRectangle 25">
+                    <Label Text="Ввод пароля" FontSize="28" TextColor="White" HorizontalOptions="Center" Padding="10"/>
+                </Border>
+                
+                <Border BackgroundColor="#1B1B1B" StrokeThickness="0" Padding="25,25" StrokeShape="RoundRectangle 25" Grid.Row="1">
+                    <VerticalStackLayout Spacing="15" Margin="0,0,0,0"  Grid.Row="1">
+                        <Label Text="Ты же не хочешь" Style="{StaticResource OnboardingTitle}"/>
+                        <Label Text="потерять данные?" Style="{StaticResource OnboardingTitle}"/>
+
+                        <BoxView WidthRequest="150" HeightRequest="2" Color="#808080" Margin="0,30,0,30"/>
+                        
+                        <VerticalStackLayout Spacing="30">
+                            <Border Style="{StaticResource PickerBorderStyle}">
+                                <Entry Placeholder="Введите пароль" Text="{Binding Password}" IsPassword="True" Style="{StaticResource CustomPlaceHolder}"/>
+                            </Border>
+                            <Button Text="Дальше" Command="{Binding NextStepCommand}" Style="{StaticResource OnboardingButton}"/>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+                <Image Source="lock_icon.svg"
+                       Aspect="AspectFit"
+                       WidthRequest="224"
+                       HeightRequest="224"
+                       Margin="0,30,0,0"/>
+            </VerticalStackLayout>
+
+            <!-- Аватар -->
+            <!-- ИЗМЕНЕНИЕ ЗДЕСЬ: ConverterParameter='3' -->
+            <VerticalStackLayout Style="{StaticResource OnboardingContainer}"
+                                 IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='3'}">
+                <Border BackgroundColor="#1B1B1B" Margin="0,20,0,60" Grid.Row="0" StrokeShape="RoundRectangle 25">
+                    <HorizontalStackLayout Margin="15,0,0,0" Padding="10">
+                        <Label Text="Выбор аватара" FontSize="24" TextColor="White" HorizontalOptions="Start"/>
+                        <ImageButton x:Name="CloseSettingsButton"
+                             Source="back_icon.png"
+                             BackgroundColor="#131313" 
+                             CornerRadius="10"
+                             HorizontalOptions="End"
+                             VerticalOptions="Center"
+                             WidthRequest="40"
+                             HeightRequest="40"
+                             Margin="95,0,0,0"
+                             Rotation="90"
+                             Padding="5"/>
+                    </HorizontalStackLayout>
+                </Border>
+                <Border BackgroundColor="#1B1B1B" StrokeThickness="0" Padding="25,25" StrokeShape="RoundRectangle 25" Grid.Row="1">
+                    <VerticalStackLayout Spacing="15" Grid.Row="1">
+                        <Label Text="Желаешь поставить аватар?" Style="{StaticResource OnboardingTitle}" LineBreakMode="WordWrap" HorizontalTextAlignment="Center"/>
+
+                        <BoxView WidthRequest="150" HeightRequest="2" Color="#808080" Margin="0,10,0,10"/>
+
+                        <Label Text="Если не хотите, не ставьте" FontSize="16" TextColor="Gray" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+
+
+                </Border>
+                <Border WidthRequest="150" HeightRequest="150" StrokeShape="RoundRectangle 75" BackgroundColor="#3D3D3D" StrokeThickness="0" Margin="0,20,0,140">
+                    <Image Source="pen_icon.svg" WidthRequest="60" HeightRequest="60"/>
+                </Border>
+                <Button Text="Начать общаться" Command="{Binding NextStepCommand}" Style="{StaticResource OnboardingButton}"/>
+            </VerticalStackLayout>
+        </Grid>
 
     </Grid>
 </ContentPage>

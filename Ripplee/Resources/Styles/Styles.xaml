@@ -45,4 +45,14 @@
         <Setter Property="HorizontalOptions" Value="Fill" />
     </Style>
 
+    <Style x:Key="CustomPlaceHolder" TargetType="Entry">
+        <Setter Property="BackgroundColor" Value="#4A4A4A"/>
+        <Setter Property="TextColor" Value="White"/>
+        <Setter Property="PlaceholderColor" Value="#A0A0A0"/>
+        <Setter Property="TextColor" Value="#CACACA"/>
+        <Setter Property="HeightRequest" Value="55"/>
+        <Setter Property="FontSize" Value="18"/>
+        <Setter Property="FontFamily" Value="OpenSansRegular"/>
+    </Style>
+
 </ResourceDictionary>

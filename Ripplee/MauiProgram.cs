@@ -6,11 +6,12 @@ using Ripplee.Views;
 using Ripplee.Services.Interfaces;
 using Ripplee.Services.Services;
 using Microsoft.Maui.Handlers;
-using Ripplee.Services.Data; 
-using Microsoft.Extensions.Http; 
+using Ripplee.Services.Data;
+using Microsoft.Extensions.Http;
 
 #if ANDROID
-using Android.Widget; // <-- И ВОТ ЭТА СТРОКА нужна для EditText
+using Android.Widget; // <-- Для EditText (используется Entry и Picker)
+using Android.Graphics.Drawables; // Может понадобиться для более тонкой настройки фона
 #endif
 
 namespace Ripplee
@@ -35,7 +36,6 @@ namespace Ripplee
 
             // --- Секция Dependency Injection ---
 
-            // Регистрируем HttpClient для ChatApiClient
             builder.Services.AddHttpClient<ChatApiClient>(client =>
             {
                 // В будущем здесь будет базовый адрес твоего API
@@ -43,7 +43,7 @@ namespace Ripplee
             });
 
             // Регистрируем сервисы
-            builder.Services.AddSingleton<IUserService, UserService>(); 
+            builder.Services.AddSingleton<IUserService, UserService>();
             builder.Services.AddSingleton<IChatService, ChatService>();
 
             // Регистрируем ViewModel'и
@@ -62,10 +62,31 @@ namespace Ripplee
             builder.ConfigureMauiHandlers(handlers =>
             {
 #if ANDROID
-                // Теперь этот код не будет вызывать ошибок
+                // Кастомизация для Picker (ваш существующий код)
                 PickerHandler.Mapper.AppendToMapping("CustomPickerAppearance", (handler, view) =>
                 {
                     if (handler.PlatformView is EditText editText && view is Picker mauiPicker)
+                    {
+                        editText.Background = null; // Убираем фон (и подчеркивание)
+
+                        var context = editText.Context;
+                        if (context?.Resources?.DisplayMetrics != null)
+                        {
+                            float density = context.Resources.DisplayMetrics.Density;
+
+                            int topPadding = (int)(12 * density);
+                            int leftPadding = (int)(16 * density);
+                            int rightPadding = editText.PaddingRight; 
+                            int bottomPadding = editText.PaddingBottom; 
+
+                            editText.SetPadding(leftPadding, topPadding, rightPadding, bottomPadding);
+                        }
+                    }
+                });
+
+                EntryHandler.Mapper.AppendToMapping("NoUnderline", (handler, view) =>
+                {
+                    if (handler.PlatformView is EditText editText) // Entry на Android это EditText
                     {
                         editText.Background = null;
 
@@ -76,7 +97,7 @@ namespace Ripplee
 
                             int topPadding = (int)(12 * density);
                             int leftPadding = (int)(16 * density);
-                            int rightPadding = editText.PaddingRight;
+                            int rightPadding = editText.PaddingRight; 
                             int bottomPadding = editText.PaddingBottom;
 
                             editText.SetPadding(leftPadding, topPadding, rightPadding, bottomPadding);
