@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using Ripplee.Models;
 using Ripplee.Services.Interfaces;
+using System.Diagnostics;
 
 namespace Ripplee.ViewModels
 {
@@ -28,8 +29,10 @@ namespace Ripplee.ViewModels
         // ИЗМЕНЕНО: Конструктор теперь принимает IUserService
         public MainViewModel(IChatService chatService, IUserService userService)
         {
+            Debug.WriteLine("MainViewModel constructor START"); // <-- Добавь это
             _chatService = chatService;
             _userService = userService; // <-- ДОБАВЛЕНО
+            Debug.WriteLine($"MainViewModel constructor END. Username is: {User.Username}"); // <-- И это
         }
 
         // --- Команды ---
@@ -71,8 +74,24 @@ namespace Ripplee.ViewModels
         [RelayCommand]
         private async Task FindCompanion()
         {
-            string result = await _chatService.FindCompanionAsync(User.GenderSelection, User.CitySelection, User.TopicSelection, User.ChatSelection);
-            await Shell.Current.DisplayAlert("Результат", result, "OK");
+            var companionName = "Антон";
+
+            // Дополняем словарь параметров для навигации
+            var navigationParameters = new Dictionary<string, object>
+            {
+                { "name", companionName },
+                { "city", User.CitySelection },   // <-- ДОБАВЛЕНО
+                { "topic", User.TopicSelection }  // <-- ДОБАВЛЕНО
+            };
+
+            // Проверяем, что пользователь выбрал город и тему
+            if (string.IsNullOrEmpty(User.CitySelection) || string.IsNullOrEmpty(User.TopicSelection))
+            {
+                await Shell.Current.DisplayAlert("Ошибка", "Пожалуйста, выберите город и тему для поиска.", "OK");
+                return;
+            }
+
+            await Shell.Current.GoToAsync(nameof(Views.VoiceChatPage), true, navigationParameters);
         }
 
         [RelayCommand]

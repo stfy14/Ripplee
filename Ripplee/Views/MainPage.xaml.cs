@@ -1,6 +1,7 @@
 ﻿// Файл: Views/MainPage.xaml.cs
 using Ripplee.ViewModels;
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace Ripplee.Views;
 public partial class MainPage : ContentPage
@@ -11,11 +12,13 @@ public partial class MainPage : ContentPage
 
     public MainPage(MainViewModel viewModel)
     {
+        Debug.WriteLine("MainPage constructor START"); // <-- Добавь это
         InitializeComponent();
         _viewModel = viewModel;
         BindingContext = _viewModel;
         _viewModel.PropertyChanged += ViewModel_PropertyChanged;
         this.Unloaded += MainPage_Unloaded;
+        Debug.WriteLine("MainPage constructor END"); // <-- И это
     }
 
     private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)

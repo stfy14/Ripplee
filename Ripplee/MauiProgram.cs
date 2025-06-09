@@ -47,13 +47,16 @@ namespace Ripplee
             builder.Services.AddSingleton<IChatService, ChatService>();
 
             // Регистрируем ViewModel'и
-            builder.Services.AddSingleton<MainViewModel>();
+            builder.Services.AddTransient<MainViewModel>();
             builder.Services.AddTransient<SettingsViewModel>();
+            builder.Services.AddTransient<VoiceChatViewModel>();
+            builder.Services.AddTransient<OnboardingViewModel>();
 
             // Регистрируем страницы
-            builder.Services.AddSingleton<MainPage>();
+            builder.Services.AddTransient<MainPage>();
             builder.Services.AddTransient<SettingsPage>();
-            builder.Services.AddTransient<AuthPage>();
+            builder.Services.AddTransient<VoiceChatPage>();
+            builder.Services.AddTransient<OnboardingPage>();
             // --- Конец секции DI ---
 
             builder.ConfigureMauiHandlers(handlers =>

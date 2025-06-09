@@ -9,7 +9,17 @@
     BackgroundColor="#202020">
 
     <ShellContent
-        ContentTemplate="{DataTemplate local:MainPage}" />
-    
+        Title="Welcome"
+        ContentTemplate="{DataTemplate local:OnboardingPage}"
+        Route="OnboardingPage" />
 
+    <!-- Основное содержимое приложения, которое будет доступно после входа -->
+    <!-- Используем FlyoutItem или TabBar, чтобы сгруппировать страницы -->
+    <TabBar Route="MainApp">
+        <ShellContent
+            Title="Home"
+            ContentTemplate="{DataTemplate local:MainPage}"
+            Route="MainPage" />
+    </TabBar>
+    
 </Shell>

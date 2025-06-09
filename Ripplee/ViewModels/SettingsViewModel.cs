@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Ripplee.ViewModels;
+using Ripplee.Services.Interfaces; 
 
 namespace Ripplee.ViewModels
 {

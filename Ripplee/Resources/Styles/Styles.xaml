@@ -2,8 +2,11 @@
 <?xaml-comp compile="true" ?>
 <ResourceDictionary 
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:converters="clr-namespace:Ripplee.Misc.UI">
 
+    <converters:FirstLetterConverter x:Key="FirstLetterConverter" />
+    
     <Style TargetType="Button">
         <Setter Property="TextColor" Value="White"/>
         <Setter Property="FontFamily" Value="OpenSansRegular"/>
