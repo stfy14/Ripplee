@@ -65,7 +65,10 @@ public partial class OnboardingPage : ContentPage
         await RootGrid.FadeTo(0, 400, Easing.CubicIn);
 
         // После завершения анимации — выполняем переход
-        await Shell.Current.GoToAsync("//MainApp");
+        await Shell.Current.GoToAsync("//MainApp", true, new Dictionary<string, object>
+        {
+            { "FromOnboarding", true }
+        });
     }
 
     private async void HandleStepAnimation()

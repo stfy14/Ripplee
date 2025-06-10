@@ -1,24 +1,57 @@
-﻿// Файл: Views/MainPage.xaml.cs
+﻿// MainPage.xaml.cs (ФИНАЛЬНАЯ ИСПРАВЛЕННАЯ ВЕРСИЯ)
+
 using Ripplee.ViewModels;
 using System.ComponentModel;
 using System.Diagnostics;
 
 namespace Ripplee.Views;
+
+[QueryProperty(nameof(CameFromOnboarding), "FromOnboarding")]
 public partial class MainPage : ContentPage
 {
     private MainViewModel _viewModel;
-    // Создаем константу для длительности анимации, такую же, как в MenuPanel.xaml.cs
-    private const uint ButtonRotationDuration = 400; // <--- ИЗМЕНИТЕ ЭТО ЗНАЧЕНИЕ ПРИ НЕОБХОДИМОСТИ
+    private const uint ButtonRotationDuration = 400;
+
+    public bool CameFromOnboarding { get; set; }
 
     public MainPage(MainViewModel viewModel)
     {
-        Debug.WriteLine("MainPage constructor START"); // <-- Добавь это
         InitializeComponent();
         _viewModel = viewModel;
         BindingContext = _viewModel;
+    }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        // Просто подписываемся на события ViewModel
         _viewModel.PropertyChanged += ViewModel_PropertyChanged;
-        this.Unloaded += MainPage_Unloaded;
-        Debug.WriteLine("MainPage constructor END"); // <-- И это
+    }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        // И отписываемся от них
+        _viewModel.PropertyChanged -= ViewModel_PropertyChanged;
+    }
+
+    // ✅ ВСЯ ЛОГИКА АНИМАЦИИ ТЕПЕРЬ ЗДЕСЬ
+    private void MainPage_Loaded(object? sender, EventArgs e)
+    {
+        // Этот код выполнится ПОСЛЕ того, как страница будет готова к отрисовке.
+        if (CameFromOnboarding)
+        {
+            // Запускаем анимацию плавного появления
+            RootLayout.FadeTo(1, 600, Easing.CubicOut);
+
+            // Сбрасываем флаг, чтобы анимация не повторялась при возврате на страницу
+            CameFromOnboarding = false;
+        }
+        else
+        {
+            // Если мы зашли на страницу обычным путем, просто делаем ее видимой
+            RootLayout.Opacity = 1;
+        }
     }
 
     private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -34,11 +67,5 @@ public partial class MainPage : ContentPage
                 menuButton.RotateTo(0, ButtonRotationDuration, Easing.CubicIn);
             }
         }
-    }
-
-    private void MainPage_Unloaded(object? sender, EventArgs e)
-    {
-        _viewModel.PropertyChanged -= ViewModel_PropertyChanged;
-        this.Unloaded -= MainPage_Unloaded;
     }
 }
