@@ -102,7 +102,7 @@
     </ContentPage.Resources>
 
     <!-- Используем Grid с фиксированным хедером -->
-    <Grid RowDefinitions="Auto,*" BackgroundColor="#202020">
+    <Grid RowDefinitions="Auto,*" BackgroundColor="#202020" x:Name="RootGrid">
 
         <!-- Фиксированный верхний хедер для всех страниц -->
         <Border Grid.Row="0" Style="{StaticResource HeaderContainer}">
@@ -175,7 +175,8 @@
                 <!-- Первая страница -->
                 <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}" 
                                      VerticalOptions="Start" Padding="0,10,0,20"
-                                     IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='0'}">
+                                     IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='0'}"
+                                     x:Name="Step0Layout">
 
                     <!-- Основной контент с функциями -->
                     <Border Style="{StaticResource ContentContainer}">
@@ -221,7 +222,8 @@
                 <!-- Вторая страница - Ввод логина -->
                 <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}" 
                                      VerticalOptions="Start" Padding="0,10,0,20"
-                                     IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='1'}">
+                                     IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='1'}"
+                                     x:Name="Step1Layout">
 
                     <Border Style="{StaticResource ContentContainer}">
                         <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}">
@@ -255,7 +257,8 @@
                 <!-- Третья страница - Ввод пароля -->
                 <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}" 
                                      VerticalOptions="Start" Padding="0,10,0,20"
-                                     IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='2'}">
+                                     IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='2'}"
+                                     x:Name="Step2Layout">
 
                     <Border Style="{StaticResource ContentContainer}">
                         <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}">
@@ -290,7 +293,8 @@
                 <!-- Четвертая страница - Выбор аватара -->
                 <VerticalStackLayout Spacing="{OnPlatform Default=20, Android=15, iOS=20}" 
                                      VerticalOptions="Start" Padding="0,10,0,20"
-                                     IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='3'}">
+                                     IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='3'}"
+                                     x:Name="Step3Layout">
 
                     <Border Style="{StaticResource ContentContainer}">
                         <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}">

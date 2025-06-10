@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿// Файл: Ripplee/ViewModels/OnboardingViewModel.cs
+
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Ripplee.Services.Interfaces;
 using Ripplee.Misc.UI; // Для KeyboardHelper
@@ -6,12 +8,32 @@ using System.Diagnostics;
 
 namespace Ripplee.ViewModels
 {
+    /// <summary>
+    /// Определяет направление анимации для переключения шагов.
+    /// </summary>
+    public enum AnimationDirection { None, Forward, Backward }
+
     public partial class OnboardingViewModel : ObservableObject
     {
         private readonly IUserService _userService;
 
+        /// <summary>
+        /// Индекс текущего шага онбординга (0, 1, 2, 3).
+        /// </summary>
         [ObservableProperty]
         private int currentStepIndex = 0;
+
+        /// <summary>
+        /// Сигнализирует View о необходимости начать анимацию смены шага.
+        /// </summary>
+        [ObservableProperty]
+        private AnimationDirection stepChangeDirection = AnimationDirection.None;
+
+        /// <summary>
+        /// Сигнализирует View о необходимости начать анимацию выхода и перехода на главный экран.
+        /// </summary>
+        [ObservableProperty]
+        private bool isNavigatingToMainApp = false;
 
         private bool isGuestFlow = false;
 
@@ -26,11 +48,31 @@ namespace Ripplee.ViewModels
             _userService = userService;
         }
 
+        /// <summary>
+        /// Вызывается из View ПОСЛЕ завершения анимации "ухода" старого шага.
+        /// Финализирует смену шага.
+        /// </summary>
+        [RelayCommand]
+        private void CompleteStepChange()
+        {
+            if (StepChangeDirection == AnimationDirection.Forward)
+            {
+                CurrentStepIndex++;
+            }
+            else if (StepChangeDirection == AnimationDirection.Backward)
+            {
+                CurrentStepIndex--;
+            }
+
+            // Сбрасываем флаг, чтобы остановить цикл анимаций
+            StepChangeDirection = AnimationDirection.None;
+        }
+
         [RelayCommand]
         private void StartGuestFlow()
         {
             isGuestFlow = true;
-            CurrentStepIndex = 1;
+            StepChangeDirection = AnimationDirection.Forward; // Запускаем анимацию на следующий шаг
             Debug.WriteLine("Started GUEST flow.");
         }
 
@@ -38,7 +80,7 @@ namespace Ripplee.ViewModels
         private void StartRegistrationFlow()
         {
             isGuestFlow = false;
-            CurrentStepIndex = 1;
+            StepChangeDirection = AnimationDirection.Forward; // Запускаем анимацию на следующий шаг
             Debug.WriteLine("Started REGISTRATION flow.");
         }
 
@@ -48,22 +90,50 @@ namespace Ripplee.ViewModels
             KeyboardHelper.HideKeyboard();
             if (CurrentStepIndex > 0)
             {
-                CurrentStepIndex--;
+                // Запускаем анимацию "назад"
+                StepChangeDirection = AnimationDirection.Backward;
             }
         }
 
+        /// <summary>
+        /// Основная команда для кнопки "Дальше".
+        /// </summary>
         [RelayCommand]
         private async Task NextStep()
         {
             KeyboardHelper.HideKeyboard();
 
-            // --- Блок проверки полей ввода с DisplayAlert ---
+            // Сначала проверяем, валидны ли введенные данные
+            if (await IsInputValid() == false)
+            {
+                return; // Если нет, прерываем выполнение
+            }
+
+            Debug.WriteLine($"NextStep called. IsGuest: {isGuestFlow}, CurrentStep: {CurrentStepIndex}");
+
+            if (isGuestFlow)
+            {
+                // Если это гостевой флоу, он состоит из одного шага, после которого сразу логин
+                await ProcessGuestLogin();
+            }
+            else
+            {
+                // Если это регистрация, обрабатываем шаги последовательно
+                await ProcessRegistrationSteps();
+            }
+        }
+
+        /// <summary>
+        /// Вспомогательный метод для проверки полей ввода.
+        /// </summary>
+        private async Task<bool> IsInputValid()
+        {
             if (isGuestFlow)
             {
                 if (CurrentStepIndex == 1 && string.IsNullOrWhiteSpace(Username))
                 {
                     await Shell.Current.DisplayAlert("Ошибка", "Пожалуйста, введите ваше имя.", "OK");
-                    return; // Прерываем выполнение команды
+                    return false;
                 }
             }
             else // Если это регистрация
@@ -71,26 +141,15 @@ namespace Ripplee.ViewModels
                 if (CurrentStepIndex == 1 && string.IsNullOrWhiteSpace(Username))
                 {
                     await Shell.Current.DisplayAlert("Ошибка", "Пожалуйста, введите логин.", "OK");
-                    return;
+                    return false;
                 }
                 if (CurrentStepIndex == 2 && string.IsNullOrWhiteSpace(Password))
                 {
                     await Shell.Current.DisplayAlert("Ошибка", "Пожалуйста, придумайте пароль.", "OK");
-                    return;
+                    return false;
                 }
             }
-            // --- Конец блока проверки ---
-
-            Debug.WriteLine($"NextStep called. IsGuest: {isGuestFlow}, CurrentStep: {CurrentStepIndex}");
-
-            if (isGuestFlow)
-            {
-                await ProcessGuestLogin();
-            }
-            else
-            {
-                await ProcessRegistrationSteps();
-            }
+            return true;
         }
 
         private async Task ProcessGuestLogin()
@@ -99,36 +158,37 @@ namespace Ripplee.ViewModels
             bool success = await _userService.LoginAsGuestAsync(Username!);
             if (success)
             {
-                await NavigateToMainApp();
+                // Подаем сигнал View для начала анимации и перехода
+                NavigateToMainApp();
             }
         }
 
         private async Task ProcessRegistrationSteps()
         {
-            Debug.WriteLine($"Processing REGISTRATION step: {CurrentStepIndex}");
-            switch (CurrentStepIndex)
+            // Если это не последний шаг регистрации, просто переходим на следующий
+            if (CurrentStepIndex < 3)
             {
-                case 1: // После ввода имени
-                    CurrentStepIndex = 2; // Переходим к паролю
-                    break;
-                case 2: // После ввода пароля
-                    CurrentStepIndex = 3; // Переходим к аватару
-                    break;
-                case 3: // После шага с аватаром
-                    Debug.WriteLine("Final registration step. Calling service...");
-                    bool success = await _userService.RegisterAndLoginAsync(Username!, Password!);
-                    if (success)
-                    {
-                        await NavigateToMainApp();
-                    }
-                    break;
+                StepChangeDirection = AnimationDirection.Forward;
+            }
+            else // Если это последний шаг (выбор аватара)
+            {
+                Debug.WriteLine("Final registration step. Calling service...");
+                bool success = await _userService.RegisterAndLoginAsync(Username!, Password!);
+                if (success)
+                {
+                    // Подаем сигнал View для начала анимации и перехода
+                    NavigateToMainApp();
+                }
             }
         }
 
-        private async Task NavigateToMainApp()
+        /// <summary>
+        /// Подает сигнал View, что пора запустить анимацию и перейти на главный экран.
+        /// </summary>
+        private void NavigateToMainApp()
         {
-            Debug.WriteLine("Navigating to //MainApp...");
-            await Shell.Current.GoToAsync("//MainApp");
+            Debug.WriteLine("Signaling to View to start navigation animation...");
+            IsNavigatingToMainApp = true;
         }
     }
 }
