@@ -9,8 +9,6 @@ namespace Ripplee
             InitializeComponent();
 
             Routing.RegisterRoute(nameof(SettingsPage), typeof(SettingsPage));
-            Routing.RegisterRoute(nameof(SettingsPage), typeof(SettingsPage));
-            Routing.RegisterRoute(nameof(VoiceChatPage), typeof(VoiceChatPage));
             Routing.RegisterRoute(nameof(VoiceChatPage), typeof(VoiceChatPage));
         }
     }

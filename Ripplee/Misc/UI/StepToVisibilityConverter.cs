@@ -1,7 +1,9 @@
 ﻿using System.Globalization;
+using Ripplee.Misc;
 
 namespace Ripplee.Misc.UI
 {
+    [Preserve(AllMembers = true)]
     public class StepToVisibilityConverter : IValueConverter
     {
         public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)

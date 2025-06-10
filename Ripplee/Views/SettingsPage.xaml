@@ -7,97 +7,96 @@
              Shell.NavBarIsVisible="False"
              Shell.PresentationMode="ModalAnimated">
 
-    <Grid RowDefinitions="Auto,*" Margin="10">
+    <Grid RowDefinitions="Auto,*,Auto" Margin="10">
+
         <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Padding="10,0,10,0">
-            <Border BackgroundColor="#1c1c1c" 
+
+            <VerticalStackLayout Grid.Column="0" Margin="0,0,90,0">
+                <Border BackgroundColor="#1c1c1c" 
                     StrokeShape="RoundRectangle 20,20,20,20"
-                    HeightRequest="60"
-                    Margin="0,0,175,0">
-                <Label Text="Настройки"
-                       TextColor="White"
-                       FontSize="24"
-                       VerticalOptions="Center"
-                       HorizontalOptions="Start"
-                       Margin="35,0,0,0"/>
-            </Border>
+                    HeightRequest="60">
+                    <Label Text="Настройки"
+                        TextColor="White"
+                        FontSize="24"
+                        VerticalOptions="Center"
+                        HorizontalOptions="Center"/>
+                </Border>
+            </VerticalStackLayout>
 
             <Border BackgroundColor="#1c1c1c" 
                     StrokeShape="RoundRectangle 20,20,20,20"
                     HeightRequest="60"
                     WidthRequest="60"
-                    HorizontalOptions="End">
-                <ImageButton x:Name="CloseSettingsButton"
-                             Source="back_icon.png"
-                             BackgroundColor="#131313" 
-                             CornerRadius="10"
-                             Clicked="CloseSettingsButton_Clicked"
-                             HorizontalOptions="End"
-                             VerticalOptions="Center"
-                             WidthRequest="40"
-                             HeightRequest="40"
-                             Margin="0,0,9,0"
-                             Padding="5"/>
+                    HorizontalOptions="End"
+                    Grid.Column="1">
+            <ImageButton x:Name="CloseSettingsButton"
+                                    Source="back_icon.png"
+                                    BackgroundColor="#131313" 
+                                    CornerRadius="10"
+                                    Clicked="CloseSettingsButton_Clicked"
+                                    HorizontalOptions="End"
+                                    VerticalOptions="Center"
+                                    WidthRequest="40"
+                                    HeightRequest="40"
+                                    Margin="0,0,9,0"
+                                    Padding="5"/>
             </Border>
         </Grid>
 
-        <ScrollView Grid.Row="1">
-            <VerticalStackLayout Spacing="0">
-                <Grid Padding="30,60,30,90">
-                    <VerticalStackLayout Spacing="20">
-                        <Label Text="{Binding Username}" 
-                               TextColor="White"
-                               FontSize="24"
-                               VerticalOptions="Center"
-                               HorizontalOptions="Center"/>
-                        <Frame WidthRequest="120" 
-                               HeightRequest="120"
-                               CornerRadius="60" 
-                               HorizontalOptions="Center"
-                               BackgroundColor="#505050"
-                               IsClippedToBounds="True">
-                            <Label Text="A" 
-                                   TextColor="WhiteSmoke"
-                                   FontSize="48"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center"/>
-                        </Frame>
-                        <Button Text="Поменять фото"
-                                BackgroundColor="#3a3a3a"
-                                HorizontalOptions="Center"
+        <Grid Grid.Row="1">
+            <VerticalStackLayout Spacing="20" VerticalOptions="Center" HorizontalOptions="Center">
+                <Label Text="{Binding Username}" 
+                            TextColor="White"
+                            FontSize="24"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Center"/>
+                <Frame WidthRequest="120" 
+                            HeightRequest="120"
+                            CornerRadius="60" 
+                            HorizontalOptions="Center"
+                            BackgroundColor="#505050"
+                            IsClippedToBounds="True">
+                    <Label Text="A" 
                                 TextColor="WhiteSmoke"
-                                CornerRadius="10"
-                                HeightRequest="45"
-                                WidthRequest="180"
-                                Margin="0,20,0,0"
-                                Command="{Binding ChangePhotoCommand}"/>
-                    </VerticalStackLayout>
-                </Grid>
-                <Grid>
-                    <Border BackgroundColor="#1B1B1B" StrokeShape="RoundRectangle 20,20,20,20" Margin="10">
-                        <VerticalStackLayout Spacing="25" Margin="20,25,20,25">
-                            <Button Text="Изменить пароль"
-                                    BackgroundColor="#3a3a3a"
-                                    TextColor="WhiteSmoke"
-                                    CornerRadius="20"
-                                    HeightRequest="55"
-                                    Command="{Binding ChangePasswordCommand}"/>
-                            <Button Text="Изменить почту"
-                                    BackgroundColor="#3a3a3a"
-                                    TextColor="WhiteSmoke"
-                                    CornerRadius="20"
-                                    HeightRequest="55"
-                                    Command="{Binding ChangeEmailCommand}" />
-                            <BoxView HeightRequest="1" Color="#404040" Margin="0,0,0,30"/>
-                            <Button Text="Удалить аккаунт"
-                                    BackgroundColor="#A00000"
-                                    TextColor="WhiteSmoke"
-                                    CornerRadius="20"
-                                    HeightRequest="55"
-                                    Command="{Binding DeleteAccountCommand}"/>
-                        </VerticalStackLayout>
-                    </Border>
-                </Grid>
+                                FontSize="48"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"/>
+                </Frame>
+                <Button Text="Поменять фото"
+                            BackgroundColor="#3a3a3a"
+                            HorizontalOptions="Center"
+                            TextColor="WhiteSmoke"
+                            CornerRadius="10"
+                            HeightRequest="45"
+                            WidthRequest="180"
+                            Margin="0,20,0,0"
+                            Command="{Binding ChangePhotoCommand}"/>
             </VerticalStackLayout>
-        </ScrollView>
+        </Grid>
+        <Grid Grid.Row="2">
+            <Border BackgroundColor="#1B1B1B" StrokeShape="RoundRectangle 20,20,20,20" Margin="10">
+                <VerticalStackLayout Spacing="25" Margin="20,25,20,25">
+                    <Button Text="Изменить пароль"
+                                            BackgroundColor="#3a3a3a"
+                                            TextColor="WhiteSmoke"
+                                            CornerRadius="20"
+                                            HeightRequest="55"
+                                            Command="{Binding ChangePasswordCommand}"/>
+                    <Button Text="Изменить почту"
+                                            BackgroundColor="#3a3a3a"
+                                            TextColor="WhiteSmoke"
+                                            CornerRadius="20"
+                                            HeightRequest="55"
+                                            Command="{Binding ChangeEmailCommand}" />
+                    <BoxView HeightRequest="1" Color="#404040" Margin="0,0,0,30"/>
+                    <Button Text="Удалить аккаунт"
+                                            BackgroundColor="#A00000"
+                                            TextColor="WhiteSmoke"
+                                            CornerRadius="20"
+                                            HeightRequest="55"
+                                            Command="{Binding DeleteAccountCommand}"/>
+                </VerticalStackLayout>
+            </Border> 
+        </Grid>
     </Grid>
 </ContentPage>

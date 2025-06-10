@@ -1,9 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Ripplee.Services.Interfaces;
+using Ripplee.Misc.UI; // Для KeyboardHelper
 using System.Diagnostics;
-using Ripplee.Misc.UI;
-
 
 namespace Ripplee.ViewModels
 {
@@ -31,7 +30,7 @@ namespace Ripplee.ViewModels
         private void StartGuestFlow()
         {
             isGuestFlow = true;
-            CurrentStepIndex = 1; // Переходим на шаг ввода имени
+            CurrentStepIndex = 1;
             Debug.WriteLine("Started GUEST flow.");
         }
 
@@ -39,18 +38,28 @@ namespace Ripplee.ViewModels
         private void StartRegistrationFlow()
         {
             isGuestFlow = false;
-            CurrentStepIndex = 1; // Переходим на шаг ввода имени
+            CurrentStepIndex = 1;
             Debug.WriteLine("Started REGISTRATION flow.");
+        }
+
+        [RelayCommand]
+        private void PreviousStep()
+        {
+            KeyboardHelper.HideKeyboard();
+            if (CurrentStepIndex > 0)
+            {
+                CurrentStepIndex--;
+            }
         }
 
         [RelayCommand]
         private async Task NextStep()
         {
             KeyboardHelper.HideKeyboard();
-            // --- Блок проверки полей ввода ---
+
+            // --- Блок проверки полей ввода с DisplayAlert ---
             if (isGuestFlow)
             {
-                // Проверка для гостя
                 if (CurrentStepIndex == 1 && string.IsNullOrWhiteSpace(Username))
                 {
                     await Shell.Current.DisplayAlert("Ошибка", "Пожалуйста, введите ваше имя.", "OK");
@@ -61,7 +70,7 @@ namespace Ripplee.ViewModels
             {
                 if (CurrentStepIndex == 1 && string.IsNullOrWhiteSpace(Username))
                 {
-                    await Shell.Current.DisplayAlert("Ошибка", "Пожалуйста, введите ваше имя.", "OK");
+                    await Shell.Current.DisplayAlert("Ошибка", "Пожалуйста, введите логин.", "OK");
                     return;
                 }
                 if (CurrentStepIndex == 2 && string.IsNullOrWhiteSpace(Password))
@@ -71,7 +80,6 @@ namespace Ripplee.ViewModels
                 }
             }
             // --- Конец блока проверки ---
-
 
             Debug.WriteLine($"NextStep called. IsGuest: {isGuestFlow}, CurrentStep: {CurrentStepIndex}");
 
@@ -120,20 +128,7 @@ namespace Ripplee.ViewModels
         private async Task NavigateToMainApp()
         {
             Debug.WriteLine("Navigating to //MainApp...");
-            if (MainThread.IsMainThread)
-            {
-                await Shell.Current.GoToAsync("//MainApp");
-            }
-            else
-            {
-                await MainThread.InvokeOnMainThreadAsync(async () =>
-                {
-                    await Shell.Current.GoToAsync("//MainApp");
-                });
-            }
-            Debug.WriteLine("Navigation to //MainApp command sent.");
+            await Shell.Current.GoToAsync("//MainApp");
         }
-
-        // Метод CanExecuteNextStep больше не используется, его можно удалить.
     }
 }

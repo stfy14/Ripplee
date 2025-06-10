@@ -15,11 +15,11 @@
 
     <!-- Основное содержимое приложения, которое будет доступно после входа -->
     <!-- Используем FlyoutItem или TabBar, чтобы сгруппировать страницы -->
-    <TabBar Route="MainApp">
+    <FlyoutItem Route="MainApp">
         <ShellContent
             Title="Home"
             ContentTemplate="{DataTemplate local:MainPage}"
             Route="MainPage" />
-    </TabBar>
+    </FlyoutItem>
     
 </Shell>
