@@ -8,6 +8,7 @@ using Ripplee.Server.Data;
 using Ripplee.Server.Hubs;
 using System.IdentityModel.Tokens.Jwt; // Убедитесь, что этот using на месте
 using System.Text;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,11 +75,18 @@ builder.Services.AddSwaggerGen(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(options =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    // Это поможет Swagger правильно найти свои файлы за Nginx
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Ripplee API v1");
+    options.RoutePrefix = "swagger"; // Убедитесь, что URL: http://your_ip/swagger
+});
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 app.UseHttpsRedirection();
 
