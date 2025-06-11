@@ -5,6 +5,8 @@ VisualStudioVersion = 17.14.36127.28
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ripplee", "Ripplee\Ripplee.csproj", "{115D25CD-08F3-4663-8B0C-3BC9B5272713}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ripplee.Server", "Ripplee.Server\Ripplee.Server.csproj", "{12AE1AB6-4B29-4F38-B94B-9D996DF0C633}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,6 +19,10 @@ Global
 		{115D25CD-08F3-4663-8B0C-3BC9B5272713}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{115D25CD-08F3-4663-8B0C-3BC9B5272713}.Release|Any CPU.Build.0 = Release|Any CPU
 		{115D25CD-08F3-4663-8B0C-3BC9B5272713}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{12AE1AB6-4B29-4F38-B94B-9D996DF0C633}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12AE1AB6-4B29-4F38-B94B-9D996DF0C633}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12AE1AB6-4B29-4F38-B94B-9D996DF0C633}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12AE1AB6-4B29-4F38-B94B-9D996DF0C633}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

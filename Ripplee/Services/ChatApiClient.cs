@@ -1,0 +1,124 @@
+﻿using Ripplee.Models;
+using System;
+using System.Diagnostics;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+using System.Net.Http.Headers;
+
+namespace Ripplee.Services.Data
+{
+    // Модель для ответа от сервера
+    public class LoginResponse
+    {
+        public string? Token { get; set; }
+    }
+    public class ProfileResponse
+    {
+        public int Id { get; set; }
+        public string? Username { get; set; }
+    }
+
+    public class ChatApiClient
+    {
+        private readonly HttpClient _httpClient;
+        private readonly JsonSerializerOptions _serializerOptions;
+
+        public ChatApiClient(HttpClient httpClient)
+        {
+            _httpClient = httpClient;
+            _serializerOptions = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+        }
+
+        // ✅ НОВЫЙ МЕТОД
+        public async Task<string?> LoginAsync(string username, string password)
+        {
+            try
+            {
+                var request = new { username, password };
+                var json = JsonSerializer.Serialize(request);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync("api/Users/login", content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    // Можно добавить более детальную обработку ошибок
+                    return null;
+                }
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+                var loginResponse = JsonSerializer.Deserialize<LoginResponse>(responseContent, _serializerOptions);
+
+                return loginResponse?.Token;
+            }
+            catch (Exception ex)
+            {
+                // В реальном приложении здесь нужно логировать ошибку
+                Debug.WriteLine($"Login failed: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<bool> RegisterAsync(string username, string password)
+        {
+            try
+            {
+                var request = new { username, password };
+                var json = JsonSerializer.Serialize(request);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync("api/users/register", content);
+
+                // Просто возвращаем, был ли запрос успешным (код 2xx)
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Registration failed: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<ProfileResponse?> GetProfileAsync()
+        {
+            try
+            {
+                // 1. Получаем токен из безопасного хранилища
+                var token = await SecureStorage.Default.GetAsync("auth_token");
+                if (string.IsNullOrEmpty(token))
+                {
+                    Debug.WriteLine("GetProfileAsync: No auth token found.");
+                    return null;
+                }
+
+                // 2. Устанавливаем заголовок авторизации для этого запроса
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                // 3. Отправляем GET-запрос
+                var response = await _httpClient.GetAsync("api/users/profile");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    Debug.WriteLine($"GetProfileAsync failed with status code: {response.StatusCode}");
+                    return null;
+                }
+
+                // 4. Парсим успешный ответ
+                var responseContent = await response.Content.ReadAsStringAsync();
+                var profileResponse = JsonSerializer.Deserialize<ProfileResponse>(responseContent, _serializerOptions);
+
+                return profileResponse;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"GetProfileAsync failed: {ex.Message}");
+                return null;
+            }
+        }
+    }
+}

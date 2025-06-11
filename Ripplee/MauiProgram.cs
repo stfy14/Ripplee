@@ -18,6 +18,17 @@ namespace Ripplee
 {
     public static class MauiProgram
     {
+        private static string GetApiBaseAddress()
+        {
+            if (DeviceInfo.Platform == DevicePlatform.Android)
+                return "https://10.0.2.2:7042"; // УБЕДИТЕСЬ, ЧТО ПОРТ ВЕРНЫЙ
+
+            if (DeviceInfo.Platform == DevicePlatform.WinUI)
+                return "https://localhost:7042"; // УБЕДИТЕСЬ, ЧТО ПОРТ ВЕРНЫЙ
+
+            return "https://localhost:7042";
+        }
+
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
@@ -34,25 +45,41 @@ namespace Ripplee
             builder.Logging.AddDebug();
 #endif
 
-            // --- Секция Dependency Injection ---
+            // --- НАЧАЛО БЛОКА ИЗМЕНЕНИЙ ---
 
-            builder.Services.AddHttpClient<ChatApiClient>(client =>
+            // Регистрируем HttpMessageHandler, который будет игнорировать ошибки
+            // SSL-сертификата ТОЛЬКО в режиме отладки.
+#if DEBUG
+            builder.Services.AddSingleton<HttpClientHandler>(_ => new HttpClientHandler
             {
-                // В будущем здесь будет базовый адрес твоего API
-                // client.BaseAddress = new Uri("https://api.ripplee.com/");
+                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+            });
+#else
+            builder.Services.AddSingleton<HttpClientHandler>();
+#endif
+
+            // Регистрируем HttpClient и говорим ему использовать наш настроенный handler
+            builder.Services.AddSingleton(serviceProvider =>
+            {
+                var handler = serviceProvider.GetRequiredService<HttpClientHandler>();
+                return new HttpClient(handler)
+                {
+                    BaseAddress = new Uri(GetApiBaseAddress())
+                };
             });
 
-            // Регистрируем сервисы
+            // --- КОНЕЦ БЛОКА ИЗМЕНЕНИЙ ---
+
+            // --- Секция Dependency Injection ---
+            builder.Services.AddSingleton<ChatApiClient>();
             builder.Services.AddSingleton<IUserService, UserService>();
             builder.Services.AddSingleton<IChatService, ChatService>();
 
-            // Регистрируем ViewModel'и
             builder.Services.AddTransient<MainViewModel>();
             builder.Services.AddTransient<SettingsViewModel>();
             builder.Services.AddTransient<VoiceChatViewModel>();
             builder.Services.AddTransient<OnboardingViewModel>();
 
-            // Регистрируем страницы
             builder.Services.AddTransient<MainPage>();
             builder.Services.AddTransient<SettingsPage>();
             builder.Services.AddTransient<VoiceChatPage>();
