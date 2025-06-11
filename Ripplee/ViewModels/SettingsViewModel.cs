@@ -7,6 +7,7 @@ namespace Ripplee.ViewModels
 {
     public partial class SettingsViewModel : ObservableObject
     {
+        private readonly IUserService _userService;
 
         [ObservableProperty]
         private string? username;
@@ -14,7 +15,7 @@ namespace Ripplee.ViewModels
         // ИЗМЕНЕНО: Конструктор теперь не зависит от MainViewModel
         public SettingsViewModel(IUserService userService)
         {
-            // Берем имя пользователя из общего сервиса
+            _userService = userService;
             Username = userService.CurrentUser.Username;
         }
 
@@ -34,6 +35,14 @@ namespace Ripplee.ViewModels
         private void ChangeEmail()
         {
             // Реализация изменения email
+        }
+
+        [RelayCommand]
+        private async Task Logout()
+        {
+            await _userService.LogoutAsync();
+            // После выхода сбрасываем стек навигации и переходим на страницу входа
+            await Shell.Current.GoToAsync("//OnboardingPage");
         }
 
         [RelayCommand]

@@ -1,13 +1,29 @@
-﻿using Ripplee.Models;
+﻿// Файл: Ripplee/Services/Services/UserService.cs
+
+using CommunityToolkit.Mvvm.Messaging; // <-- Добавлен using
+using Ripplee.Models;
+using Ripplee.Services.Data;
 using Ripplee.Services.Interfaces;
 using System.Diagnostics;
-using Ripplee.Services.Data;
 
 namespace Ripplee.Services.Services
 {
+    // ✅ ОБЪЯВЛЯЕМ КЛАСС СООБЩЕНИЯ
+    // Его можно объявить здесь или в отдельном файле.
+    // Для простоты оставим здесь.
+    public sealed class UserChangedMessage
+    {
+        public UserModel? NewUser { get; }
+        public UserChangedMessage(UserModel? user)
+        {
+            NewUser = user;
+        }
+    }
+
     public class UserService : IUserService
     {
         private readonly ChatApiClient _apiClient;
+
         public UserModel CurrentUser { get; private set; } = new();
         public UserStatus CurrentStatus { get; private set; } = UserStatus.Unauthenticated;
 
@@ -22,26 +38,60 @@ namespace Ripplee.Services.Services
             Debug.WriteLine("User service initialized.");
         }
 
-        public async Task<bool> LoginAsGuestAsync(string username)
+        public async Task<bool> TryAutoLoginAsync()
         {
-            await Task.Delay(50);
-            CurrentUser = new UserModel { Username = username };
-            CurrentStatus = UserStatus.Guest;
-            Debug.WriteLine($"Logged in as GUEST: {username}");
-            return true;
-        }
-
-        // Убедись, что сигнатура совпадает с интерфейсом (topic необязательный)
-        public async Task<bool> RegisterAndLoginAsync(string username, string password, string? topic = null)
-        {
-            bool registrationSuccess = await _apiClient.RegisterAsync(username, password);
-            if (!registrationSuccess)
+            var token = await SecureStorage.Default.GetAsync("auth_token");
+            if (string.IsNullOrEmpty(token))
             {
-                Debug.WriteLine($"Registration failed for user: {username}");
-                // TODO: Показать ошибку пользователю
                 return false;
             }
 
+            var profile = await _apiClient.GetProfileAsync();
+            if (profile == null)
+            {
+                SecureStorage.Default.Remove("auth_token");
+                return false;
+            }
+
+            CurrentUser = new UserModel { Username = profile.Username ?? "Unknown" };
+            CurrentStatus = UserStatus.Registered;
+            Debug.WriteLine($"Auto-login successful for user: {CurrentUser.Username}");
+
+            // Отправляем сообщение об успешном авто-логине
+            WeakReferenceMessenger.Default.Send(new UserChangedMessage(CurrentUser));
+
+            return true;
+        }
+
+        public async Task<bool> LoginAsGuestAsync(string username)
+        {
+            await Task.Delay(500);
+            CurrentUser = new UserModel { Username = username };
+            CurrentStatus = UserStatus.Guest;
+            Debug.WriteLine($"Logged in as GUEST: {username}");
+
+            // Отправляем сообщение
+            WeakReferenceMessenger.Default.Send(new UserChangedMessage(CurrentUser));
+
+            return true;
+        }
+
+        public async Task<bool> RegisterAndLoginAsync(string username, string password, string? topic = null)
+        {
+            bool registrationSuccess = await _apiClient.RegisterAsync(username, password);
+
+            if (!registrationSuccess)
+            {
+                Debug.WriteLine($"Registration failed for user: {username}");
+                return false;
+            }
+
+            // Переиспользуем наш метод логина, который уже отправляет сообщение
+            return await LoginAsync(username, password);
+        }
+
+        public async Task<bool> LoginAsync(string username, string password)
+        {
             var token = await _apiClient.LoginAsync(username, password);
             if (string.IsNullOrEmpty(token))
             {
@@ -49,35 +99,33 @@ namespace Ripplee.Services.Services
             }
 
             await SecureStorage.Default.SetAsync("auth_token", token);
-
-            // ✅ НАЧАЛО БЛОКА ИЗМЕНЕНИЙ
-            // Сразу после получения токена, загружаем данные профиля с сервера
             var profile = await _apiClient.GetProfileAsync();
             if (profile == null)
             {
-                // Что-то пошло не так, хотя мы только что залогинились.
-                // Этого не должно произойти, но лучше обработать.
-                Debug.WriteLine("Failed to get profile after login.");
-                return false; // Считаем вход неудачным, если не смогли получить профиль
+                return false;
             }
 
-            // Заполняем модель реальными данными с сервера
             CurrentUser = new UserModel { Username = profile.Username ?? "Unknown" };
-            // В будущем здесь можно будет добавить Id = profile.Id и т.д.
             CurrentStatus = UserStatus.Registered;
             Debug.WriteLine($"Logged in and profile loaded for USER: {CurrentUser.Username}");
-            // ✅ КОНЕЦ БЛОКА ИЗМЕНЕНИЙ
+
+            // ✅ ОТПРАВЛЯЕМ СООБЩЕНИЕ ОБ УСПЕШНОМ ВХОДЕ
+            WeakReferenceMessenger.Default.Send(new UserChangedMessage(CurrentUser));
 
             return true;
         }
 
         public async Task LogoutAsync()
         {
-            await Task.CompletedTask;
-            // При выходе тоже создаем новый пустой объект
+            SecureStorage.Default.Remove("auth_token");
             CurrentUser = new();
             CurrentStatus = UserStatus.Unauthenticated;
-            Debug.WriteLine("User logged out.");
+            Debug.WriteLine("User logged out and token removed.");
+
+            // ✅ ОТПРАВЛЯЕМ СООБЩЕНИЕ О ВЫХОДЕ (с null)
+            WeakReferenceMessenger.Default.Send(new UserChangedMessage(null));
+
+            await Task.CompletedTask;
         }
     }
 }

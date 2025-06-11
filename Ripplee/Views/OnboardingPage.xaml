@@ -101,17 +101,16 @@
         </Style>
     </ContentPage.Resources>
 
-    <!-- Используем Grid с фиксированным хедером -->
-    <Grid RowDefinitions="Auto,*" BackgroundColor="#202020" x:Name="RootGrid">
+    <Grid RowDefinitions="Auto,*" BackgroundColor="#202020" x:Name="RootGrid" Padding="5,0,5,0">
 
         <!-- Фиксированный верхний хедер для всех страниц -->
         <Border Grid.Row="0" Style="{StaticResource HeaderContainer}">
             <VerticalStackLayout>
-                <!-- Заголовок для первой страницы -->
-                <Label Text="Reeplee" Style="{StaticResource AppTitle}"
-                       IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='0'}"/>
-
-                <!-- Навигационный хедер для остальных страниц -->
+                <!-- Первая -->
+                <Grid IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='0'}">
+                    <Label Text="Reeplee" Style="{StaticResource AppTitle}"/>
+                </Grid>
+                <!-- Вторая -->
                 <Grid ColumnDefinitions="Auto,*,Auto" Padding="10"
                       IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='1'}">
                     <Border Grid.Column="0" Style="{StaticResource HeaderActionButton}">
@@ -129,7 +128,7 @@
                     </Border>
                     <Label Grid.Column="1" Text="Ввод логина" Style="{StaticResource HeaderTitle}"/>
                 </Grid>
-
+                <!-- Третья -->
                 <Grid ColumnDefinitions="Auto,*,Auto" Padding="10"
                       IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='2'}">
                     <Border Grid.Column="0" Style="{StaticResource HeaderActionButton}">
@@ -147,7 +146,7 @@
                     </Border>
                     <Label Grid.Column="1" Text="Ввод пароля" Style="{StaticResource HeaderTitle}"/>
                 </Grid>
-
+                <!-- Четвертая -->
                 <Grid ColumnDefinitions="Auto,*,Auto" Padding="10"
                       IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='3'}">
                     <Border Grid.Column="0" Style="{StaticResource HeaderActionButton}">
@@ -165,6 +164,26 @@
                     </Border>
                     <Label Grid.Column="1" Text="Выбор аватара" Style="{StaticResource HeaderTitle}"/>
                 </Grid>
+                <!-- Пятая -->
+                <Grid ColumnDefinitions="Auto,*,Auto" Padding="10"
+                      IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='4'}">
+
+                    <Border Grid.Column="0" Style="{StaticResource HeaderActionButton}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding PreviousStepCommand}" />
+                        </Border.GestureRecognizers>
+
+                        <Image Source="back_icon.png"
+                               Aspect="AspectFit"
+                               Rotation="90"
+                               HeightRequest="24"
+                               WidthRequest="24"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+                    </Border>
+
+                    <Label Grid.Column="1" Text="Вход в аккаунт" Style="{StaticResource HeaderTitle}"/>
+                </Grid>
             </VerticalStackLayout>
         </Border>
 
@@ -178,7 +197,6 @@
                                      IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='0'}"
                                      x:Name="Step0Layout">
 
-                    <!-- Основной контент с функциями -->
                     <Border Style="{StaticResource ContentContainer}">
                         <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}">
                             <BoxView HeightRequest="2" Color="#808080" HorizontalOptions="Center" 
@@ -205,11 +223,10 @@
                         </VerticalStackLayout>
                     </Border>
 
-                    <!-- Кнопки -->
                     <Border Style="{StaticResource ButtonContainer}">
                         <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}">
-                            <Button Text="Регистрация" 
-                                    Command="{Binding StartRegistrationFlowCommand}" 
+                            <Button Text="Продолжить" 
+                                    Command="{Binding StartFlowCommand}" 
                                     Style="{StaticResource OnboardingButton}"/>
 
                             <Button Text="Как гость" 
@@ -333,6 +350,40 @@
                                 Command="{Binding NextStepCommand}" 
                                 Style="{StaticResource OnboardingButton}"/>
                     </Border>
+                </VerticalStackLayout>
+
+                <!-- ✅ НАЧАЛО БЛОКА ДЛЯ НОВОЙ СТРАНИЦЫ ВХОДА (ШАГ 4) -->
+                <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}" 
+                     VerticalOptions="Start" Padding="0,10,0,20"
+                     IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='4'}"
+                     x:Name="StepLoginPasswordLayout">
+
+                    <Border Style="{StaticResource ContentContainer}">
+                        <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}">
+                            <!-- Приветствуем существующего пользователя -->
+                            <Label Text="{Binding GreetingMessage}" Style="{StaticResource OnboardingTitle}"/>
+
+                            <Label Text="Введите пароль" 
+                                   FontSize="{OnPlatform Default=18, Android=16, iOS=16}" 
+                                   TextColor="Gray" 
+                                   HorizontalOptions="Center"/>
+
+                            <BoxView HeightRequest="2" Color="#808080" Margin="0,15,0,30" HorizontalOptions="Center" WidthRequest="150"/>
+
+                            <Border Style="{StaticResource InputContainer}">
+                                <Entry Placeholder="Введите пароль" Text="{Binding Password}" IsPassword="True" Style="{StaticResource InputEntry}"/>
+                            </Border>
+
+                            <!-- Используем новую команду LoginCommand -->
+                            <Button Text="Войти" 
+                                    Command="{Binding LoginCommand}" 
+                                    Style="{StaticResource OnboardingButton}" 
+                                    Margin="0,15,0,0"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Image Source="hand_shake.svg" Aspect="AspectFit" HeightRequest="150" Margin="0,100,0,0"/>
+
                 </VerticalStackLayout>
 
             </Grid>

@@ -19,6 +19,11 @@ namespace Ripplee.Services.Data
         public int Id { get; set; }
         public string? Username { get; set; }
     }
+    public class UserExistsResponse
+    {
+        public bool Exists { get; set; }
+    }
+
 
     public class ChatApiClient
     {
@@ -34,7 +39,28 @@ namespace Ripplee.Services.Data
             };
         }
 
-        // ✅ НОВЫЙ МЕТОД
+        public async Task<bool> CheckUserExistsAsync(string username)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"api/users/exists/{username}");
+                if (!response.IsSuccessStatusCode)
+                {
+                    return false; // По умолчанию считаем, что не существует, если есть ошибка
+                }
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+                var existsResponse = JsonSerializer.Deserialize<UserExistsResponse>(responseContent, _serializerOptions);
+
+                return existsResponse?.Exists ?? false;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"CheckUserExistsAsync failed: {ex.Message}");
+                return false;
+            }
+        }
+
         public async Task<string?> LoginAsync(string username, string password)
         {
             try

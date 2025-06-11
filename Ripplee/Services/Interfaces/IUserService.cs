@@ -10,6 +10,8 @@ namespace Ripplee.Services.Interfaces
         Task InitializeAsync();
         Task<bool> LoginAsGuestAsync(string username);
         Task<bool> RegisterAndLoginAsync(string username, string password, string? topic = null); // Оставляем необязательный topic
+        Task<bool> LoginAsync(string username, string password);
+        Task<bool> TryAutoLoginAsync();
         Task LogoutAsync();
     }
 }

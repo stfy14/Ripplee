@@ -5,16 +5,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Ripplee.Server.Data;
+using Ripplee.Server.Hubs;
 using System.IdentityModel.Tokens.Jwt; // Убедитесь, что этот using на месте
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Настраиваем подключение к базе данных SQLite
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// 2. Настраиваем JWT-аутентификацию
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -34,13 +33,16 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// 2.1. Регистрируем сервисы Авторизации
+// Регистрируем сервисы Авторизации
 builder.Services.AddAuthorization();
 
-// 3. Регистрируем контроллеры
+// Регистрируем контроллеры
 builder.Services.AddControllers();
 
-// 4. Добавляем и настраиваем Swagger (OpenAPI)
+// Регистрируем сервисы SignalR
+builder.Services.AddSignalR();
+
+// Добавляем и настраиваем Swagger (OpenAPI)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -80,11 +82,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// 5. Включаем аутентификацию и авторизацию.
+// Включаем аутентификацию и авторизацию.
 app.UseAuthentication();
 app.UseAuthorization();
 
-// 6. Сопоставляем запросы с методами в контроллерах
+// Сопоставляем запросы с методами в контроллерах
 app.MapControllers();
+
+// ULR к hUB
+app.MapHub<MatchmakingHub>("/matchmakingHub");
 
 app.Run();

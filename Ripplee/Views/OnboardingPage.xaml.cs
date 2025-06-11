@@ -1,114 +1,106 @@
-﻿// OnboardingPage.xaml.cs (ИСПРАВЛЕННАЯ ВЕРСИЯ)
+﻿// Файл: Ripplee/Views/OnboardingPage.xaml.cs
 
+using CommunityToolkit.Mvvm.Messaging; // <-- Добавлен using
 using Ripplee.ViewModels;
 using System.ComponentModel;
 
-namespace Ripplee.Views;
-
-public partial class OnboardingPage : ContentPage
+namespace Ripplee.Views
 {
-    private OnboardingViewModel? _viewModel;
-
-    public OnboardingPage(OnboardingViewModel viewModel)
+    public partial class OnboardingPage : ContentPage
     {
-        InitializeComponent();
-        BindingContext = _viewModel = viewModel;
-    }
+        private OnboardingViewModel? _viewModel;
 
-    // ✅ ИСПРАВЛЕНО: Используем OnAppearing
-    // Этот метод вызывается каждый раз, когда страница появляется на экране.
-    protected override void OnAppearing()
-    {
-        base.OnAppearing();
-
-        // ✅ ВАЖНО: Сбрасываем прозрачность при каждом появлении страницы.
-        // Это нужно, чтобы после возврата на эту страницу она не осталась невидимой.
-        RootGrid.Opacity = 1;
-
-        if (_viewModel != null)
+        public OnboardingPage(OnboardingViewModel viewModel)
         {
-            _viewModel.PropertyChanged += ViewModel_PropertyChanged;
+            InitializeComponent();
+            BindingContext = _viewModel = viewModel;
         }
-    }
 
-    // ✅ ИСПРАВЛЕНО: Используем OnDisappearing
-    // Этот метод вызывается, когда страница уходит с экрана.
-    protected override void OnDisappearing()
-    {
-        base.OnDisappearing();
-        if (_viewModel != null)
+        protected override void OnAppearing()
         {
-            _viewModel.PropertyChanged -= ViewModel_PropertyChanged;
-        }
-    }
+            base.OnAppearing();
+            RootGrid.Opacity = 1;
 
-    private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        // Реагируем на смену шага
-        if (e.PropertyName == nameof(OnboardingViewModel.StepChangeDirection))
-        {
-            HandleStepAnimation();
-        }
-        // ✅ НОВЫЙ БЛОК: Реагируем на сигнал к финальной навигации
-        else if (e.PropertyName == nameof(OnboardingViewModel.IsNavigatingToMainApp))
-        {
-            if (_viewModel is not null && _viewModel.IsNavigatingToMainApp)
+            // Отправляем сообщение с просьбой сбросить состояние ViewModel
+            // Это гарантирует, что при каждом возврате на эту страницу (особенно после выхода)
+            // мы начнем с чистого листа.
+            WeakReferenceMessenger.Default.Send(new ResetStateMessage());
+
+            if (_viewModel != null)
             {
-                AnimateAndNavigateToMain();
+                _viewModel.PropertyChanged += ViewModel_PropertyChanged;
             }
         }
-    }
 
-    private async void AnimateAndNavigateToMain()
-    {
-        // Плавно делаем всю страницу невидимой
-        await RootGrid.FadeTo(0, 400, Easing.CubicIn);
-
-        // После завершения анимации — выполняем переход
-        await Shell.Current.GoToAsync("//MainApp", true, new Dictionary<string, object>
+        protected override void OnDisappearing()
         {
-            { "FromOnboarding", true }
-        });
-    }
-
-    private async void HandleStepAnimation()
-    {
-        if (_viewModel is null || _viewModel.StepChangeDirection == AnimationDirection.None)
-            return;
-
-        View? currentView = GetViewForStep(_viewModel.CurrentStepIndex);
-        if (currentView == null) return;
-
-        bool isGoingForward = _viewModel.StepChangeDirection == AnimationDirection.Forward;
-
-        // Анимация "ухода" текущего вида
-        double translationX = isGoingForward ? -this.Width : this.Width;
-        await currentView.TranslateTo(translationX, 0, 300, Easing.CubicIn);
-
-        // Говорим ViewModel, что можно поменять CurrentStepIndex
-        if (_viewModel.CompleteStepChangeCommand.CanExecute(null))
-        {
-            _viewModel.CompleteStepChangeCommand.Execute(null);
+            base.OnDisappearing();
+            if (_viewModel != null)
+            {
+                _viewModel.PropertyChanged -= ViewModel_PropertyChanged;
+            }
         }
 
-        // Находим новый вид, который стал видимым
-        View? nextView = GetViewForStep(_viewModel.CurrentStepIndex);
-        if (nextView == null) return;
-
-        // Анимация "прихода" нового вида
-        nextView.TranslationX = -translationX;
-        await nextView.TranslateTo(0, 0, 300, Easing.CubicOut);
-    }
-
-    private View? GetViewForStep(int stepIndex)
-    {
-        return stepIndex switch
+        private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            0 => Step0Layout,
-            1 => Step1Layout,
-            2 => Step2Layout,
-            3 => Step3Layout,
-            _ => null
-        };
+            if (e.PropertyName == nameof(OnboardingViewModel.StepChangeDirection))
+            {
+                HandleStepAnimation();
+            }
+            else if (e.PropertyName == nameof(OnboardingViewModel.IsNavigatingToMainApp))
+            {
+                if (_viewModel is not null && _viewModel.IsNavigatingToMainApp)
+                {
+                    AnimateAndNavigateToMain();
+                }
+            }
+        }
+
+        private async void AnimateAndNavigateToMain()
+        {
+            await RootGrid.FadeTo(0, 400, Easing.CubicIn);
+            await Shell.Current.GoToAsync("//MainApp", true, new Dictionary<string, object>
+            {
+                { "FromOnboarding", true }
+            });
+        }
+
+        private async void HandleStepAnimation()
+        {
+            if (_viewModel is null || _viewModel.StepChangeDirection == AnimationDirection.None)
+                return;
+
+            View? currentView = GetViewForStep(_viewModel.CurrentStepIndex);
+            if (currentView == null) return;
+
+            bool isGoingForward = _viewModel.StepChangeDirection == AnimationDirection.Forward;
+
+            double translationX = isGoingForward ? -this.Width : this.Width;
+            await currentView.TranslateTo(translationX, 0, 300, Easing.CubicIn);
+
+            if (_viewModel.CompleteStepChangeCommand.CanExecute(null))
+            {
+                _viewModel.CompleteStepChangeCommand.Execute(null);
+            }
+
+            View? nextView = GetViewForStep(_viewModel.CurrentStepIndex);
+            if (nextView == null) return;
+
+            nextView.TranslationX = -translationX;
+            await nextView.TranslateTo(0, 0, 300, Easing.CubicOut);
+        }
+
+        private View? GetViewForStep(int stepIndex)
+        {
+            return stepIndex switch
+            {
+                0 => Step0Layout,
+                1 => Step1Layout,
+                2 => Step2Layout,
+                3 => Step3Layout,
+                4 => StepLoginPasswordLayout,
+                _ => null
+            };
+        }
     }
 }

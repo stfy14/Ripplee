@@ -1,20 +1,25 @@
-﻿// Файл: ViewModels/MainViewModel.cs
+﻿// Файл: Ripplee/ViewModels/MainViewModel.cs
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.Messaging;
 using Ripplee.Models;
 using Ripplee.Services.Interfaces;
+using Ripplee.Services.Services; 
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 
 namespace Ripplee.ViewModels
 {
-    public partial class MainViewModel : ObservableObject
+    // Указываем, что ViewModel теперь является получателем сообщений
+    public partial class MainViewModel : ObservableObject, IRecipient<UserChangedMessage>
     {
         private readonly IChatService _chatService;
-        private readonly IUserService _userService; // <-- ДОБАВЛЕНО
+        private readonly IUserService _userService; // Сделали полем класса
 
-        // ИЗМЕНЕНО: Теперь это свойство только для чтения, оно берет данные из сервиса
-        public UserModel User => _userService.CurrentUser;
+        // ✅ ИЗМЕНЕНО: Свойство теперь отслеживаемое, чтобы UI обновлялся
+        [ObservableProperty]
+        private UserModel user;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(MenuButtonRotation))]
@@ -26,35 +31,50 @@ namespace Ripplee.ViewModels
         public ObservableCollection<string> Cities { get; } = new(["Москва", "Санкт-Петербург", "Новосибирск"]);
         public ObservableCollection<string> Topics { get; } = new(["Технологии", "Искусство", "Музыка"]);
 
-        // ИЗМЕНЕНО: Конструктор теперь принимает IUserService
         public MainViewModel(IChatService chatService, IUserService userService)
         {
-            Debug.WriteLine("MainViewModel constructor START"); // <-- Добавь это
+            Debug.WriteLine("MainViewModel constructor START");
             _chatService = chatService;
-            _userService = userService; // <-- ДОБАВЛЕНО
-            Debug.WriteLine($"MainViewModel constructor END. Username is: {User.Username}"); // <-- И это
+            _userService = userService; // Сохраняем сервис в поле
+            User = _userService.CurrentUser; // Начальная установка
+
+            // Подписываемся на сообщения об изменении пользователя
+            WeakReferenceMessenger.Default.Register<UserChangedMessage>(this);
+            Debug.WriteLine("MainViewModel constructor END.");
         }
 
-        // --- Команды ---
+        // ✅ ИЗМЕНЕНО: Реализация интерфейса IRecipient
+        // Этот метод будет вызван, когда UserService отправит сообщение
+        public void Receive(UserChangedMessage message)
+        {
+            // Гарантируем, что обновление свойства, привязанного к UI,
+            // происходит в основном потоке.
+            MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                // ✅ ЛОГИКА ИСПРАВЛЕНА:
+                // Мы всегда берем актуального пользователя напрямую из сервиса.
+                // Это гарантирует, что у нас всегда свежие данные.
+                User = _userService.CurrentUser;
+                Debug.WriteLine($"MainViewModel updated via message. New user from service: '{User.Username}'");
+            });
+        }
+
+        // --- Остальные команды остаются без изменений ---
 
         [RelayCommand]
-        private void ToggleMenu() // Эта команда для кнопки меню, она работает всегда
+        private void ToggleMenu()
         {
             IsMenuOpen = !IsMenuOpen;
         }
 
-        // Команда для закрытия меню по клику на фон.
-        // Может выполниться, ТОЛЬКО если CanCloseMenu() вернет true.
         [RelayCommand(CanExecute = nameof(CanCloseMenu))]
         private void CloseMenu()
         {
             IsMenuOpen = false;
         }
 
-        // Предикат, который разрешает или запрещает выполнение CloseMenuCommand
         private bool CanCloseMenu()
         {
-            // Разрешаем выполнение команды только если меню открыто
             return IsMenuOpen;
         }
 
@@ -68,29 +88,25 @@ namespace Ripplee.ViewModels
         private void SelectChat(string chat)
         {
             User.ChatSelection = chat;
-            CloseMenu(); // Используем команду, чтобы гарантированно закрыть меню
+            CloseMenu();
         }
 
         [RelayCommand]
         private async Task FindCompanion()
         {
             var companionName = "Антон";
-
-            // Дополняем словарь параметров для навигации
             var navigationParameters = new Dictionary<string, object>
             {
                 { "name", companionName },
-                { "city", User.CitySelection },   // <-- ДОБАВЛЕНО
-                { "topic", User.TopicSelection }  // <-- ДОБАВЛЕНО
+                { "city", User.CitySelection },
+                { "topic", User.TopicSelection }
             };
 
-            // Проверяем, что пользователь выбрал город и тему
             if (string.IsNullOrEmpty(User.CitySelection) || string.IsNullOrEmpty(User.TopicSelection))
             {
                 await Shell.Current.DisplayAlert("Ошибка", "Пожалуйста, выберите город и тему для поиска.", "OK");
                 return;
             }
-
             await Shell.Current.GoToAsync(nameof(Views.VoiceChatPage), true, navigationParameters);
         }
 
@@ -99,9 +115,8 @@ namespace Ripplee.ViewModels
         {
             if (IsMenuOpen)
             {
-                CloseMenu(); // Закрываем меню перед переходом
+                CloseMenu();
             }
-            // Используем Shell-навигацию по имени маршрута
             await Shell.Current.GoToAsync(nameof(Views.SettingsPage));
         }
     }

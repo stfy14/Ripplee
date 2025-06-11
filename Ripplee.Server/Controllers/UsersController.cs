@@ -89,6 +89,15 @@ namespace Ripplee.Server.Controllers
             return Ok(new { userFromDb.Id, userFromDb.Username });
         }
 
+        // GET /api/users/exists/{username}
+        [HttpGet("exists/{username}")]
+        public async Task<IActionResult> CheckUsernameExists(string username)
+        {
+            var userExists = await _context.Users.AnyAsync(u => u.Username.ToLower() == username.ToLower());
+            // Возвращаем простой JSON: { "exists": true } или { "exists": false }
+            return Ok(new { exists = userExists });
+        }
+
         private string GenerateJwtToken(User user)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));

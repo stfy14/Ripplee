@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using CommunityToolkit.Maui;
 using Ripplee.ViewModels;
 using Ripplee.Views;
+using Ripplee.Models; 
 using Ripplee.Services.Interfaces;
 using Ripplee.Services.Services;
 using Microsoft.Maui.Handlers;
@@ -84,6 +85,8 @@ namespace Ripplee
             builder.Services.AddTransient<SettingsPage>();
             builder.Services.AddTransient<VoiceChatPage>();
             builder.Services.AddTransient<OnboardingPage>();
+
+            builder.Services.AddTransient<AppShell>();
             // --- Конец секции DI ---
 
             builder.ConfigureMauiHandlers(handlers =>

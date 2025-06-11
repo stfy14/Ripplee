@@ -1,41 +1,34 @@
-﻿// Файл: Ripplee/ViewModels/OnboardingViewModel.cs
+﻿// Файл: Ripplee/ViewModels/OnboardingViewModel.cs (ФИНАЛЬНАЯ ИСПРАВЛЕННАЯ ВЕРСИЯ)
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using Ripplee.Services.Data;
 using Ripplee.Services.Interfaces;
-using Ripplee.Misc.UI; // Для KeyboardHelper
+using Ripplee.Misc.UI;
 using System.Diagnostics;
 
 namespace Ripplee.ViewModels
 {
-    /// <summary>
-    /// Определяет направление анимации для переключения шагов.
-    /// </summary>
+    public sealed class ResetStateMessage { }
+
     public enum AnimationDirection { None, Forward, Backward }
 
     public partial class OnboardingViewModel : ObservableObject
     {
         private readonly IUserService _userService;
+        private readonly ChatApiClient _apiClient;
 
-        /// <summary>
-        /// Индекс текущего шага онбординга (0, 1, 2, 3).
-        /// </summary>
         [ObservableProperty]
         private int currentStepIndex = 0;
 
-        /// <summary>
-        /// Сигнализирует View о необходимости начать анимацию смены шага.
-        /// </summary>
         [ObservableProperty]
         private AnimationDirection stepChangeDirection = AnimationDirection.None;
 
-        /// <summary>
-        /// Сигнализирует View о необходимости начать анимацию выхода и перехода на главный экран.
-        /// </summary>
         [ObservableProperty]
         private bool isNavigatingToMainApp = false;
 
-        private bool isGuestFlow = false;
+        private int _nextStepTarget = 0;
 
         [ObservableProperty]
         private string? username;
@@ -43,152 +36,110 @@ namespace Ripplee.ViewModels
         [ObservableProperty]
         private string? password;
 
-        public OnboardingViewModel(IUserService userService)
+        [ObservableProperty]
+        private string greetingMessage = "С возвращением!";
+
+        public OnboardingViewModel(IUserService userService, ChatApiClient apiClient)
         {
             _userService = userService;
+            _apiClient = apiClient;
         }
 
-        /// <summary>
-        /// Вызывается из View ПОСЛЕ завершения анимации "ухода" старого шага.
-        /// Финализирует смену шага.
-        /// </summary>
         [RelayCommand]
-        private void CompleteStepChange()
+        private void StartFlow()
         {
-            if (StepChangeDirection == AnimationDirection.Forward)
+            _nextStepTarget = 1;
+            StepChangeDirection = AnimationDirection.Forward;
+        }
+
+        // Метод для гостя пока не трогаем, он требует отдельной логики
+        [RelayCommand]
+        private async Task StartGuestFlow()
+        {
+            // TODO: Implement guest flow with animations
+            await Shell.Current.DisplayAlert("Функция в разработке", "Вход как гость будет добавлен позже.", "OK");
+        }
+
+        [RelayCommand]
+        private async Task NextStep()
+        {
+            KeyboardHelper.HideKeyboard();
+
+            if (CurrentStepIndex == 1) // --- ШАГ 1: ВВОД ИМЕНИ ---
             {
-                CurrentStepIndex++;
+                if (string.IsNullOrWhiteSpace(Username))
+                {
+                    await Shell.Current.DisplayAlert("Ошибка", "Введите имя.", "OK");
+                    return;
+                }
+                bool userExists = await _apiClient.CheckUserExistsAsync(Username);
+                Password = string.Empty;
+                _nextStepTarget = userExists ? 4 : 2; // Цель: 4 (логин) или 2 (регистрация)
+                if (userExists) GreetingMessage = $"С возвращением, {Username}!";
+
+                StepChangeDirection = AnimationDirection.Forward; // Запускаем анимацию
             }
-            else if (StepChangeDirection == AnimationDirection.Backward)
+            else if (CurrentStepIndex == 2) // --- ШАГ 2: ПАРОЛЬ РЕГИСТРАЦИИ ---
             {
-                CurrentStepIndex--;
+                if (string.IsNullOrWhiteSpace(Password))
+                {
+                    await Shell.Current.DisplayAlert("Ошибка", "Придумайте пароль.", "OK");
+                    return;
+                }
+                _nextStepTarget = 3; // Цель: шаг аватара
+                StepChangeDirection = AnimationDirection.Forward;
             }
-
-            // Сбрасываем флаг, чтобы остановить цикл анимаций
-            StepChangeDirection = AnimationDirection.None;
+            else if (CurrentStepIndex == 3) // --- ШАГ 3: АВАТАР И ФИНАЛ РЕГИСТРАЦИИ ---
+            {
+                bool success = await _userService.RegisterAndLoginAsync(Username!, Password!);
+                if (success) IsNavigatingToMainApp = true;
+                else await Shell.Current.DisplayAlert("Ошибка", "Не удалось завершить регистрацию.", "OK");
+            }
         }
 
         [RelayCommand]
-        private void StartGuestFlow()
+        private async Task Login()
         {
-            isGuestFlow = true;
-            StepChangeDirection = AnimationDirection.Forward; // Запускаем анимацию на следующий шаг
-            Debug.WriteLine("Started GUEST flow.");
-        }
-
-        [RelayCommand]
-        private void StartRegistrationFlow()
-        {
-            isGuestFlow = false;
-            StepChangeDirection = AnimationDirection.Forward; // Запускаем анимацию на следующий шаг
-            Debug.WriteLine("Started REGISTRATION flow.");
+            KeyboardHelper.HideKeyboard();
+            if (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password))
+            {
+                await Shell.Current.DisplayAlert("Ошибка", "Введите пароль.", "OK");
+                return;
+            }
+            bool success = await _userService.LoginAsync(Username, Password);
+            if (success) IsNavigatingToMainApp = true;
+            else await Shell.Current.DisplayAlert("Ошибка входа", "Неверный пароль.", "OK");
         }
 
         [RelayCommand]
         private void PreviousStep()
         {
             KeyboardHelper.HideKeyboard();
-            if (CurrentStepIndex > 0)
-            {
-                // Запускаем анимацию "назад"
-                StepChangeDirection = AnimationDirection.Backward;
-            }
+            StepChangeDirection = AnimationDirection.Backward;
         }
 
-        /// <summary>
-        /// Основная команда для кнопки "Дальше".
-        /// </summary>
+        // ✅ ИСПРАВЛЕННЫЙ МЕТОД, КОТОРЫЙ ТЕПЕРЬ РАБОТАЕТ ПРАВИЛЬНО
         [RelayCommand]
-        private async Task NextStep()
+        private void CompleteStepChange()
         {
-            KeyboardHelper.HideKeyboard();
-
-            // Сначала проверяем, валидны ли введенные данные
-            if (await IsInputValid() == false)
+            if (StepChangeDirection == AnimationDirection.Forward)
             {
-                return; // Если нет, прерываем выполнение
+                // Устанавливаем тот шаг, который был определен в NextStep
+                CurrentStepIndex = _nextStepTarget;
             }
-
-            Debug.WriteLine($"NextStep called. IsGuest: {isGuestFlow}, CurrentStep: {CurrentStepIndex}");
-
-            if (isGuestFlow)
+            else if (StepChangeDirection == AnimationDirection.Backward)
             {
-                // Если это гостевой флоу, он состоит из одного шага, после которого сразу логин
-                await ProcessGuestLogin();
-            }
-            else
-            {
-                // Если это регистрация, обрабатываем шаги последовательно
-                await ProcessRegistrationSteps();
-            }
-        }
-
-        /// <summary>
-        /// Вспомогательный метод для проверки полей ввода.
-        /// </summary>
-        private async Task<bool> IsInputValid()
-        {
-            if (isGuestFlow)
-            {
-                if (CurrentStepIndex == 1 && string.IsNullOrWhiteSpace(Username))
+                // Логика кнопки "назад"
+                if (CurrentStepIndex == 4 || CurrentStepIndex == 1)
                 {
-                    await Shell.Current.DisplayAlert("Ошибка", "Пожалуйста, введите ваше имя.", "OK");
-                    return false;
+                    CurrentStepIndex = 0;
+                }
+                else
+                {
+                    CurrentStepIndex--;
                 }
             }
-            else // Если это регистрация
-            {
-                if (CurrentStepIndex == 1 && string.IsNullOrWhiteSpace(Username))
-                {
-                    await Shell.Current.DisplayAlert("Ошибка", "Пожалуйста, введите логин.", "OK");
-                    return false;
-                }
-                if (CurrentStepIndex == 2 && string.IsNullOrWhiteSpace(Password))
-                {
-                    await Shell.Current.DisplayAlert("Ошибка", "Пожалуйста, придумайте пароль.", "OK");
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        private async Task ProcessGuestLogin()
-        {
-            Debug.WriteLine("Processing GUEST login...");
-            bool success = await _userService.LoginAsGuestAsync(Username!);
-            if (success)
-            {
-                // Подаем сигнал View для начала анимации и перехода
-                NavigateToMainApp();
-            }
-        }
-
-        private async Task ProcessRegistrationSteps()
-        {
-            // Если это не последний шаг регистрации, просто переходим на следующий
-            if (CurrentStepIndex < 3)
-            {
-                StepChangeDirection = AnimationDirection.Forward;
-            }
-            else // Если это последний шаг (выбор аватара)
-            {
-                Debug.WriteLine("Final registration step. Calling service...");
-                bool success = await _userService.RegisterAndLoginAsync(Username!, Password!);
-                if (success)
-                {
-                    // Подаем сигнал View для начала анимации и перехода
-                    NavigateToMainApp();
-                }
-            }
-        }
-
-        /// <summary>
-        /// Подает сигнал View, что пора запустить анимацию и перейти на главный экран.
-        /// </summary>
-        private void NavigateToMainApp()
-        {
-            Debug.WriteLine("Signaling to View to start navigation animation...");
-            IsNavigatingToMainApp = true;
+            StepChangeDirection = AnimationDirection.None;
         }
     }
 }
