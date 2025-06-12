@@ -1,4 +1,4 @@
-﻿// Файл: Ripplee.Server/Program.cs (ФИНАЛЬНАЯ ВЕРСИЯ)
+﻿// Файл: Ripplee.Server/Program.cs (ФИНАЛЬНАЯ ИСПРАВЛЕННАЯ ВЕРСИЯ)
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -6,47 +6,68 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Ripplee.Server.Data;
 using Ripplee.Server.Hubs;
-using System.IdentityModel.Tokens.Jwt; // Убедитесь, что этот using на месте
 using System.Text;
 using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// --- 1. РЕГИСТРАЦИЯ СЕРВИСОВ В DI-КОНТЕЙНЕРЕ ---
+
+// Добавляем DbContext для работы с базой данных SQLite.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+
+// --- НАЧАЛО БЛОКА НАСТРОЙКИ АУТЕНТИФИКАЦИИ (ИСПРАВЛЕННЫЙ СПОСОБ) ---
+
+// Шаг 1: Добавляем сервисы аутентификации и указываем схему по умолчанию.
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)),
-    };
-});
+// Добавляем обработчик JwtBearer без немедленной настройки.
+.AddJwtBearer();
 
-// Регистрируем сервисы Авторизации
+// Шаг 2: Регистрируем отдельный конфигуратор для JwtBearerOptions.
+// Этот подход гарантирует, что IConfiguration будет полностью загружена
+// из всех источников (файлы, User Secrets, переменные окружения) к моменту настройки.
+builder.Services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+    .Configure<IConfiguration>((options, configuration) =>
+    {
+        var jwtKey = configuration["Jwt:Key"];
+        var jwtIssuer = configuration["Jwt:Issuer"];
+        var jwtAudience = configuration["Jwt:Audience"];
+
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        };
+    });
+
+// --- КОНЕЦ БЛОКА НАСТРОЙКИ АУТЕНТИФИКАЦИИ ---
+
+
+// Регистрируем сервисы Авторизации.
 builder.Services.AddAuthorization();
 
-// Регистрируем контроллеры
+// Регистрируем контроллеры.
 builder.Services.AddControllers();
 
-// Регистрируем сервисы SignalR
+// Регистрируем сервисы SignalR.
 builder.Services.AddSignalR();
 
-// Добавляем и настраиваем Swagger (OpenAPI)
+// Добавляем и настраиваем Swagger (OpenAPI) для документирования API.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    // Настройка для использования JWT-токенов в интерфейсе Swagger.
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -72,32 +93,71 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+
+// --- 2. ПОСТРОЕНИЕ ПРИЛОЖЕНИЯ ---
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
+// --- 3. НАСТРОЙКА КОНВЕЙЕРА ОБРАБОТКИ HTTP-ЗАПРОСОВ (MIDDLEWARE) ---
+
+// Этот блок автоматически создает и применяет миграции базы данных при запуске.
+// Это самый простой способ поддерживать БД в актуальном состоянии при развертывании.
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        await context.Database.MigrateAsync();
+
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogInformation("Database migration check completed. Database is up to date.");
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating or initializing the database.");
+        // В случае ошибки при миграции, лучше остановить приложение, чтобы не работать с некорректной БД.
+        throw;
+    }
+}
+
+
+// Включаем Swagger в любом окружении для простоты отладки на сервере.
+// В реальном продакшене можно обернуть в if (app.Environment.IsDevelopment()).
 app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
     // Это поможет Swagger правильно найти свои файлы за Nginx
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "Ripplee API v1");
-    options.RoutePrefix = "swagger"; // Убедитесь, что URL: http://your_ip/swagger
+    // Указываем, что Swagger UI будет доступен по корневому пути /swagger
+    options.RoutePrefix = "swagger";
 });
 
+// Middleware для корректной работы за прокси-сервером (Nginx).
+// Он считывает заголовки X-Forwarded-For и X-Forwarded-Proto.
+// ВАЖНО: Должен быть одним из первых в конвейере.
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 });
 
-app.UseHttpsRedirection();
+// Убираем app.UseHttpsRedirection(), так как терминированием SSL занимается Nginx.
+// Если оставить, может вызывать проблемы с редиректами за прокси.
+// app.UseHttpsRedirection(); 
 
 // Включаем аутентификацию и авторизацию.
+// ВАЖНО: UseAuthentication() всегда должен идти перед UseAuthorization().
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Сопоставляем запросы с методами в контроллерах
+// Сопоставляем запросы с методами в контроллерах.
 app.MapControllers();
 
-// ULR к hUB
+// Сопоставляем URL для хаба SignalR.
 app.MapHub<MatchmakingHub>("/matchmakingHub");
+
+// --- 4. ЗАПУСК ПРИЛОЖЕНИЯ ---
 
 app.Run();

@@ -1,20 +1,22 @@
-﻿// Файл: Ripplee/ViewModels/OnboardingViewModel.cs (ФИНАЛЬНАЯ ИСПРАВЛЕННАЯ ВЕРСИЯ)
+﻿// Файл: Ripplee/ViewModels/OnboardingViewModel.cs
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Ripplee.Misc.UI;
 using Ripplee.Services.Data;
 using Ripplee.Services.Interfaces;
-using Ripplee.Misc.UI;
 using System.Diagnostics;
 
 namespace Ripplee.ViewModels
 {
+    // Сообщение для сброса состояния
     public sealed class ResetStateMessage { }
 
     public enum AnimationDirection { None, Forward, Backward }
 
-    public partial class OnboardingViewModel : ObservableObject
+    // 1. Указываем, что ViewModel теперь является получателем сообщений типа ResetStateMessage
+    public partial class OnboardingViewModel : ObservableObject, IRecipient<ResetStateMessage>
     {
         private readonly IUserService _userService;
         private readonly ChatApiClient _apiClient;
@@ -43,6 +45,23 @@ namespace Ripplee.ViewModels
         {
             _userService = userService;
             _apiClient = apiClient;
+
+            // 2. Подписываем ViewModel на получение сообщений.
+            // Теперь он будет "слушать" сообщения типа ResetStateMessage.
+            WeakReferenceMessenger.Default.Register<ResetStateMessage>(this);
+        }
+
+        // 3. Реализуем метод Receive, который будет вызван, когда придет сообщение.
+        public void Receive(ResetStateMessage message)
+        {
+            Debug.WriteLine("OnboardingViewModel received a reset message. Resetting state.");
+            // Сбрасываем все свойства ViewModel к их начальным значениям
+            CurrentStepIndex = 0;
+            StepChangeDirection = AnimationDirection.None;
+            IsNavigatingToMainApp = false;
+            Username = string.Empty;
+            Password = string.Empty;
+            GreetingMessage = "С возвращением!";
         }
 
         [RelayCommand]
@@ -52,11 +71,9 @@ namespace Ripplee.ViewModels
             StepChangeDirection = AnimationDirection.Forward;
         }
 
-        // Метод для гостя пока не трогаем, он требует отдельной логики
         [RelayCommand]
         private async Task StartGuestFlow()
         {
-            // TODO: Implement guest flow with animations
             await Shell.Current.DisplayAlert("Функция в разработке", "Вход как гость будет добавлен позже.", "OK");
         }
 
@@ -65,7 +82,7 @@ namespace Ripplee.ViewModels
         {
             KeyboardHelper.HideKeyboard();
 
-            if (CurrentStepIndex == 1) // --- ШАГ 1: ВВОД ИМЕНИ ---
+            if (CurrentStepIndex == 1)
             {
                 if (string.IsNullOrWhiteSpace(Username))
                 {
@@ -74,22 +91,21 @@ namespace Ripplee.ViewModels
                 }
                 bool userExists = await _apiClient.CheckUserExistsAsync(Username);
                 Password = string.Empty;
-                _nextStepTarget = userExists ? 4 : 2; // Цель: 4 (логин) или 2 (регистрация)
+                _nextStepTarget = userExists ? 4 : 2;
                 if (userExists) GreetingMessage = $"С возвращением, {Username}!";
-
-                StepChangeDirection = AnimationDirection.Forward; // Запускаем анимацию
+                StepChangeDirection = AnimationDirection.Forward;
             }
-            else if (CurrentStepIndex == 2) // --- ШАГ 2: ПАРОЛЬ РЕГИСТРАЦИИ ---
+            else if (CurrentStepIndex == 2)
             {
                 if (string.IsNullOrWhiteSpace(Password))
                 {
                     await Shell.Current.DisplayAlert("Ошибка", "Придумайте пароль.", "OK");
                     return;
                 }
-                _nextStepTarget = 3; // Цель: шаг аватара
+                _nextStepTarget = 3;
                 StepChangeDirection = AnimationDirection.Forward;
             }
-            else if (CurrentStepIndex == 3) // --- ШАГ 3: АВАТАР И ФИНАЛ РЕГИСТРАЦИИ ---
+            else if (CurrentStepIndex == 3)
             {
                 bool success = await _userService.RegisterAndLoginAsync(Username!, Password!);
                 if (success) IsNavigatingToMainApp = true;
@@ -118,18 +134,15 @@ namespace Ripplee.ViewModels
             StepChangeDirection = AnimationDirection.Backward;
         }
 
-        // ✅ ИСПРАВЛЕННЫЙ МЕТОД, КОТОРЫЙ ТЕПЕРЬ РАБОТАЕТ ПРАВИЛЬНО
         [RelayCommand]
         private void CompleteStepChange()
         {
             if (StepChangeDirection == AnimationDirection.Forward)
             {
-                // Устанавливаем тот шаг, который был определен в NextStep
                 CurrentStepIndex = _nextStepTarget;
             }
             else if (StepChangeDirection == AnimationDirection.Backward)
             {
-                // Логика кнопки "назад"
                 if (CurrentStepIndex == 4 || CurrentStepIndex == 1)
                 {
                     CurrentStepIndex = 0;

@@ -21,10 +21,13 @@ namespace Ripplee.Views
             base.OnAppearing();
             RootGrid.Opacity = 1;
 
-            // Отправляем сообщение с просьбой сбросить состояние ViewModel
-            // Это гарантирует, что при каждом возврате на эту страницу (особенно после выхода)
-            // мы начнем с чистого листа.
             WeakReferenceMessenger.Default.Send(new ResetStateMessage());
+
+            Step0Layout.IsVisible = true;
+            Step1Layout.IsVisible = false;
+            Step2Layout.IsVisible = false;
+            Step3Layout.IsVisible = false;
+            StepLoginPasswordLayout.IsVisible = false;
 
             if (_viewModel != null)
             {
@@ -67,6 +70,12 @@ namespace Ripplee.Views
 
         private async void HandleStepAnimation()
         {
+            Step0Layout.ClearValue(IsVisibleProperty);
+            Step1Layout.ClearValue(IsVisibleProperty);
+            Step2Layout.ClearValue(IsVisibleProperty);
+            Step3Layout.ClearValue(IsVisibleProperty);
+            StepLoginPasswordLayout.ClearValue(IsVisibleProperty);
+
             if (_viewModel is null || _viewModel.StepChangeDirection == AnimationDirection.None)
                 return;
 

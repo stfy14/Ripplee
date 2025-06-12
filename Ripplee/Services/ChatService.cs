@@ -18,7 +18,7 @@ namespace Ripplee.Services.Services
         {
             // Здесь будет логика с вызовом API, пока оставляем заглушку
             // Имитируем асинхронную операцию
-            await Task.Delay(100);
+            await Task.Delay(20);
             return $"Идет поиск: ({gender}) по теме '{topic}' в городе '{city}' в чате '{chat}'!";
         }
     }

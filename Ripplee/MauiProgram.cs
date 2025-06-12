@@ -1,33 +1,37 @@
 ﻿// Файл: MauiProgram.cs
-using Microsoft.Extensions.Logging;
 using CommunityToolkit.Maui;
-using Ripplee.ViewModels;
-using Ripplee.Views;
-using Ripplee.Models; 
+using Microsoft.Extensions.Logging;
+using Ripplee.Services.Data;
 using Ripplee.Services.Interfaces;
 using Ripplee.Services.Services;
-using Microsoft.Maui.Handlers;
-using Ripplee.Services.Data;
-using Microsoft.Extensions.Http;
+using Ripplee.ViewModels;
+using Ripplee.Views;
 
 #if ANDROID
-using Android.Widget; // <-- Для EditText (используется Entry и Picker)
-using Android.Graphics.Drawables; // Может понадобиться для более тонкой настройки фона
+using Android.Widget;
+using Microsoft.Maui.Handlers;
 #endif
 
 namespace Ripplee
 {
     public static class MauiProgram
     {
-        private static string GetApiBaseAddress()
+        public static string GetApiBaseAdress()
         {
-            if (DeviceInfo.Platform == DevicePlatform.Android)
-                return "https://10.0.2.2:7042"; // УБЕДИТЕСЬ, ЧТО ПОРТ ВЕРНЫЙ
+            // Используем http для локального дебага, так как настроили Android
+            // на прием cleartext-трафика для нашего IP.
+#if DEBUG
+#if ANDROID
+            return "http://10.0.2.2:5142";
+#else
+            // Для Windows или других платформ, если сервер запущен на той же машине
+            return "http://localhost:5142";
+#endif
 
-            if (DeviceInfo.Platform == DevicePlatform.WinUI)
-                return "https://localhost:7042"; // УБЕДИТЕСЬ, ЧТО ПОРТ ВЕРНЫЙ
-
-            return "https://localhost:7042";
+#else
+    // Адрес вашего реального сервера для Release-сборки
+    return "http://91.192.168.52";
+#endif
         }
 
         public static MauiApp CreateMauiApp()
@@ -46,77 +50,60 @@ namespace Ripplee
             builder.Logging.AddDebug();
 #endif
 
-            // --- НАЧАЛО БЛОКА ИЗМЕНЕНИЙ ---
+            // --- НАЧАЛО БЛОКА РЕГИСТРАЦИИ HTTP-КЛИЕНТА (ИЗМЕНЕНО) ---
 
-            // Регистрируем HttpMessageHandler, который будет игнорировать ошибки
-            // SSL-сертификата ТОЛЬКО в режиме отладки.
+            // Регистрируем ChatApiClient как "типизированный клиент".
+            // Это современный подход, который использует IHttpClientFactory для управления
+            // жизненным циклом HttpClient и его обработчиков.
+            builder.Services.AddHttpClient<ChatApiClient>(client =>
+            {
+                // Устанавливаем базовый адрес для всех запросов этого клиента
+                client.BaseAddress = new Uri(GetApiBaseAdress());
+            })
+            // В режиме DEBUG мы добавляем специальный обработчик,
+            // который разрешает использование самоподписанных или невалидных SSL-сертификатов.
+            // ВАЖНО: Это не используется в Release-сборке.
 #if DEBUG
-            builder.Services.AddSingleton<HttpClientHandler>(_ => new HttpClientHandler
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
             {
                 ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
-            });
-#else
-            builder.Services.AddSingleton<HttpClientHandler>();
+            })
 #endif
+            ;
 
-            // Регистрируем HttpClient и говорим ему использовать наш настроенный handler
-            builder.Services.AddSingleton(serviceProvider =>
-            {
-                var handler = serviceProvider.GetRequiredService<HttpClientHandler>();
-                return new HttpClient(handler)
-                {
-                    BaseAddress = new Uri(GetApiBaseAddress())
-                };
-            });
+            // --- КОНЕЦ БЛОКА РЕГИСТРАЦИИ HTTP-КЛИЕНТА ---
 
-            // --- КОНЕЦ БЛОКА ИЗМЕНЕНИЙ ---
 
-            // --- Секция Dependency Injection ---
-            builder.Services.AddSingleton<ChatApiClient>();
+            // --- Секция Dependency Injection (Остальные сервисы) ---
             builder.Services.AddSingleton<IUserService, UserService>();
             builder.Services.AddSingleton<IChatService, ChatService>();
 
+            // ViewModels лучше регистрировать как Transient, чтобы для каждой новой страницы
+            // создавался свой экземпляр ViewModel с чистым состоянием.
             builder.Services.AddTransient<MainViewModel>();
             builder.Services.AddTransient<SettingsViewModel>();
             builder.Services.AddTransient<VoiceChatViewModel>();
             builder.Services.AddTransient<OnboardingViewModel>();
 
+            // Страницы тоже регистрируем как Transient.
             builder.Services.AddTransient<MainPage>();
             builder.Services.AddTransient<SettingsPage>();
             builder.Services.AddTransient<VoiceChatPage>();
             builder.Services.AddTransient<OnboardingPage>();
 
+            // Shell обычно регистрируется как Singleton или Scoped, но для MAUI
+            // можно оставить и Transient, так как он создается один раз при старте.
             builder.Services.AddTransient<AppShell>();
             // --- Конец секции DI ---
 
+            // --- Кастомизация нативных контролов ---
             builder.ConfigureMauiHandlers(handlers =>
             {
 #if ANDROID
-                // Кастомизация для Picker (ваш существующий код)
+                // Кастомизация для Picker для удаления подчеркивания на Android
                 PickerHandler.Mapper.AppendToMapping("CustomPickerAppearance", (handler, view) =>
                 {
-                    if (handler.PlatformView is EditText editText && view is Picker mauiPicker)
-                    {
-                        editText.Background = null; // Убираем фон (и подчеркивание)
-
-                        var context = editText.Context;
-                        if (context?.Resources?.DisplayMetrics != null)
-                        {
-                            float density = context.Resources.DisplayMetrics.Density;
-
-                            int topPadding = (int)(12 * density);
-                            int leftPadding = (int)(16 * density);
-                            int rightPadding = editText.PaddingRight; 
-                            int bottomPadding = editText.PaddingBottom; 
-
-                            editText.SetPadding(leftPadding, topPadding, rightPadding, bottomPadding);
-                        }
-                    }
-                });
-
-                EntryHandler.Mapper.AppendToMapping("NoUnderline", (handler, view) =>
-                {
-                    if (handler.PlatformView is EditText editText) // Entry на Android это EditText
+                    if (handler.PlatformView is EditText editText)
                     {
                         editText.Background = null;
 
@@ -124,12 +111,30 @@ namespace Ripplee
                         if (context?.Resources?.DisplayMetrics != null)
                         {
                             float density = context.Resources.DisplayMetrics.Density;
-
                             int topPadding = (int)(12 * density);
                             int leftPadding = (int)(16 * density);
-                            int rightPadding = editText.PaddingRight; 
+                            int rightPadding = editText.PaddingRight;
                             int bottomPadding = editText.PaddingBottom;
+                            editText.SetPadding(leftPadding, topPadding, rightPadding, bottomPadding);
+                        }
+                    }
+                });
 
+                // Кастомизация для Entry для удаления подчеркивания на Android
+                EntryHandler.Mapper.AppendToMapping("NoUnderline", (handler, view) =>
+                {
+                    if (handler.PlatformView is EditText editText)
+                    {
+                        editText.Background = null;
+
+                        var context = editText.Context;
+                        if (context?.Resources?.DisplayMetrics != null)
+                        {
+                            float density = context.Resources.DisplayMetrics.Density;
+                            int topPadding = (int)(12 * density);
+                            int leftPadding = (int)(16 * density);
+                            int rightPadding = editText.PaddingRight;
+                            int bottomPadding = editText.PaddingBottom;
                             editText.SetPadding(leftPadding, topPadding, rightPadding, bottomPadding);
                         }
                     }
