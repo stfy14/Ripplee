@@ -18,11 +18,9 @@ public partial class MenuPanel : ContentView
     {
         InitializeComponent();
 
-        // 1. ѕодписываемс€ на событие SizeChanged
-        this.SizeChanged += MenuPanel_SizeChanged;
+        SizeChanged += MenuPanel_SizeChanged;
 
-        // ¬ременно ставим панель очень высоко, чтобы она не "мелькнула" при первой загрузке
-        this.TranslationY = -10000;
+        TranslationY = -10000;
     }
 
     // 2. —оздаем обработчик дл€ событи€ SizeChanged
@@ -30,11 +28,11 @@ public partial class MenuPanel : ContentView
     {
         //  ак только размер стал известен, мы можем отписатьс€, 
         // чтобы этот код не выполн€лс€ при каждом изменении размера окна.
-        this.SizeChanged -= MenuPanel_SizeChanged;
+        SizeChanged -= MenuPanel_SizeChanged;
 
         // “еперь, зна€ реальную высоту, ставим меню в правильное начальное положение (за экраном)
         // Ётот код выполнитс€ только один раз.
-        this.TranslationY = -this.Height;
+        TranslationY = -Height;
     }
 
     private static void OnIsOpenChanged(BindableObject bindable, object oldValue, object newValue)
@@ -48,7 +46,7 @@ public partial class MenuPanel : ContentView
     private void AnimateMenu(bool open)
     {
         // ѕровер€ем, что высота уже была рассчитана, чтобы избежать анимации с высотой -1 или 0
-        if (this.Height <= 0)
+        if (Height <= 0)
             return;
 
         if (open)
@@ -57,7 +55,7 @@ public partial class MenuPanel : ContentView
         }
         else
         {
-            this.TranslateTo(0, -this.Height, AnimationDuration, Easing.CubicIn);
+            this.TranslateTo(0, -Height, AnimationDuration, Easing.CubicIn);
         }
     }
 }

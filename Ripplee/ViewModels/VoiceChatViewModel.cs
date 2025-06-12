@@ -1,13 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Diagnostics;
 
 namespace Ripplee.ViewModels
 {
-    // Атрибут QueryProperty позволяет нам принимать данные при навигации
     [QueryProperty(nameof(CompanionName), "name")]
-    [QueryProperty(nameof(City), "city")]     // <-- НОВЫЙ
-    [QueryProperty(nameof(Topic), "topic")]   // <-- НОВЫЙ
+    [QueryProperty(nameof(City), "city")]     
+    [QueryProperty(nameof(Topic), "topic")]   
     public partial class VoiceChatViewModel : ObservableObject
     {
         private IDispatcherTimer? _callTimer;
@@ -17,10 +15,10 @@ namespace Ripplee.ViewModels
         private string? companionName;
 
         [ObservableProperty]
-        private string? city; // <-- НОВОЕ СВОЙСТВО
+        private string? city; 
 
         [ObservableProperty]
-        private string? topic; // <-- НОВОЕ СВОЙСТВО
+        private string? topic; 
 
         [ObservableProperty]
         private string callDuration = "0:00";
@@ -38,12 +36,10 @@ namespace Ripplee.ViewModels
 
         private void StartCallTimer()
         {
-            // Используем IDispatcherTimer, т.к. он работает в потоке UI и безопасен для обновления интерфейса
             _callTimer = Application.Current.Dispatcher.CreateTimer();
             _callTimer.Interval = TimeSpan.FromSeconds(1);
             _callTimer.Tick += OnTimerTick;
             _callTimer.Start();
-            Debug.WriteLine("Таймер звонка запущен.");
         }
 
         private void StopCallTimer()
@@ -53,7 +49,6 @@ namespace Ripplee.ViewModels
                 _callTimer.Stop();
                 _callTimer.Tick -= OnTimerTick;
                 _callTimer = null;
-                Debug.WriteLine("Таймер звонка остановлен.");
             }
         }
 
@@ -63,7 +58,6 @@ namespace Ripplee.ViewModels
             CallDuration = _elapsedTime.ToString(@"m\:ss");
 
             // --- ЗАГЛУШКА для индикатора звука ---
-            // Имитируем, что собеседник говорит каждые 5-8 секунд по 2 секунды
             int seconds = _elapsedTime.Seconds % 10;
             IsCompanionSpeaking = seconds is > 5 and < 8;
         }
@@ -73,18 +67,15 @@ namespace Ripplee.ViewModels
         {
             IsMuted = !IsMuted;
             // TODO: В будущем здесь будет реальная логика отключения микрофона
-            Debug.WriteLine($"Микрофон отключен: {IsMuted}");
         }
 
         [RelayCommand]
         private async Task EndCall()
         {
             StopCallTimer();
-            // Возвращаемся на предыдущую страницу
             await Shell.Current.GoToAsync("..", true);
         }
 
-        // Команды для управления жизненным циклом страницы (запуск/остановка таймера)
         [RelayCommand]
         private void PageAppearing()
         {
@@ -94,7 +85,6 @@ namespace Ripplee.ViewModels
         [RelayCommand]
         private void PageDisappearing()
         {
-            // Убедимся, что таймер остановлен, если пользователь свернул приложение или ушел со страницы
             StopCallTimer();
         }
     }

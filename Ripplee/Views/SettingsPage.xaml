@@ -89,9 +89,10 @@
                             HeightRequest="55"
                             Command="{Binding ChangeEmailCommand}" />
 
-                    <BoxView HeightRequest="1" Color="#404040" Margin="0,0,0,30"/>
+                    <BoxView HeightRequest="1" Color="#404040" Margin="0,10,0,10"/>
+                    
                     <Button Text="Выйти из аккаунта"
-                            BackgroundColor="#505050"
+                            BackgroundColor="#3a3a3a"
                             TextColor="WhiteSmoke"
                             CornerRadius="20"
                             HeightRequest="55"

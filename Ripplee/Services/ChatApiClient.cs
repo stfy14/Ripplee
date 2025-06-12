@@ -1,10 +1,6 @@
-﻿using Ripplee.Models;
-using System;
-using System.Diagnostics;
-using System.Net.Http;
+﻿using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using System.Net.Http.Headers;
 
 namespace Ripplee.Services.Data

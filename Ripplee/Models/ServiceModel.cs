@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-//выбоор городов обьяв 
-//тут ещё обьвим что нибудь пока хз 
-namespace Ripplee.Models
+﻿namespace Ripplee.Models
 {
     public class CompanionRequest
     {
@@ -15,12 +8,12 @@ namespace Ripplee.Models
         public required string Chat {  get; set; }
         public required int Age { get; set; }
     }
-    //
+
     public class CompanionResponse
     {
         public bool Success { get; set; }
         public required string Message { get; set; }
-        public CompanionData Data { get; set; } //втф че? зачем? 
+        public CompanionData Data { get; set; } 
     }
 
     public class CompanionData

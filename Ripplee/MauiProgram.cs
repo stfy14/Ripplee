@@ -86,6 +86,7 @@ namespace Ripplee
             builder.Services.AddTransient<OnboardingViewModel>();
 
             // Страницы тоже регистрируем как Transient.
+            builder.Services.AddTransient<LoadingPage>();
             builder.Services.AddTransient<MainPage>();
             builder.Services.AddTransient<SettingsPage>();
             builder.Services.AddTransient<VoiceChatPage>();

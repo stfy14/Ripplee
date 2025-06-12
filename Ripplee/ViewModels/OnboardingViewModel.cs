@@ -1,36 +1,21 @@
-﻿// Файл: Ripplee/ViewModels/OnboardingViewModel.cs
-
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.Messaging;
 using Ripplee.Misc.UI;
 using Ripplee.Services.Data;
 using Ripplee.Services.Interfaces;
-using System.Diagnostics;
 
 namespace Ripplee.ViewModels
 {
-    // Сообщение для сброса состояния
-    public sealed class ResetStateMessage { }
-
-    public enum AnimationDirection { None, Forward, Backward }
-
-    // 1. Указываем, что ViewModel теперь является получателем сообщений типа ResetStateMessage
-    public partial class OnboardingViewModel : ObservableObject, IRecipient<ResetStateMessage>
+    public partial class OnboardingViewModel : ObservableObject
     {
         private readonly IUserService _userService;
         private readonly ChatApiClient _apiClient;
 
         [ObservableProperty]
+        private bool isLoading = true;
+
+        [ObservableProperty]
         private int currentStepIndex = 0;
-
-        [ObservableProperty]
-        private AnimationDirection stepChangeDirection = AnimationDirection.None;
-
-        [ObservableProperty]
-        private bool isNavigatingToMainApp = false;
-
-        private int _nextStepTarget = 0;
 
         [ObservableProperty]
         private string? username;
@@ -39,36 +24,42 @@ namespace Ripplee.ViewModels
         private string? password;
 
         [ObservableProperty]
-        private string greetingMessage = "С возвращением!";
+        private string greetingMessage;
 
         public OnboardingViewModel(IUserService userService, ChatApiClient apiClient)
         {
             _userService = userService;
             _apiClient = apiClient;
-
-            // 2. Подписываем ViewModel на получение сообщений.
-            // Теперь он будет "слушать" сообщения типа ResetStateMessage.
-            WeakReferenceMessenger.Default.Register<ResetStateMessage>(this);
         }
 
-        // 3. Реализуем метод Receive, который будет вызван, когда придет сообщение.
-        public void Receive(ResetStateMessage message)
+        [RelayCommand]
+        private async Task InitializeAsync()
         {
-            Debug.WriteLine("OnboardingViewModel received a reset message. Resetting state.");
-            // Сбрасываем все свойства ViewModel к их начальным значениям
+            ResetState();
+
+            if (await _userService.TryAutoLoginAsync())
+            {
+                await AnimateAndNavigateToMain();
+            }
+            else
+            {
+                IsLoading = false;
+            }
+        }
+
+        public void ResetState()
+        {
+            IsLoading = true; 
             CurrentStepIndex = 0;
-            StepChangeDirection = AnimationDirection.None;
-            IsNavigatingToMainApp = false;
-            Username = string.Empty;
             Password = string.Empty;
+            Username = string.Empty;
             GreetingMessage = "С возвращением!";
         }
 
         [RelayCommand]
         private void StartFlow()
         {
-            _nextStepTarget = 1;
-            StepChangeDirection = AnimationDirection.Forward;
+            CurrentStepIndex = 1;
         }
 
         [RelayCommand]
@@ -91,9 +82,8 @@ namespace Ripplee.ViewModels
                 }
                 bool userExists = await _apiClient.CheckUserExistsAsync(Username);
                 Password = string.Empty;
-                _nextStepTarget = userExists ? 4 : 2;
                 if (userExists) GreetingMessage = $"С возвращением, {Username}!";
-                StepChangeDirection = AnimationDirection.Forward;
+                CurrentStepIndex = userExists ? 4 : 2;
             }
             else if (CurrentStepIndex == 2)
             {
@@ -102,14 +92,19 @@ namespace Ripplee.ViewModels
                     await Shell.Current.DisplayAlert("Ошибка", "Придумайте пароль.", "OK");
                     return;
                 }
-                _nextStepTarget = 3;
-                StepChangeDirection = AnimationDirection.Forward;
+                CurrentStepIndex = 3;
             }
-            else if (CurrentStepIndex == 3)
+            else if (CurrentStepIndex == 3) 
             {
                 bool success = await _userService.RegisterAndLoginAsync(Username!, Password!);
-                if (success) IsNavigatingToMainApp = true;
-                else await Shell.Current.DisplayAlert("Ошибка", "Не удалось завершить регистрацию.", "OK");
+                if (success)
+                {
+                    await AnimateAndNavigateToMain();
+                }
+                else
+                {
+                    await Shell.Current.DisplayAlert("Ошибка", "Не удалось завершить регистрацию.", "OK");
+                }
             }
         }
 
@@ -117,42 +112,41 @@ namespace Ripplee.ViewModels
         private async Task Login()
         {
             KeyboardHelper.HideKeyboard();
+
             if (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password))
             {
                 await Shell.Current.DisplayAlert("Ошибка", "Введите пароль.", "OK");
                 return;
             }
             bool success = await _userService.LoginAsync(Username, Password);
-            if (success) IsNavigatingToMainApp = true;
-            else await Shell.Current.DisplayAlert("Ошибка входа", "Неверный пароль.", "OK");
+            if (success)
+            {
+                await AnimateAndNavigateToMain();
+            }
+            else
+            {
+                await Shell.Current.DisplayAlert("Ошибка входа", "Неверный пароль.", "OK");
+            }
         }
 
         [RelayCommand]
         private void PreviousStep()
         {
             KeyboardHelper.HideKeyboard();
-            StepChangeDirection = AnimationDirection.Backward;
+
+            if (CurrentStepIndex == 4 || CurrentStepIndex == 1)
+            {
+                CurrentStepIndex = 0;
+            }
+            else if (CurrentStepIndex > 0)
+            {
+                CurrentStepIndex--;
+            }
         }
 
-        [RelayCommand]
-        private void CompleteStepChange()
+        private async Task AnimateAndNavigateToMain()
         {
-            if (StepChangeDirection == AnimationDirection.Forward)
-            {
-                CurrentStepIndex = _nextStepTarget;
-            }
-            else if (StepChangeDirection == AnimationDirection.Backward)
-            {
-                if (CurrentStepIndex == 4 || CurrentStepIndex == 1)
-                {
-                    CurrentStepIndex = 0;
-                }
-                else
-                {
-                    CurrentStepIndex--;
-                }
-            }
-            StepChangeDirection = AnimationDirection.None;
+            await Shell.Current.GoToAsync("//MainPage");
         }
     }
 }

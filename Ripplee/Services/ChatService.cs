@@ -1,7 +1,4 @@
-﻿using Ripplee.Models;
-using Ripplee.Services.Data;
-using Ripplee.Services.Interfaces; // Добавили using
-using System.Threading.Tasks;
+﻿using Ripplee.Services.Interfaces; 
 
 namespace Ripplee.Services.Services
 {
@@ -10,7 +7,6 @@ namespace Ripplee.Services.Services
     {
         public ChatService(/* ChatApiClient apiClient */)
         {
-            // _apiClient = apiClient;
             // Конструктор пока пуст, DI все сделает за нас
         }
 

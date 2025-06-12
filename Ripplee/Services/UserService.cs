@@ -1,6 +1,4 @@
-﻿// Файл: Ripplee/Services/Services/UserService.cs
-
-using CommunityToolkit.Mvvm.Messaging; // <-- Добавлен using
+﻿using CommunityToolkit.Mvvm.Messaging; 
 using Ripplee.Models;
 using Ripplee.Services.Data;
 using Ripplee.Services.Interfaces;
@@ -8,9 +6,6 @@ using System.Diagnostics;
 
 namespace Ripplee.Services.Services
 {
-    // ✅ ОБЪЯВЛЯЕМ КЛАСС СООБЩЕНИЯ
-    // Его можно объявить здесь или в отдельном файле.
-    // Для простоты оставим здесь.
     public sealed class UserChangedMessage
     {
         public UserModel? NewUser { get; }
@@ -76,7 +71,7 @@ namespace Ripplee.Services.Services
             return true;
         }
 
-        public async Task<bool> RegisterAndLoginAsync(string username, string password, string? topic = null)
+        public async Task<bool> RegisterAndLoginAsync(string username, string password)
         {
             bool registrationSuccess = await _apiClient.RegisterAsync(username, password);
 
@@ -86,7 +81,6 @@ namespace Ripplee.Services.Services
                 return false;
             }
 
-            // Переиспользуем наш метод логина, который уже отправляет сообщение
             return await LoginAsync(username, password);
         }
 
@@ -109,7 +103,6 @@ namespace Ripplee.Services.Services
             CurrentStatus = UserStatus.Registered;
             Debug.WriteLine($"Logged in and profile loaded for USER: {CurrentUser.Username}");
 
-            // ✅ ОТПРАВЛЯЕМ СООБЩЕНИЕ ОБ УСПЕШНОМ ВХОДЕ
             WeakReferenceMessenger.Default.Send(new UserChangedMessage(CurrentUser));
 
             return true;
@@ -122,7 +115,6 @@ namespace Ripplee.Services.Services
             CurrentStatus = UserStatus.Unauthenticated;
             Debug.WriteLine("User logged out and token removed.");
 
-            // ✅ ОТПРАВЛЯЕМ СООБЩЕНИЕ О ВЫХОДЕ (с null)
             WeakReferenceMessenger.Default.Send(new UserChangedMessage(null));
 
             await Task.CompletedTask;

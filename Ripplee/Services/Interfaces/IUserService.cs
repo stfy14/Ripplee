@@ -1,4 +1,4 @@
-﻿using Ripplee.Models; // Убедись, что using на месте
+﻿using Ripplee.Models; 
 
 namespace Ripplee.Services.Interfaces
 {
@@ -9,7 +9,7 @@ namespace Ripplee.Services.Interfaces
         UserStatus CurrentStatus { get; }
         Task InitializeAsync();
         Task<bool> LoginAsGuestAsync(string username);
-        Task<bool> RegisterAndLoginAsync(string username, string password, string? topic = null); // Оставляем необязательный topic
+        Task<bool> RegisterAndLoginAsync(string username, string password); 
         Task<bool> LoginAsync(string username, string password);
         Task<bool> TryAutoLoginAsync();
         Task LogoutAsync();

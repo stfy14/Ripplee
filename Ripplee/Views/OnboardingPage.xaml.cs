@@ -1,6 +1,4 @@
-﻿// Файл: Ripplee/Views/OnboardingPage.xaml.cs
-
-using CommunityToolkit.Mvvm.Messaging; // <-- Добавлен using
+﻿using Ripplee.Services.Interfaces;
 using Ripplee.ViewModels;
 using System.ComponentModel;
 
@@ -8,31 +6,43 @@ namespace Ripplee.Views
 {
     public partial class OnboardingPage : ContentPage
     {
+        private static bool _autoLoginCheckPerformed = false;
+
+        private readonly IUserService _userService;
         private OnboardingViewModel? _viewModel;
 
-        public OnboardingPage(OnboardingViewModel viewModel)
+        private int _currentVisibleStepIndex = 0;
+        private bool _isAnimating = false;
+
+        private readonly List<View> _stepLayouts;
+        private readonly List<View> _headerLayouts;
+
+        public OnboardingPage(OnboardingViewModel viewModel, IUserService userService)
         {
             InitializeComponent();
-            BindingContext = _viewModel = viewModel;
+            _userService = userService;
+            _viewModel = viewModel;
+            BindingContext = _viewModel;
+
+            _stepLayouts = [Step0Layout, Step1Layout, Step2Layout, Step3Layout, StepLoginPasswordLayout];
+            _headerLayouts = [HeaderStep0, HeaderStep1, HeaderStep2, HeaderStep3, HeaderStep4];
         }
 
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
-            RootGrid.Opacity = 1;
 
-            WeakReferenceMessenger.Default.Send(new ResetStateMessage());
-
-            Step0Layout.IsVisible = true;
-            Step1Layout.IsVisible = false;
-            Step2Layout.IsVisible = false;
-            Step3Layout.IsVisible = false;
-            StepLoginPasswordLayout.IsVisible = false;
-
-            if (_viewModel != null)
+            if (!_autoLoginCheckPerformed)
             {
-                _viewModel.PropertyChanged += ViewModel_PropertyChanged;
+                _autoLoginCheckPerformed = true;
+
+                if (await _userService.TryAutoLoginAsync())
+                {
+                    await Shell.Current.GoToAsync("//MainPage");
+                }
+
             }
+            _viewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
 
         protected override void OnDisappearing()
@@ -40,76 +50,59 @@ namespace Ripplee.Views
             base.OnDisappearing();
             if (_viewModel != null)
             {
+                _viewModel.ResetState();
                 _viewModel.PropertyChanged -= ViewModel_PropertyChanged;
             }
         }
 
         private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(OnboardingViewModel.StepChangeDirection))
+            if (_viewModel == null) return;
+
+            if (e.PropertyName == nameof(OnboardingViewModel.CurrentStepIndex))
             {
-                HandleStepAnimation();
-            }
-            else if (e.PropertyName == nameof(OnboardingViewModel.IsNavigatingToMainApp))
-            {
-                if (_viewModel is not null && _viewModel.IsNavigatingToMainApp)
-                {
-                    AnimateAndNavigateToMain();
-                }
+                SetStepVisibility(_viewModel.CurrentStepIndex, true); 
             }
         }
 
-        private async void AnimateAndNavigateToMain()
+        private async void SetStepVisibility(int newStepIndex, bool animate)
         {
-            await RootGrid.FadeTo(0, 400, Easing.CubicIn);
-            await Shell.Current.GoToAsync("//MainApp", true, new Dictionary<string, object>
+            if (_currentVisibleStepIndex == newStepIndex) return;
+            if (_isAnimating) return;
+
+            _isAnimating = true;
+
+            View fromView = _stepLayouts[_currentVisibleStepIndex];
+            View toView = _stepLayouts[newStepIndex];
+
+            _headerLayouts[_currentVisibleStepIndex].IsVisible = false;
+            _headerLayouts[newStepIndex].IsVisible = true;
+
+            if (animate && Width > 0)
             {
-                { "FromOnboarding", true }
-            });
-        }
+                bool isGoingForward = newStepIndex > _currentVisibleStepIndex;
+                double translationX = isGoingForward ? Width : -Width;
 
-        private async void HandleStepAnimation()
-        {
-            Step0Layout.ClearValue(IsVisibleProperty);
-            Step1Layout.ClearValue(IsVisibleProperty);
-            Step2Layout.ClearValue(IsVisibleProperty);
-            Step3Layout.ClearValue(IsVisibleProperty);
-            StepLoginPasswordLayout.ClearValue(IsVisibleProperty);
+                toView.TranslationX = translationX;
 
-            if (_viewModel is null || _viewModel.StepChangeDirection == AnimationDirection.None)
-                return;
+                toView.IsVisible = true;
 
-            View? currentView = GetViewForStep(_viewModel.CurrentStepIndex);
-            if (currentView == null) return;
+                var animationOut = fromView.TranslateTo(-translationX, 0, 300, Easing.CubicOut); 
+                var animationIn = toView.TranslateTo(0, 0, 300, Easing.CubicOut);
 
-            bool isGoingForward = _viewModel.StepChangeDirection == AnimationDirection.Forward;
+                await Task.WhenAll(animationIn, animationOut);
 
-            double translationX = isGoingForward ? -this.Width : this.Width;
-            await currentView.TranslateTo(translationX, 0, 300, Easing.CubicIn);
-
-            if (_viewModel.CompleteStepChangeCommand.CanExecute(null))
+                fromView.IsVisible = false;
+                fromView.TranslationX = 0; 
+            }
+            else
             {
-                _viewModel.CompleteStepChangeCommand.Execute(null);
+                fromView.IsVisible = false;
+                toView.IsVisible = true;
             }
 
-            View? nextView = GetViewForStep(_viewModel.CurrentStepIndex);
-            if (nextView == null) return;
-
-            nextView.TranslationX = -translationX;
-            await nextView.TranslateTo(0, 0, 300, Easing.CubicOut);
-        }
-
-        private View? GetViewForStep(int stepIndex)
-        {
-            return stepIndex switch
-            {
-                0 => Step0Layout,
-                1 => Step1Layout,
-                2 => Step2Layout,
-                3 => Step3Layout,
-                4 => StepLoginPasswordLayout,
-                _ => null
-            };
+            _currentVisibleStepIndex = newStepIndex;
+            _isAnimating = false;
         }
     }
 }

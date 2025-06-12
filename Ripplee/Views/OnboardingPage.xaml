@@ -4,12 +4,18 @@
              x:Class="Ripplee.Views.OnboardingPage"
              xmlns:vm="clr-namespace:Ripplee.ViewModels"
              xmlns:converters="clr-namespace:Ripplee.Misc.UI"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:DataType="vm:OnboardingViewModel"
              Shell.NavBarIsVisible="False"
              BackgroundColor="#222222">
 
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding InitializeCommand}" />
+    </ContentPage.Behaviors>
+
     <ContentPage.Resources>
         <converters:StepToVisibilityConverter x:Key="StepToVisibilityConverter" />
+        <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
 
         <!-- Адаптивные стили -->
         <Style x:Key="HeaderContainer" TargetType="Border">
@@ -101,292 +107,297 @@
         </Style>
     </ContentPage.Resources>
 
-    <Grid RowDefinitions="Auto,*" BackgroundColor="#202020" x:Name="RootGrid" Padding="5,0,5,0">
+    <Grid>
 
-        <!-- Фиксированный верхний хедер для всех страниц -->
-        <Border Grid.Row="0" Style="{StaticResource HeaderContainer}">
-            <VerticalStackLayout>
-                <!-- Первая -->
-                <Grid IsVisible="{Binding Path=CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='0'}">
-                    <Label Text="Reeplee" Style="{StaticResource AppTitle}"/>
-                </Grid>
-                <!-- Вторая -->
-                <Grid ColumnDefinitions="Auto,*,Auto" Padding="10"
-                      IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='1'}">
-                    <Border Grid.Column="0" Style="{StaticResource HeaderActionButton}">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding PreviousStepCommand}" />
-                        </Border.GestureRecognizers>
-                        
-                        <Image Source="back_icon.png"
-                               Aspect="AspectFit"
-                               Rotation="90"
-                               HeightRequest="24"
-                               WidthRequest="24"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center"/>
-                    </Border>
-                    <Label Grid.Column="1" Text="Ввод логина" Style="{StaticResource HeaderTitle}"/>
-                </Grid>
-                <!-- Третья -->
-                <Grid ColumnDefinitions="Auto,*,Auto" Padding="10"
-                      IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='2'}">
-                    <Border Grid.Column="0" Style="{StaticResource HeaderActionButton}">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding PreviousStepCommand}" />
-                        </Border.GestureRecognizers>
+        <Grid IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}"
+                  RowDefinitions="Auto,*" BackgroundColor="#202020" Padding="5,0,5,0">
+            <!-- Фиксированный верхний хедер для всех страниц -->
+            <Border Grid.Row="0" Style="{StaticResource HeaderContainer}">
+                <VerticalStackLayout>
+                    <!-- Первая -->
+                    <Grid x:Name="HeaderStep0" IsVisible="True">
+                        <Label Text="Reeplee" Style="{StaticResource AppTitle}"/>
+                    </Grid>
+                    <!-- Вторая -->
+                    <Grid x:Name="HeaderStep1" IsVisible="False" ColumnDefinitions="Auto,*,Auto" Padding="10">
+                        <Border Grid.Column="0" Style="{StaticResource HeaderActionButton}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding PreviousStepCommand}" />
+                            </Border.GestureRecognizers>
 
-                        <Image Source="back_icon.png"
-                               Aspect="AspectFit"
-                               Rotation="90"
-                               HeightRequest="24"
-                               WidthRequest="24"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center"/>
-                    </Border>
-                    <Label Grid.Column="1" Text="Ввод пароля" Style="{StaticResource HeaderTitle}"/>
-                </Grid>
-                <!-- Четвертая -->
-                <Grid ColumnDefinitions="Auto,*,Auto" Padding="10"
-                      IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='3'}">
-                    <Border Grid.Column="0" Style="{StaticResource HeaderActionButton}">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding PreviousStepCommand}" />
-                        </Border.GestureRecognizers>
+                            <Image Source="back_icon.png"
+                                   Aspect="AspectFit"
+                                   Rotation="90"
+                                   HeightRequest="24"
+                                   WidthRequest="24"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
+                        <Label Grid.Column="1" Text="Ввод логина" Style="{StaticResource HeaderTitle}"/>
+                    </Grid>
+                    <!-- Третья -->
+                    <Grid x:Name="HeaderStep2" IsVisible="False" ColumnDefinitions="Auto,*,Auto" Padding="10">
+                        <Border Grid.Column="0" Style="{StaticResource HeaderActionButton}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding PreviousStepCommand}" />
+                            </Border.GestureRecognizers>
 
-                        <Image Source="back_icon.png"
-                               Aspect="AspectFit"
-                               Rotation="90"
-                               HeightRequest="24"
-                               WidthRequest="24"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center"/>
-                    </Border>
-                    <Label Grid.Column="1" Text="Выбор аватара" Style="{StaticResource HeaderTitle}"/>
-                </Grid>
-                <!-- Пятая -->
-                <Grid ColumnDefinitions="Auto,*,Auto" Padding="10"
-                      IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='4'}">
+                            <Image Source="back_icon.png"
+                                   Aspect="AspectFit"
+                                   Rotation="90"
+                                   HeightRequest="24"
+                                   WidthRequest="24"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
+                        <Label Grid.Column="1" Text="Ввод пароля" Style="{StaticResource HeaderTitle}"/>
+                    </Grid>
+                    <!-- Четвертая -->
+                    <Grid x:Name="HeaderStep3" IsVisible="False" ColumnDefinitions="Auto,*,Auto" Padding="10">
+                        <Border Grid.Column="0" Style="{StaticResource HeaderActionButton}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding PreviousStepCommand}" />
+                            </Border.GestureRecognizers>
 
-                    <Border Grid.Column="0" Style="{StaticResource HeaderActionButton}">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding PreviousStepCommand}" />
-                        </Border.GestureRecognizers>
+                            <Image Source="back_icon.png"
+                                   Aspect="AspectFit"
+                                   Rotation="90"
+                                   HeightRequest="24"
+                                   WidthRequest="24"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
+                        <Label Grid.Column="1" Text="Выбор аватара" Style="{StaticResource HeaderTitle}"/>
+                    </Grid>
+                    <!-- Пятая -->
+                    <Grid x:Name="HeaderStep4" IsVisible="False" ColumnDefinitions="Auto,*,Auto" Padding="10">
+                        <Border Grid.Column="0" Style="{StaticResource HeaderActionButton}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding PreviousStepCommand}" />
+                            </Border.GestureRecognizers>
 
-                        <Image Source="back_icon.png"
-                               Aspect="AspectFit"
-                               Rotation="90"
-                               HeightRequest="24"
-                               WidthRequest="24"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center"/>
-                    </Border>
+                            <Image Source="back_icon.png"
+                                   Aspect="AspectFit"
+                                   Rotation="90"
+                                   HeightRequest="24"
+                                   WidthRequest="24"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
 
-                    <Label Grid.Column="1" Text="Вход в аккаунт" Style="{StaticResource HeaderTitle}"/>
-                </Grid>
-            </VerticalStackLayout>
-        </Border>
+                        <Label Grid.Column="1" Text="Вход в аккаунт" Style="{StaticResource HeaderTitle}"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
 
-        <!-- Основной контент с прокруткой -->
-        <ScrollView Grid.Row="1">
-            <Grid MinimumHeightRequest="500">
+            <!-- Основной контент с прокруткой -->
+            <ScrollView Grid.Row="1">
+                <Grid MinimumHeightRequest="500">
 
-                <!-- Первая страница -->
-                <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}" 
-                                     VerticalOptions="Start" Padding="0,10,0,20"
-                                     IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='0'}"
-                                     x:Name="Step0Layout">
+                    <!-- Первая страница -->
+                    <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}" 
+                                         VerticalOptions="Start" Padding="0,10,0,20"
+                                         IsVisible="True"
+                                         x:Name="Step0Layout">
 
-                    <Border Style="{StaticResource ContentContainer}">
-                        <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}">
-                            <BoxView HeightRequest="2" Color="#808080" HorizontalOptions="Center" 
-                                     WidthRequest="{OnPlatform Default=120, Android=100, iOS=120}"
-                                     Margin="0,15,0,15"/>
+                        <Border Style="{StaticResource ContentContainer}">
+                            <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}">
+                                <BoxView HeightRequest="2" Color="#808080" HorizontalOptions="Center" 
+                                         WidthRequest="{OnPlatform Default=120, Android=100, iOS=120}"
+                                         Margin="0,15,0,15"/>
 
-                            <Label Text="Темы" Style="{StaticResource FeatureLabel}"/>
+                                <Label Text="Темы" Style="{StaticResource FeatureLabel}"/>
 
-                            <BoxView HeightRequest="2" Color="#808080" HorizontalOptions="Center" 
-                                     WidthRequest="{OnPlatform Default=200, Android=180, iOS=200}"
-                                     Margin="0,15,0,15"/>
+                                <BoxView HeightRequest="2" Color="#808080" HorizontalOptions="Center" 
+                                         WidthRequest="{OnPlatform Default=200, Android=180, iOS=200}"
+                                         Margin="0,15,0,15"/>
 
-                            <Label Text="Быстрый поиск" Style="{StaticResource FeatureLabel}"/>
+                                <Label Text="Быстрый поиск" Style="{StaticResource FeatureLabel}"/>
 
-                            <BoxView HeightRequest="2" Color="#808080" HorizontalOptions="Center" 
-                                     WidthRequest="{OnPlatform Default=200, Android=180, iOS=200}"
-                                     Margin="0,15,0,15"/>
+                                <BoxView HeightRequest="2" Color="#808080" HorizontalOptions="Center" 
+                                         WidthRequest="{OnPlatform Default=200, Android=180, iOS=200}"
+                                         Margin="0,15,0,15"/>
 
-                            <Label Text="Города" Style="{StaticResource FeatureLabel}"/>
+                                <Label Text="Города" Style="{StaticResource FeatureLabel}"/>
 
-                            <BoxView HeightRequest="2" Color="#808080" HorizontalOptions="Center" 
-                                     WidthRequest="{OnPlatform Default=120, Android=100, iOS=120}"
-                                     Margin="0,15,0,15"/>
-                        </VerticalStackLayout>
-                    </Border>
+                                <BoxView HeightRequest="2" Color="#808080" HorizontalOptions="Center" 
+                                         WidthRequest="{OnPlatform Default=120, Android=100, iOS=120}"
+                                         Margin="0,15,0,15"/>
+                            </VerticalStackLayout>
+                        </Border>
 
-                    <Border Style="{StaticResource ButtonContainer}">
-                        <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}">
-                            <Button Text="Продолжить" 
-                                    Command="{Binding StartFlowCommand}" 
+                        <Border Style="{StaticResource ButtonContainer}">
+                            <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}">
+                                <Button Text="Продолжить" 
+                                        Command="{Binding StartFlowCommand}" 
+                                        Style="{StaticResource OnboardingButton}"/>
+
+                                <Button Text="Как гость" 
+                                        Command="{Binding StartGuestFlowCommand}" 
+                                        Style="{StaticResource SecondaryButton}"/>
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Вторая страница - Ввод логина -->
+                    <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}" 
+                                         VerticalOptions="Start" Padding="0,10,0,20"
+                                         IsVisible="False"
+                                         x:Name="Step1Layout">
+
+                        <Border Style="{StaticResource ContentContainer}">
+                            <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}">
+                                <Label Text="Осталось совсем" Style="{StaticResource OnboardingTitle}"/>
+                                <Label Text="чуть-чуть" Style="{StaticResource OnboardingTitle}"/>
+
+                                <BoxView HeightRequest="2" Color="#808080" 
+                                         Margin="{OnPlatform Default='0,30,0,30', Android='0,20,0,20', iOS='0,25,0,25'}" 
+                                         HorizontalOptions="Center" 
+                                         WidthRequest="{OnPlatform Default=150, Android=120, iOS=150}"/>
+
+                                <Border Style="{StaticResource InputContainer}">
+                                    <Entry Placeholder="Введите логин" 
+                                           Text="{Binding Username}" 
+                                           Style="{StaticResource InputEntry}"/>
+                                </Border>
+
+                                <Button Text="Дальше" 
+                                        Command="{Binding NextStepCommand}" 
+                                        Style="{StaticResource OnboardingButton}" 
+                                        Margin="{OnPlatform Default='0,15,0,0', Android='0,10,0,0', iOS='0,15,0,0'}"/>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Image Source="slile_login_icon.png"
+                               Aspect="AspectFit" 
+                               HeightRequest="{OnPlatform Default=150, Android=144, iOS=144}" 
+                               Margin="{OnPlatform Default='0,90,0,0', Android='0,90,0,0', iOS='0,90,0,0'}"/>
+                    </VerticalStackLayout>
+
+                    <!-- Третья страница - Ввод пароля -->
+                    <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}" 
+                                         VerticalOptions="Start" Padding="0,10,0,20"
+                                         IsVisible="False"
+                                         x:Name="Step2Layout">
+
+                        <Border Style="{StaticResource ContentContainer}">
+                            <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}">
+                                <Label Text="Ты же не хочешь" Style="{StaticResource OnboardingTitle}"/>
+                                <Label Text="потерять данные?" Style="{StaticResource OnboardingTitle}"/>
+
+                                <BoxView HeightRequest="2" Color="#808080" 
+                                         Margin="{OnPlatform Default='0,30,0,30', Android='0,20,0,20', iOS='0,25,0,25'}" 
+                                         HorizontalOptions="Center" 
+                                         WidthRequest="{OnPlatform Default=150, Android=120, iOS=150}"/>
+
+                                <Border Style="{StaticResource InputContainer}">
+                                    <Entry Placeholder="Введите пароль" 
+                                           Text="{Binding Password}" 
+                                           IsPassword="True" 
+                                           Style="{StaticResource InputEntry}"/>
+                                </Border>
+
+                                <Button Text="Дальше" 
+                                        Command="{Binding NextStepCommand}" 
+                                        Style="{StaticResource OnboardingButton}" 
+                                        Margin="{OnPlatform Default='0,15,0,0', Android='0,10,0,0', iOS='0,15,0,0'}"/>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Image Source="lock_icon.svg" 
+                               Aspect="AspectFit" 
+                               HeightRequest="{OnPlatform Default=150, Android=144, iOS=144}" 
+                               Margin="{OnPlatform Default='0,15,0,0', Android='0,90,0,0', iOS='0,90,0,0'}"/>
+                    </VerticalStackLayout>
+
+                    <!-- Четвертая страница - Выбор аватара -->
+                    <VerticalStackLayout Spacing="{OnPlatform Default=20, Android=15, iOS=20}" 
+                                         VerticalOptions="Start" Padding="0,10,0,20"
+                                         IsVisible="False"
+                                         x:Name="Step3Layout">
+
+                        <Border Style="{StaticResource ContentContainer}">
+                            <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}">
+                                <Label Text="Желаешь поставить аватар?" 
+                                       Style="{StaticResource OnboardingTitle}" 
+                                       LineBreakMode="WordWrap"/>
+
+                                <BoxView HeightRequest="2" Color="#808080" 
+                                         Margin="{OnPlatform Default='0,10,0,10', Android='0,8,0,8', iOS='0,10,0,10'}" 
+                                         HorizontalOptions="Center" 
+                                         WidthRequest="{OnPlatform Default=150, Android=120, iOS=150}"/>
+
+                                <Label Text="Если не хотите, не ставьте" 
+                                       FontSize="{OnPlatform Default=16, Android=14, iOS=16}" 
+                                       TextColor="Gray" 
+                                       HorizontalOptions="Center"/>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Аватар -->
+                        <Border WidthRequest="{OnPlatform Default=220, Android=160, iOS=160}" 
+                                HeightRequest="{OnPlatform Default=220, Android=160, iOS=160}" 
+                                StrokeShape="{OnPlatform Default='RoundRectangle 110', Android='RoundRectangle 85', iOS='RoundRectangle 85'}" 
+                                BackgroundColor="#3D3D3D" 
+                                StrokeThickness="0" 
+                                HorizontalOptions="Center" 
+                                Margin="{OnPlatform Default='0,20', Android='0,35', iOS='0,20'}">
+                            <Image Source="pen_icon.svg" 
+                                   WidthRequest="{OnPlatform Default=85, Android=65, iOS=65}" 
+                                   HeightRequest="{OnPlatform Default=85, Android=65, iOS=65}"/>
+                        </Border>
+
+                        <!-- Кнопка завершения -->
+                        <Border Style="{StaticResource ButtonContainer}">
+                            <Button Text="Начать общаться" 
+                                    Command="{Binding NextStepCommand}" 
                                     Style="{StaticResource OnboardingButton}"/>
+                        </Border>
+                    </VerticalStackLayout>
 
-                            <Button Text="Как гость" 
-                                    Command="{Binding StartGuestFlowCommand}" 
-                                    Style="{StaticResource SecondaryButton}"/>
-                        </VerticalStackLayout>
-                    </Border>
-                </VerticalStackLayout>
+                    <!-- Пятая страница - логин существует -->
+                    <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}" 
+                         VerticalOptions="Start" Padding="0,10,0,20"
+                         IsVisible="False"
+                         x:Name="StepLoginPasswordLayout">
 
-                <!-- Вторая страница - Ввод логина -->
-                <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}" 
-                                     VerticalOptions="Start" Padding="0,10,0,20"
-                                     IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='1'}"
-                                     x:Name="Step1Layout">
+                        <Border Style="{StaticResource ContentContainer}">
+                            <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}">
+                                <!-- Приветствуем существующего пользователя -->
+                                <Label Text="{Binding GreetingMessage}" Style="{StaticResource OnboardingTitle}"/>
 
-                    <Border Style="{StaticResource ContentContainer}">
-                        <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}">
-                            <Label Text="Осталось совсем" Style="{StaticResource OnboardingTitle}"/>
-                            <Label Text="чуть-чуть" Style="{StaticResource OnboardingTitle}"/>
+                                <Label Text="Введите пароль" 
+                                       FontSize="{OnPlatform Default=18, Android=16, iOS=16}" 
+                                       TextColor="Gray" 
+                                       HorizontalOptions="Center"/>
 
-                            <BoxView HeightRequest="2" Color="#808080" 
-                                     Margin="{OnPlatform Default='0,30,0,30', Android='0,20,0,20', iOS='0,25,0,25'}" 
-                                     HorizontalOptions="Center" 
-                                     WidthRequest="{OnPlatform Default=150, Android=120, iOS=150}"/>
+                                <BoxView HeightRequest="2" Color="#808080" Margin="0,15,0,30" HorizontalOptions="Center" WidthRequest="150"/>
 
-                            <Border Style="{StaticResource InputContainer}">
-                                <Entry Placeholder="Введите логин" 
-                                       Text="{Binding Username}" 
-                                       Style="{StaticResource InputEntry}"/>
-                            </Border>
+                                <Border Style="{StaticResource InputContainer}">
+                                    <Entry Placeholder="Введите пароль" Text="{Binding Password}" IsPassword="True" Style="{StaticResource InputEntry}"/>
+                                </Border>
 
-                            <Button Text="Дальше" 
-                                    Command="{Binding NextStepCommand}" 
-                                    Style="{StaticResource OnboardingButton}" 
-                                    Margin="{OnPlatform Default='0,15,0,0', Android='0,10,0,0', iOS='0,15,0,0'}"/>
-                        </VerticalStackLayout>
-                    </Border>
+                                <!-- Используем новую команду LoginCommand -->
+                                <Button Text="Войти" 
+                                        Command="{Binding LoginCommand}" 
+                                        Style="{StaticResource OnboardingButton}" 
+                                        Margin="0,15,0,0"/>
+                            </VerticalStackLayout>
+                        </Border>
 
-                    <Image Source="slile_login_icon.png"
-                           Aspect="AspectFit" 
-                           HeightRequest="{OnPlatform Default=150, Android=144, iOS=144}" 
-                           Margin="{OnPlatform Default='0,90,0,0', Android='0,90,0,0', iOS='0,90,0,0'}"/>
-                </VerticalStackLayout>
+                        <Image Source="hand_shake.svg" Aspect="AspectFit" HeightRequest="150" Margin="0,100,0,0"/>
 
-                <!-- Третья страница - Ввод пароля -->
-                <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}" 
-                                     VerticalOptions="Start" Padding="0,10,0,20"
-                                     IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='2'}"
-                                     x:Name="Step2Layout">
+                    </VerticalStackLayout>
 
-                    <Border Style="{StaticResource ContentContainer}">
-                        <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}">
-                            <Label Text="Ты же не хочешь" Style="{StaticResource OnboardingTitle}"/>
-                            <Label Text="потерять данные?" Style="{StaticResource OnboardingTitle}"/>
-
-                            <BoxView HeightRequest="2" Color="#808080" 
-                                     Margin="{OnPlatform Default='0,30,0,30', Android='0,20,0,20', iOS='0,25,0,25'}" 
-                                     HorizontalOptions="Center" 
-                                     WidthRequest="{OnPlatform Default=150, Android=120, iOS=150}"/>
-
-                            <Border Style="{StaticResource InputContainer}">
-                                <Entry Placeholder="Введите пароль" 
-                                       Text="{Binding Password}" 
-                                       IsPassword="True" 
-                                       Style="{StaticResource InputEntry}"/>
-                            </Border>
-
-                            <Button Text="Дальше" 
-                                    Command="{Binding NextStepCommand}" 
-                                    Style="{StaticResource OnboardingButton}" 
-                                    Margin="{OnPlatform Default='0,15,0,0', Android='0,10,0,0', iOS='0,15,0,0'}"/>
-                        </VerticalStackLayout>
-                    </Border>
-
-                    <Image Source="lock_icon.svg" 
-                           Aspect="AspectFit" 
-                           HeightRequest="{OnPlatform Default=150, Android=144, iOS=144}" 
-                           Margin="{OnPlatform Default='0,15,0,0', Android='0,90,0,0', iOS='0,90,0,0'}"/>
-                </VerticalStackLayout>
-
-                <!-- Четвертая страница - Выбор аватара -->
-                <VerticalStackLayout Spacing="{OnPlatform Default=20, Android=15, iOS=20}" 
-                                     VerticalOptions="Start" Padding="0,10,0,20"
-                                     IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='3'}"
-                                     x:Name="Step3Layout">
-
-                    <Border Style="{StaticResource ContentContainer}">
-                        <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}">
-                            <Label Text="Желаешь поставить аватар?" 
-                                   Style="{StaticResource OnboardingTitle}" 
-                                   LineBreakMode="WordWrap"/>
-
-                            <BoxView HeightRequest="2" Color="#808080" 
-                                     Margin="{OnPlatform Default='0,10,0,10', Android='0,8,0,8', iOS='0,10,0,10'}" 
-                                     HorizontalOptions="Center" 
-                                     WidthRequest="{OnPlatform Default=150, Android=120, iOS=150}"/>
-
-                            <Label Text="Если не хотите, не ставьте" 
-                                   FontSize="{OnPlatform Default=16, Android=14, iOS=16}" 
-                                   TextColor="Gray" 
-                                   HorizontalOptions="Center"/>
-                        </VerticalStackLayout>
-                    </Border>
-
-                    <!-- Аватар -->
-                    <Border WidthRequest="{OnPlatform Default=220, Android=160, iOS=160}" 
-                            HeightRequest="{OnPlatform Default=220, Android=160, iOS=160}" 
-                            StrokeShape="{OnPlatform Default='RoundRectangle 110', Android='RoundRectangle 85', iOS='RoundRectangle 85'}" 
-                            BackgroundColor="#3D3D3D" 
-                            StrokeThickness="0" 
-                            HorizontalOptions="Center" 
-                            Margin="{OnPlatform Default='0,20', Android='0,35', iOS='0,20'}">
-                        <Image Source="pen_icon.svg" 
-                               WidthRequest="{OnPlatform Default=85, Android=65, iOS=65}" 
-                               HeightRequest="{OnPlatform Default=85, Android=65, iOS=65}"/>
-                    </Border>
-
-                    <!-- Кнопка завершения -->
-                    <Border Style="{StaticResource ButtonContainer}">
-                        <Button Text="Начать общаться" 
-                                Command="{Binding NextStepCommand}" 
-                                Style="{StaticResource OnboardingButton}"/>
-                    </Border>
-                </VerticalStackLayout>
-
-                <!-- ✅ НАЧАЛО БЛОКА ДЛЯ НОВОЙ СТРАНИЦЫ ВХОДА (ШАГ 4) -->
-                <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}" 
-                     VerticalOptions="Start" Padding="0,10,0,20"
-                     IsVisible="{Binding CurrentStepIndex, Converter={StaticResource StepToVisibilityConverter}, ConverterParameter='4'}"
-                     x:Name="StepLoginPasswordLayout">
-
-                    <Border Style="{StaticResource ContentContainer}">
-                        <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}">
-                            <!-- Приветствуем существующего пользователя -->
-                            <Label Text="{Binding GreetingMessage}" Style="{StaticResource OnboardingTitle}"/>
-
-                            <Label Text="Введите пароль" 
-                                   FontSize="{OnPlatform Default=18, Android=16, iOS=16}" 
-                                   TextColor="Gray" 
-                                   HorizontalOptions="Center"/>
-
-                            <BoxView HeightRequest="2" Color="#808080" Margin="0,15,0,30" HorizontalOptions="Center" WidthRequest="150"/>
-
-                            <Border Style="{StaticResource InputContainer}">
-                                <Entry Placeholder="Введите пароль" Text="{Binding Password}" IsPassword="True" Style="{StaticResource InputEntry}"/>
-                            </Border>
-
-                            <!-- Используем новую команду LoginCommand -->
-                            <Button Text="Войти" 
-                                    Command="{Binding LoginCommand}" 
-                                    Style="{StaticResource OnboardingButton}" 
-                                    Margin="0,15,0,0"/>
-                        </VerticalStackLayout>
-                    </Border>
-
-                    <Image Source="hand_shake.svg" Aspect="AspectFit" HeightRequest="150" Margin="0,100,0,0"/>
-
-                </VerticalStackLayout>
-
-            </Grid>
-        </ScrollView>
+                </Grid>
+            </ScrollView>
+        </Grid>
+        <VerticalStackLayout IsVisible="{Binding IsLoading}" BackgroundColor="#222222" HorizontalOptions="Fill" VerticalOptions="Fill" Spacing="20">
+            <ActivityIndicator IsRunning="{Binding IsLoading}" Color="White" HorizontalOptions="Center" />
+            <Label Text="Загрузка..."
+                   TextColor="White"
+                   FontSize="18"
+                   HorizontalOptions="Center" />
+        </VerticalStackLayout>
     </Grid>
 </ContentPage>

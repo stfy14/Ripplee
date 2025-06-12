@@ -1,6 +1,4 @@
-﻿// Файл: Ripplee/ViewModels/MainViewModel.cs
-
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Ripplee.Models;
@@ -11,13 +9,11 @@ using System.Diagnostics;
 
 namespace Ripplee.ViewModels
 {
-    // Указываем, что ViewModel теперь является получателем сообщений
     public partial class MainViewModel : ObservableObject, IRecipient<UserChangedMessage>
     {
         private readonly IChatService _chatService;
-        private readonly IUserService _userService; // Сделали полем класса
+        private readonly IUserService _userService; 
 
-        // ✅ ИЗМЕНЕНО: Свойство теперь отслеживаемое, чтобы UI обновлялся
         [ObservableProperty]
         private UserModel user;
 
@@ -33,33 +29,21 @@ namespace Ripplee.ViewModels
 
         public MainViewModel(IChatService chatService, IUserService userService)
         {
-            Debug.WriteLine("MainViewModel constructor START");
             _chatService = chatService;
-            _userService = userService; // Сохраняем сервис в поле
-            User = _userService.CurrentUser; // Начальная установка
+            _userService = userService; 
+            User = _userService.CurrentUser; 
 
-            // Подписываемся на сообщения об изменении пользователя
             WeakReferenceMessenger.Default.Register<UserChangedMessage>(this);
-            Debug.WriteLine("MainViewModel constructor END.");
         }
 
-        // ✅ ИЗМЕНЕНО: Реализация интерфейса IRecipient
-        // Этот метод будет вызван, когда UserService отправит сообщение
         public void Receive(UserChangedMessage message)
         {
-            // Гарантируем, что обновление свойства, привязанного к UI,
-            // происходит в основном потоке.
             MainThread.InvokeOnMainThreadAsync(() =>
             {
-                // ✅ ЛОГИКА ИСПРАВЛЕНА:
-                // Мы всегда берем актуального пользователя напрямую из сервиса.
-                // Это гарантирует, что у нас всегда свежие данные.
                 User = _userService.CurrentUser;
                 Debug.WriteLine($"MainViewModel updated via message. New user from service: '{User.Username}'");
             });
         }
-
-        // --- Остальные команды остаются без изменений ---
 
         [RelayCommand]
         private void ToggleMenu()

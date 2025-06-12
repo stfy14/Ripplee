@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Ripplee.ViewModels;
-using Ripplee.Services.Interfaces; 
+using Ripplee.Services.Interfaces;
 
 namespace Ripplee.ViewModels
 {
@@ -41,7 +40,6 @@ namespace Ripplee.ViewModels
         private async Task Logout()
         {
             await _userService.LogoutAsync();
-            // После выхода сбрасываем стек навигации и переходим на страницу входа
             await Shell.Current.GoToAsync("//OnboardingPage");
         }
 

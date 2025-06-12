@@ -8,18 +8,26 @@
     Title="Ripplee"
     BackgroundColor="#202020">
 
+    <!-- 
+      Паттерн "Два Короля":
+      Оба возможных стартовых экрана объявлены здесь.
+      OnboardingPage - это маршрут по умолчанию, который загрузится первым.
+    -->
+
     <ShellContent
         Title="Welcome"
         ContentTemplate="{DataTemplate local:OnboardingPage}"
         Route="OnboardingPage" />
 
-    <!-- Основное содержимое приложения, которое будет доступно после входа -->
-    <!-- Используем FlyoutItem или TabBar, чтобы сгруппировать страницы -->
-    <FlyoutItem Route="MainApp">
+    <!-- 
+      MainPage (внутри FlyoutItem) - это второй "король".
+      Он скрыт, но Shell знает о его существовании как об официальном маршруте.
+    -->
+    <FlyoutItem Route="MainApp" FlyoutItemIsVisible="False">
         <ShellContent
             Title="Home"
             ContentTemplate="{DataTemplate local:MainPage}"
             Route="MainPage" />
     </FlyoutItem>
-    
+
 </Shell>
