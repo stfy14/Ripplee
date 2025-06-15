@@ -28,5 +28,7 @@
 	</array>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Это приложение хочет получить доступ к вашей фотогалерее для выбора аватара.</string>
 </dict>
 </plist>

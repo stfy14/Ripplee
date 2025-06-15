@@ -3,78 +3,66 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Ripplee.ViewModels"
              xmlns:controls="clr-namespace:Ripplee.Views"
-             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:converters="clr-namespace:Ripplee.Misc.UI" 
              x:Class="Ripplee.Views.MainPage"
              BackgroundColor="#202020"
              Shell.NavBarIsVisible="False">
-
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:FirstLetterConverter x:Key="FirstLetterConverter" />
+            <converters:IsNullOrEmptyToBoolConverter x:Key="IsNullOrEmptyToBoolConverter" />
+            <converters:IsNotNullOrEmptyToBoolConverter x:Key="IsNotNullOrEmptyToBoolConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
     <Grid RowDefinitions="Auto,*" x:Name="RootLayout">
         <Grid.GestureRecognizers>
             <TapGestureRecognizer Command="{Binding CloseMenuCommand}"/>
         </Grid.GestureRecognizers>
 
         <Grid Grid.Row="1" RowDefinitions="Auto,*,Auto" ColumnDefinitions="*" BackgroundColor="Transparent">
-
             <Grid ZIndex="3" Padding="20,0,20,0">
-                <Border BackgroundColor="#202020" 
-                        StrokeShape="RoundRectangle 0,0,40,40"
-                        Margin="0,-15,0,0"
-                        Grid.Row="0"/>
-
-                <Border BackgroundColor="#1B1B1B" 
-                        StrokeShape="RoundRectangle 20,20,20,20"
-                        HeightRequest="60">
+                <Border BackgroundColor="#202020" StrokeShape="RoundRectangle 0,0,40,40" Margin="0,-15,0,0" Grid.Row="0"/>
+                <Border BackgroundColor="#1B1B1B" StrokeShape="RoundRectangle 20,20,20,20" HeightRequest="60">
                     <Grid ColumnDefinitions="Auto,*">
-                        <Label Text="{Binding User.ChatSelection}" 
-                                    Margin="30,0,0,0" 
-                                    VerticalOptions="Center"
-                                    HorizontalOptions="Start"
-                                    Grid.Column="0"/>
-                        <ImageButton x:Name="menuButton"
-                                         Source="menu_icon.svg"
-                                         Command="{Binding ToggleMenuCommand}"
-                                         HeightRequest="40"
-                                         WidthRequest="40"
-                                         VerticalOptions="Center"
-                                         HorizontalOptions="End"
-                                         Margin="0,0,10,0"
-                                         BackgroundColor="#131313"
-                                         CornerRadius="10"
-                                         Padding="5"
-                                         Grid.Column="1">
-                        </ImageButton>
+                        <Label Text="{Binding User.ChatSelection}" Margin="30,0,0,0" VerticalOptions="Center" HorizontalOptions="Start" Grid.Column="0" TextColor="White"/>
+                        <ImageButton x:Name="menuButton" Source="menu_icon.svg" Command="{Binding ToggleMenuCommand}"
+                                     HeightRequest="40" WidthRequest="40" VerticalOptions="Center" HorizontalOptions="End"
+                                     Margin="0,0,10,0" BackgroundColor="#131313" CornerRadius="10" Padding="5" Grid.Column="1"/>
                     </Grid>
                 </Border>
-
             </Grid>
 
-            <controls:MenuPanel x:Name="menuControl" Grid.RowSpan="3" ZIndex="2" BindingContext="{Binding .}"
-                                Margin="20.5,0,20.5,525"/>
+            <controls:MenuPanel x:Name="menuControl" Grid.RowSpan="3" ZIndex="2" BindingContext="{Binding .}" Margin="20.5,0,20.5,525"/>
 
             <Grid Grid.Row="1" Margin="0,0,0,0" ZIndex="1">
                 <VerticalStackLayout Spacing="20" HorizontalOptions="Center" Padding="0,70,0,0">
-                    <Ellipse WidthRequest="125" HeightRequest="125" Fill="#505050"/>
-                    <Label Text="{Binding User.Username}" HorizontalTextAlignment="Center"/>
+                    <Grid WidthRequest="125" HeightRequest="125" HorizontalOptions="Center">
+                        <Border StrokeShape="Ellipse" Stroke="#404040" StrokeThickness="2"
+                                IsVisible="{Binding User.AvatarUrl, Converter={StaticResource IsNullOrEmptyToBoolConverter}}">
+                            <Border.Background>
+                                <SolidColorBrush Color="#505050"/>
+                            </Border.Background>
+                            <Label Text="{Binding User.Username, Converter={StaticResource FirstLetterConverter}}"
+                                   TextColor="White" FontSize="52" FontAttributes="Bold"
+                                   HorizontalOptions="Center" VerticalOptions="Center"/>
+                        </Border>
+                        <Border StrokeShape="Ellipse" Stroke="#404040" StrokeThickness="2"
+                                BackgroundColor="Transparent" 
+                                IsVisible="{Binding User.AvatarUrl, Converter={StaticResource IsNotNullOrEmptyToBoolConverter}}">
+                            <Image Aspect="AspectFill" Source="{Binding User.AvatarUrl}" />
+                        </Border>
+                    </Grid>
+                    <Label Text="{Binding User.Username}" HorizontalTextAlignment="Center" TextColor="White"/>
                 </VerticalStackLayout>
             </Grid>
 
             <Grid Grid.Row="2" Margin="20,0,20,20">
-               
-                <Border x:Name="FilterBorder"
-                        BackgroundColor="#1B1B1B"
-                        Padding="20,20,20,20"
-                        StrokeShape="RoundRectangle 30,30,30,30">
+                <Border x:Name="FilterBorder" BackgroundColor="#1B1B1B" Padding="20,20,20,20" StrokeShape="RoundRectangle 30,30,30,30">
                     <controls:FilterControlsView/>
                 </Border>
-               
-                <Border x:Name="UserCriteriaBorder"
-                        BackgroundColor="#1B1B1B"
-                        Padding="20,20,20,20"
-                        StrokeShape="RoundRectangle 30,30,30,30"
-                        IsVisible="False">
+                <Border x:Name="UserCriteriaBorder" BackgroundColor="#1B1B1B" Padding="20,20,20,20" StrokeShape="RoundRectangle 30,30,30,30" IsVisible="False">
                     <controls:UserCriteriaView/>
                 </Border>
-
             </Grid>
         </Grid>
     </Grid>

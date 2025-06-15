@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 using Ripplee.Server.Models;
 using Ripplee.Server.Services;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace Ripplee.Server.Hubs
 {
@@ -10,6 +11,7 @@ namespace Ripplee.Server.Hubs
     public class MatchmakingHub : Hub
     {
         private readonly IMatchmakingService _matchmakingService;
+        private const string ANY_CRITERIA_HUB = "Любой"; // Можно вынести в константу сервиса или общую
 
         public MatchmakingHub(IMatchmakingService matchmakingService)
         {
@@ -19,19 +21,18 @@ namespace Ripplee.Server.Hubs
         public async Task FindCompanion(string userCity, string searchGender, string searchCity, string searchTopic)
         {
             var username = Context.User.Identity?.Name ?? "Unknown";
-            // Здесь в идеале надо получить пол пользователя из базы, а не доверять клиенту.
-            // Но для простоты пока оставим так.
-            var userGender = Context.User.FindFirst("gender")?.Value ?? "Не указан";
+            string userGenderClaim = Context.User.FindFirst(ClaimTypes.Gender)?.Value;
+            // userCity уже передается и должен быть актуальным городом пользователя
 
             var waitingUser = new WaitingUser
             {
                 ConnectionId = Context.ConnectionId,
                 Username = username,
-                UserGender = userGender,
-                UserCity = userCity,
-                SearchGender = string.IsNullOrEmpty(searchGender) ? "Любой" : searchGender,
-                SearchCity = searchCity,
-                SearchTopic = searchTopic,
+                UserGender = userGenderClaim,
+                UserCity = userCity, // Это город самого пользователя
+                SearchGender = string.IsNullOrEmpty(searchGender) ? ANY_CRITERIA_HUB : searchGender,
+                SearchCity = string.IsNullOrEmpty(searchCity) ? ANY_CRITERIA_HUB : searchCity, // Добавим обработку пустого значения
+                SearchTopic = string.IsNullOrEmpty(searchTopic) ? ANY_CRITERIA_HUB : searchTopic, // Добавим обработку пустого значения
             };
 
             await _matchmakingService.AddUserToQueueAndTryMatchAsync(waitingUser);

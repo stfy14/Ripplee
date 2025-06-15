@@ -64,21 +64,28 @@ namespace Ripplee
 #endif
             ;
 
-            // --- Секция Dependency Injection (без изменений) ---
+            // --- Секция Dependency Injection ---
             builder.Services.AddSingleton<IUserService, UserService>();
             builder.Services.AddSingleton<IChatService, ChatService>();
+            builder.Services.AddSingleton<ISignalRService, SignalRService>();
             builder.Services.AddTransient<MainViewModel>();
             builder.Services.AddTransient<SettingsViewModel>();
             builder.Services.AddTransient<VoiceChatViewModel>();
             builder.Services.AddTransient<OnboardingViewModel>();
+            builder.Services.AddTransient<SearchingViewModel>();
+            builder.Services.AddTransient<ChangePasswordViewModel>(); // Добавлено
+            builder.Services.AddTransient<ChangeUsernameViewModel>(); // Добавлено
+
             builder.Services.AddTransient<LoadingPage>();
             builder.Services.AddTransient<MainPage>();
             builder.Services.AddTransient<SettingsPage>();
             builder.Services.AddTransient<VoiceChatPage>();
             builder.Services.AddTransient<OnboardingPage>();
-            builder.Services.AddTransient<AppShell>();
             builder.Services.AddTransient<SearchingPage>();
-            builder.Services.AddTransient<SearchingViewModel>();
+            builder.Services.AddTransient<ChangePasswordPage>(); // Добавлено
+            builder.Services.AddTransient<ChangeUsernamePage>(); // Добавлено
+
+            builder.Services.AddTransient<AppShell>();
 
             // --- Кастомизация нативных контролов (без изменений) ---
             builder.ConfigureMauiHandlers(handlers =>

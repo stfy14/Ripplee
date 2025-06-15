@@ -53,14 +53,14 @@
         <OnPlatform x:TypeArguments="View">
             <On Platform="Android, iOS">
                 <Border Style="{StaticResource PickerBorderStyle}">
-                    <Picker Title="Выберать город" 
+                    <Picker Title="Выбрать город" 
                             ItemsSource="{Binding Cities}" 
                             SelectedItem="{Binding User.SearchCity}"
                             Style="{StaticResource CustomPickerStyle}"/>
                 </Border>
             </On>
             <On Platform="WinUI">
-                <Picker Title="Выберать  город" 
+                <Picker Title="Выбрать город" 
                         ItemsSource="{Binding Cities}" 
                         SelectedItem="{Binding User.SearchCity}"
                         Style="{StaticResource CustomPickerStyle}" 
@@ -71,14 +71,14 @@
         <OnPlatform x:TypeArguments="View">
             <On Platform="Android, iOS">
                 <Border Style="{StaticResource PickerBorderStyle}">
-                    <Picker Title="Выберать тему" 
+                    <Picker Title="Выбрать тему" 
                             ItemsSource="{Binding Topics}" 
                             SelectedItem="{Binding User.SearchTopic}"
                             Style="{StaticResource CustomPickerStyle}"/>
                 </Border>
             </On>
             <On Platform="WinUI">
-                <Picker Title="Выберать тему" 
+                <Picker Title="Выбрать тему" 
                         ItemsSource="{Binding Topics}" 
                         SelectedItem="{Binding User.SearchTopic}"
                         Style="{StaticResource CustomPickerStyle}"

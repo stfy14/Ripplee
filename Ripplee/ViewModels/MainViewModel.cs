@@ -136,12 +136,18 @@ namespace Ripplee.ViewModels
                 await Shell.Current.DisplayAlert("Ошибка", "Пожалуйста, выберите город и тему для поиска.", "OK");
                 return;
             }
+            if (string.IsNullOrEmpty(User.MyCity) || User.MyCity == "Не указан") // Проверка, что город пользователя задан
+            {
+                await Shell.Current.DisplayAlert("Профиль не заполнен", "Пожалуйста, укажите ваш город в настройках профиля (иконка справа от 'Кого сегодня ищем?').", "OK");
+                return;
+            }
 
             var navigationParameters = new Dictionary<string, object>
             {
                 { "gender", User.SearchGender },
                 { "city", User.SearchCity },
-                { "topic", User.SearchTopic }
+                { "topic", User.SearchTopic },
+                { "userCity", User.MyCity } // <--- ПЕРЕДАЕМ ГОРОД ТЕКУЩЕГО ПОЛЬЗОВАТЕЛЯ
             };
 
             await Shell.Current.GoToAsync(nameof(Views.SearchingPage), true, navigationParameters);

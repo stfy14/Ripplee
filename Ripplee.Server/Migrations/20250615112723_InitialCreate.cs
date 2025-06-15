@@ -17,7 +17,10 @@ namespace Ripplee.Server.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Username = table.Column<string>(type: "TEXT", nullable: false),
-                    PasswordHash = table.Column<string>(type: "TEXT", nullable: false)
+                    PasswordHash = table.Column<string>(type: "TEXT", nullable: false),
+                    MyGender = table.Column<string>(type: "TEXT", nullable: true),
+                    MyCity = table.Column<string>(type: "TEXT", nullable: true),
+                    AvatarUrl = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {

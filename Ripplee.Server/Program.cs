@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Hosting;
 using Ripplee.Server.Data;
 using Ripplee.Server.Hubs;
 using System.Text;
@@ -27,7 +28,6 @@ builder.Services.AddAuthentication(options =>
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-// Добавляем обработчик JwtBearer без немедленной настройки.
 .AddJwtBearer();
 
 // Шаг 2: Регистрируем отдельный конфигуратор для JwtBearerOptions.
@@ -39,6 +39,11 @@ builder.Services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationSc
         var jwtKey = configuration["Jwt:Key"];
         var jwtIssuer = configuration["Jwt:Issuer"];
         var jwtAudience = configuration["Jwt:Audience"];
+
+        if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer) || string.IsNullOrEmpty(jwtAudience))
+        {
+            throw new InvalidOperationException("JWT Key, Issuer or Audience not configured in appsettings.json or User Secrets.");
+        }
 
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -135,20 +140,15 @@ app.UseSwaggerUI(options =>
     options.RoutePrefix = "swagger";
 });
 
-// Middleware для корректной работы за прокси-сервером (Nginx).
-// Он считывает заголовки X-Forwarded-For и X-Forwarded-Proto.
-// ВАЖНО: Должен быть одним из первых в конвейере.
+app.UseStaticFiles();
+
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 });
 
-// Убираем app.UseHttpsRedirection(), так как терминированием SSL занимается Nginx.
-// Если оставить, может вызывать проблемы с редиректами за прокси.
-// app.UseHttpsRedirection(); 
 
-// Включаем аутентификацию и авторизацию.
-// ВАЖНО: UseAuthentication() всегда должен идти перед UseAuthorization().
+// UseAuthentication() перед UseAuthorization().
 app.UseAuthentication();
 app.UseAuthorization();
 

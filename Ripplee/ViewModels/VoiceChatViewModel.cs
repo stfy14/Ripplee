@@ -73,7 +73,7 @@ namespace Ripplee.ViewModels
         private async Task EndCall()
         {
             StopCallTimer();
-            await Shell.Current.GoToAsync("..", true);
+            await Shell.Current.GoToAsync("//MainPage", true);
         }
 
         [RelayCommand]

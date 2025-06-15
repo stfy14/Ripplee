@@ -10,7 +10,7 @@ using Ripplee.Server.Data;
 namespace Ripplee.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250610203142_InitialCreate")]
+    [Migration("20250615112723_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -24,6 +24,15 @@ namespace Ripplee.Server.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("AvatarUrl")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("MyCity")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("MyGender")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()

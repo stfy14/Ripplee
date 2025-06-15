@@ -3,93 +3,69 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Ripplee.Views.SettingsPage" 
              xmlns:vm="clr-namespace:Ripplee.ViewModels"
+             xmlns:converters="clr-namespace:Ripplee.Misc.UI"
+             x:DataType="vm:SettingsViewModel"
              BackgroundColor="#222222"
              Shell.NavBarIsVisible="False"
              Shell.PresentationMode="ModalAnimated">
-
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:FirstLetterConverter x:Key="FirstLetterConverter" />
+            <converters:IsNullOrEmptyToBoolConverter x:Key="IsNullOrEmptyToBoolConverter" />
+            <converters:IsNotNullOrEmptyToBoolConverter x:Key="IsNotNullOrEmptyToBoolConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
     <Grid RowDefinitions="Auto,*,Auto" Margin="10">
-
         <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Padding="10,0,10,0">
-
             <VerticalStackLayout Grid.Column="0" Margin="0,0,90,0">
-                <Border BackgroundColor="#1c1c1c" 
-                    StrokeShape="RoundRectangle 20,20,20,20"
-                    HeightRequest="60">
-                    <Label Text="Настройки"
-                        FontSize="24"
-                        VerticalOptions="Center"
-                        HorizontalOptions="Center"/>
+                <Border BackgroundColor="#1c1c1c" StrokeShape="RoundRectangle 20,20,20,20" HeightRequest="60">
+                    <Label Text="Настройки" FontSize="24" VerticalOptions="Center" HorizontalOptions="Center" TextColor="White"/>
                 </Border>
             </VerticalStackLayout>
-
-            <Border BackgroundColor="#1c1c1c" 
-                    StrokeShape="RoundRectangle 20,20,20,20"
-                    HeightRequest="60"
-                    WidthRequest="60"
-                    HorizontalOptions="End"
-                    Grid.Column="1">
-            <ImageButton x:Name="CloseSettingsButton"
-                                    Source="back_icon.png"
-                                    BackgroundColor="#131313" 
-                                    CornerRadius="10"
-                                    Clicked="CloseSettingsButton_Clicked"
-                                    HorizontalOptions="End"
-                                    VerticalOptions="Center"
-                                    WidthRequest="40"
-                                    HeightRequest="40"
-                                    Margin="0,0,9,0"
-                                    Padding="5"/>
+            <Border BackgroundColor="#1c1c1c" StrokeShape="RoundRectangle 20,20,20,20" HeightRequest="60" WidthRequest="60" HorizontalOptions="End" Grid.Column="1">
+                <ImageButton x:Name="CloseSettingsButton" Source="back_icon.png" BackgroundColor="#131313" CornerRadius="10"
+                             Clicked="CloseSettingsButton_Clicked" HorizontalOptions="End" VerticalOptions="Center"
+                             WidthRequest="40" HeightRequest="40" Margin="0,0,9,0" Padding="5"/>
             </Border>
         </Grid>
 
         <Grid Grid.Row="1">
             <VerticalStackLayout Spacing="20" VerticalOptions="Center" HorizontalOptions="Center">
-                <Label Text="{Binding Username}" 
-                            FontSize="24"
-                            VerticalOptions="Center"
-                            HorizontalOptions="Center"/>
-                
-                <Ellipse WidthRequest="120" HeightRequest="120" Fill="#505050" BindingContext="{Binding Username, Converter={StaticResource FirstLetterConverter}}"/>
-                
-                <Button Text="Поменять фото"
-                            BackgroundColor="#3b3b3b"
-                            HorizontalOptions="Center"
-                            CornerRadius="10"
-                            HeightRequest="45"
-                            WidthRequest="180"
-                            Margin="0,20,0,0"
-                            Command="{Binding ChangePhotoCommand}"/>
+                <Label Text="{Binding CurrentUser.Username}" FontSize="24" VerticalOptions="Center" HorizontalOptions="Center" TextColor="White"/>
+
+                <Grid WidthRequest="120" HeightRequest="120" HorizontalOptions="Center">
+                    <Border StrokeShape="Ellipse" Stroke="#404040" StrokeThickness="2"
+                            IsVisible="{Binding CurrentUser.AvatarUrl, Converter={StaticResource IsNullOrEmptyToBoolConverter}}">
+                        <Border.Background>
+                            <SolidColorBrush Color="#505050"/>
+                        </Border.Background>
+                        <Label Text="{Binding CurrentUser.Username, Converter={StaticResource FirstLetterConverter}}"
+                               TextColor="White" FontSize="48" FontAttributes="Bold"
+                               HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Border>
+                    <Border StrokeShape="Ellipse" Stroke="#404040" StrokeThickness="2"
+                            BackgroundColor="Transparent" 
+                            IsVisible="{Binding CurrentUser.AvatarUrl, Converter={StaticResource IsNotNullOrEmptyToBoolConverter}}">
+                        <Image Aspect="AspectFill" Source="{Binding CurrentUser.AvatarUrl}" />
+                    </Border>
+                </Grid>
+
+                <Button Text="Поменять фото" BackgroundColor="#3b3b3b" HorizontalOptions="Center" CornerRadius="10"
+                        HeightRequest="45" WidthRequest="180" Margin="0,20,0,0" TextColor="White"
+                        Command="{Binding ChangePhotoCommand}"/>
+                <ActivityIndicator IsRunning="{Binding IsBusy}" Color="White" HorizontalOptions="Center"/>
             </VerticalStackLayout>
         </Grid>
         <Grid Grid.Row="2">
             <Border BackgroundColor="#1B1B1B" StrokeShape="RoundRectangle 20,20,20,20" Margin="10">
-                <VerticalStackLayout Spacing="25" Margin="20,25,20,25">
-                    <Button Text="Изменить пароль"
-                            BackgroundColor="#2e2e2e"
-                            CornerRadius="15"
-                            HeightRequest="55"
-                            Command="{Binding ChangePasswordCommand}"/>
-
-                    <Button Text="Изменить логин"
-                            BackgroundColor="#2e2e2e"
-                            CornerRadius="15"
-                            HeightRequest="55"
-                            Command="{Binding ChangeEmailCommand}" />
-
+                <VerticalStackLayout Spacing="15" Margin="20,25,20,25">
+                    <Button Text="Изменить пароль" BackgroundColor="#2e2e2e" CornerRadius="15" HeightRequest="55" TextColor="White" Command="{Binding ChangePasswordCommand}"/>
+                    <Button Text="Изменить логин" BackgroundColor="#2e2e2e" CornerRadius="15" HeightRequest="55" TextColor="White" Command="{Binding ChangeUsernameCommand}"/>
                     <BoxView HeightRequest="1" Color="#404040" Margin="0,10,0,10"/>
-                    
-                    <Button Text="Выйти из аккаунта"
-                            BackgroundColor="#2e2e2e"
-                            CornerRadius="15"
-                            HeightRequest="55"
-                            Command="{Binding LogoutCommand}"/>
-                    <Button Text="Удалить аккаунт"
-                            BackgroundColor="#731e1e"
-                            CornerRadius="15"
-                            HeightRequest="55"
-                            Command="{Binding DeleteAccountCommand}"/>
+                    <Button Text="Выйти из аккаунта" BackgroundColor="#2e2e2e" CornerRadius="15" HeightRequest="55" TextColor="White" Command="{Binding LogoutCommand}"/>
+                    <Button Text="Удалить аккаунт" BackgroundColor="#731e1e" CornerRadius="15" HeightRequest="55" TextColor="White" Command="{Binding DeleteAccountCommand}"/>
                 </VerticalStackLayout>
-            </Border> 
+            </Border>
         </Grid>
     </Grid>
 </ContentPage>

@@ -22,6 +22,9 @@ namespace Ripplee.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("AvatarUrl")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("MyCity")
                         .HasColumnType("TEXT");
 

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Ripplee.ViewModels"
+             xmlns:converters="clr-namespace:Ripplee.Misc.UI"
+             x:Class="Ripplee.Views.ChangeUsernamePage"
+             x:DataType="vm:ChangeUsernameViewModel"
+             Title="Изменение логина"
+             BackgroundColor="#222222">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
+            <converters:IsNotNullOrEmptyStringConverter x:Key="IsNotNullOrEmptyStringConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ScrollView>
+        <VerticalStackLayout Spacing="15" Padding="20">
+            <Label Text="Изменение логина" Style="{StaticResource PageTitleLabel}"/>
+            <Border Style="{StaticResource InputContainer}">
+                <Entry Placeholder="Новый логин"
+                       Text="{Binding NewUsername}"
+                       Style="{StaticResource InputEntry}"/>
+            </Border>
+            <Border Style="{StaticResource InputContainer}">
+                <Entry Placeholder="Текущий пароль (для подтверждения)"
+                       Text="{Binding CurrentPassword}"
+                       IsPassword="True"
+                       Style="{StaticResource InputEntry}"/>
+            </Border>
+            <Button Text="Сохранить изменения"
+                    Command="{Binding SubmitChangeUsernameCommand}"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}"
+                    Style="{StaticResource SubmitButton}"/>
+            <ActivityIndicator IsRunning="{Binding IsBusy}" HorizontalOptions="Center" Color="White"/>
+            <Label Text="{Binding GeneralErrorMessage}"
+                   IsVisible="{Binding GeneralErrorMessage, Converter={StaticResource IsNotNullOrEmptyStringConverter}}"
+                   Style="{StaticResource ErrorMessageLabel}"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -97,9 +97,16 @@ namespace Ripplee.Server.Services
 
         private bool IsMatch(WaitingUser searchingUser, WaitingUser potentialPartner)
         {
-            bool genderMatch = searchingUser.SearchGender == ANY_CRITERIA || searchingUser.SearchGender == potentialPartner.UserGender;
-            bool cityMatch = searchingUser.SearchCity == ANY_CRITERIA || searchingUser.SearchCity == potentialPartner.UserCity;
-            bool topicMatch = searchingUser.SearchTopic == ANY_CRITERIA || searchingUser.SearchTopic == potentialPartner.SearchTopic;
+            bool genderMatch = searchingUser.SearchGender == ANY_CRITERIA ||
+                               searchingUser.SearchGender.Equals(potentialPartner.UserGender, StringComparison.OrdinalIgnoreCase);
+
+            bool cityMatch = searchingUser.SearchCity == ANY_CRITERIA ||
+                             searchingUser.SearchCity.Equals(potentialPartner.UserCity, StringComparison.OrdinalIgnoreCase);
+
+            // Если подбор по общей теме поиска:
+            bool topicMatch = searchingUser.SearchTopic == ANY_CRITERIA ||
+                              searchingUser.SearchTopic.Equals(potentialPartner.SearchTopic, StringComparison.OrdinalIgnoreCase);
+
             return genderMatch && cityMatch && topicMatch;
         }
 

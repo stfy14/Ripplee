@@ -33,54 +33,49 @@ namespace Ripplee.Services.Services
             return Task.CompletedTask;
         }
 
-        // Централизованный метод загрузки профиля
         private async Task<bool> LoadProfileAsync()
         {
             var profile = await _apiClient.GetProfileAsync();
             if (profile == null)
             {
-                // Если профиль не загрузился, значит токен невалидный, выходим
                 await LogoutAsync();
                 return false;
             }
 
-            // Обновляем текущего пользователя данными с сервера
             CurrentUser = new UserModel
             {
                 Username = profile.Username ?? "Unknown",
-                // Загружаем сохраненные критерии. Если их нет (null), ставим значения по умолчанию.
-                MyGender = profile.MyGender ?? "Мужчина",
-                MyCity = profile.MyCity ?? "Москва"
+                MyGender = profile.MyGender ?? "Не указан",
+                MyCity = profile.MyCity ?? "Не указан"
             };
-            CurrentStatus = UserStatus.Registered;
 
-            // Оповещаем остальное приложение, что пользователь загружен
+            if (!string.IsNullOrEmpty(profile.AvatarUrl))
+            {
+                string baseAddress = MauiProgram.GetApiBaseAdress();
+                CurrentUser.AvatarUrl = baseAddress.TrimEnd('/') + profile.AvatarUrl;
+            }
+            else
+            {
+                CurrentUser.AvatarUrl = null;
+            }
+
+            CurrentStatus = UserStatus.Registered;
             WeakReferenceMessenger.Default.Send(new UserChangedMessage(CurrentUser));
-            Debug.WriteLine($"Profile loaded for {CurrentUser.Username}. Gender: {CurrentUser.MyGender}, City: {CurrentUser.MyCity}");
+            Debug.WriteLine($"Profile loaded for {CurrentUser.Username}. Avatar: {CurrentUser.AvatarUrl}");
             return true;
         }
 
         public async Task<bool> TryAutoLoginAsync()
         {
             var token = await SecureStorage.Default.GetAsync("auth_token");
-            if (string.IsNullOrEmpty(token))
-            {
-                return false;
-            }
-
-            // Пытаемся загрузить профиль с имеющимся токеном
+            if (string.IsNullOrEmpty(token)) return false;
             return await LoadProfileAsync();
         }
 
         public async Task<bool> LoginAsync(string username, string password)
         {
             var token = await _apiClient.LoginAsync(username, password);
-            if (string.IsNullOrEmpty(token))
-            {
-                return false;
-            }
-
-            // Сохраняем новый токен и загружаем профиль
+            if (string.IsNullOrEmpty(token)) return false;
             await SecureStorage.Default.SetAsync("auth_token", token);
             return await LoadProfileAsync();
         }
@@ -88,22 +83,15 @@ namespace Ripplee.Services.Services
         public async Task<bool> RegisterAndLoginAsync(string username, string password)
         {
             bool registrationSuccess = await _apiClient.RegisterAsync(username, password);
-            if (!registrationSuccess)
-            {
-                Debug.WriteLine($"Registration failed for user: {username}");
-                return false;
-            }
-            // Если регистрация прошла, сразу логинимся
+            if (!registrationSuccess) return false;
             return await LoginAsync(username, password);
-
         }
 
         public async Task<bool> LoginAsGuestAsync(string username)
         {
-            await Task.Delay(500); // Имитация
+            await Task.Delay(500);
             CurrentUser = new UserModel { Username = username };
             CurrentStatus = UserStatus.Guest;
-            Debug.WriteLine($"Logged in as GUEST: {username}");
             WeakReferenceMessenger.Default.Send(new UserChangedMessage(CurrentUser));
             return true;
         }
@@ -113,22 +101,68 @@ namespace Ripplee.Services.Services
             SecureStorage.Default.Remove("auth_token");
             CurrentUser = new();
             CurrentStatus = UserStatus.Unauthenticated;
-            Debug.WriteLine("User logged out and token removed.");
             WeakReferenceMessenger.Default.Send(new UserChangedMessage(null));
             await Task.CompletedTask;
         }
 
-        // Реализация нового метода для сохранения критериев
         public async Task<bool> UpdateMyCriteriaAsync()
+        {
+            if (CurrentStatus != UserStatus.Registered) return false;
+
+            var (success, newToken) = await _apiClient.UpdateUserCriteriaAsync(CurrentUser.MyGender, CurrentUser.MyCity);
+            if (success && !string.IsNullOrEmpty(newToken))
+            {
+                await SecureStorage.Default.SetAsync("auth_token", newToken); 
+                Debug.WriteLine("UserService: Criteria updated and new token saved.");
+            }
+            return success;
+        }
+
+        public async Task<(bool Success, string? ErrorMessage)> ChangePasswordAsync(string oldPassword, string newPassword)
+        {
+            if (CurrentStatus != UserStatus.Registered) return (false, "User not registered.");
+            return await _apiClient.ChangePasswordOnServerAsync(oldPassword, newPassword);
+        }
+
+        public async Task<bool> UploadAvatarAsync(Stream imageData, string fileName)
+        {
+            if (CurrentStatus != UserStatus.Registered) return false;
+            var newAvatarRelativeUrl = await _apiClient.UploadAvatarToServerAsync(imageData, fileName);
+            if (!string.IsNullOrEmpty(newAvatarRelativeUrl))
+            {
+                string baseAddress = MauiProgram.GetApiBaseAdress();
+                CurrentUser.AvatarUrl = baseAddress.TrimEnd('/') + newAvatarRelativeUrl + $"?v={Guid.NewGuid()}"; // Cache buster
+                WeakReferenceMessenger.Default.Send(new UserChangedMessage(CurrentUser));
+                return true;
+            }
+            return false;
+        }
+
+        public async Task<(bool Success, string? ErrorMessage)> ChangeUsernameAsync(string newUsername, string currentPassword)
+        {
+            if (CurrentStatus != UserStatus.Registered) return (false, "User not registered.");
+            var (newToken, serverMessage) = await _apiClient.ChangeUsernameOnServerAsync(newUsername, currentPassword);
+            if (!string.IsNullOrEmpty(newToken))
+            {
+                await SecureStorage.Default.SetAsync("auth_token", newToken);
+                CurrentUser.Username = newUsername;
+                WeakReferenceMessenger.Default.Send(new UserChangedMessage(CurrentUser));
+                return (true, serverMessage ?? "Username changed.");
+            }
+            return (false, serverMessage ?? "Failed to change username.");
+        }
+        public async Task<(bool Success, string? ErrorMessage)> DeleteAccountAsync(string password)
         {
             if (CurrentStatus != UserStatus.Registered)
             {
-                Debug.WriteLine("Cannot update criteria for guest or unauthenticated user.");
-                return false;
+                return (false, "User not registered or is a guest.");
             }
-
-            Debug.WriteLine($"Saving criteria for {CurrentUser.Username}: Gender={CurrentUser.MyGender}, City={CurrentUser.MyCity}");
-            return await _apiClient.UpdateUserCriteriaAsync(CurrentUser.MyGender, CurrentUser.MyCity);
+            var (success, errorMessage) = await _apiClient.DeleteAccountOnServerAsync(password);
+            if (success)
+            {
+                await LogoutAsync(); // Разлогиниваем пользователя после успешного удаления
+            }
+            return (success, errorMessage);
         }
     }
 }

@@ -249,6 +249,11 @@
                                          HorizontalOptions="Center" 
                                          WidthRequest="{OnPlatform Default=150, Android=120, iOS=150}"/>
 
+                                <Label Text="{Binding ValidationErrorMessage}"
+                                       IsVisible="{Binding ValidationErrorMessage, Converter={StaticResource IsNotNullOrEmptyStringConverter}}"
+                                       Style="{StaticResource ErrorMessageLabel}"
+                                       Margin="0,10,0,0"/>      
+
                                 <Border Style="{StaticResource InputContainer}">
                                     <Entry Placeholder="Введите логин" 
                                            Text="{Binding Username}" 
@@ -284,6 +289,11 @@
                                          HorizontalOptions="Center" 
                                          WidthRequest="{OnPlatform Default=150, Android=120, iOS=150}"/>
 
+                                <Label Text="{Binding ValidationErrorMessage}"
+                                       IsVisible="{Binding ValidationErrorMessage, Converter={StaticResource IsNotNullOrEmptyStringConverter}}"
+                                       Style="{StaticResource ErrorMessageLabel}"
+                                       Margin="0,10,0,0"/>
+
                                 <Border Style="{StaticResource InputContainer}">
                                     <Entry Placeholder="Введите пароль" 
                                            Text="{Binding Password}" 
@@ -307,46 +317,67 @@
                     <!-- Четвертая страница - Выбор аватара -->
                     <VerticalStackLayout Spacing="{OnPlatform Default=20, Android=15, iOS=20}" 
                                          VerticalOptions="Start" Padding="0,10,0,20"
-                                         IsVisible="False"
+                                         IsVisible="{Binding CurrentStepIndex, ConverterParameter=3, Converter={StaticResource StepToVisibilityConverter}}" 
                                          x:Name="Step3Layout">
 
                         <Border Style="{StaticResource ContentContainer}">
                             <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}">
-                                <Label Text="Желаешь поставить аватар?" 
+                                <Label Text="Отлично!" 
                                        Style="{StaticResource OnboardingTitle}" 
                                        LineBreakMode="WordWrap"/>
-
-                                <BoxView HeightRequest="2" Color="#808080" 
-                                         Margin="{OnPlatform Default='0,10,0,10', Android='0,8,0,8', iOS='0,10,0,10'}" 
-                                         HorizontalOptions="Center" 
-                                         WidthRequest="{OnPlatform Default=150, Android=120, iOS=150}"/>
-
-                                <Label Text="Если не хотите, не ставьте" 
-                                       FontSize="{OnPlatform Default=16, Android=14, iOS=16}" 
+                                <Label Text="Хотите добавить аватар?" 
+                                       FontSize="{OnPlatform Default=20, Android=18, iOS=18}"
                                        TextColor="Gray" 
-                                       HorizontalOptions="Center"/>
+                                       HorizontalOptions="Center"
+                                       Margin="0,0,0,10"/>
+                                
+                                <Label Text="{Binding ValidationErrorMessage}"
+                                       IsVisible="{Binding ValidationErrorMessage, Converter={StaticResource IsNotNullOrEmptyStringConverter}}"
+                                       Style="{StaticResource ErrorMessageLabel}"
+                                       Margin="0,5,0,5"/>
                             </VerticalStackLayout>
                         </Border>
 
-                        <!-- Аватар -->
-                        <Border WidthRequest="{OnPlatform Default=220, Android=160, iOS=160}" 
-                                HeightRequest="{OnPlatform Default=220, Android=160, iOS=160}" 
-                                StrokeShape="{OnPlatform Default='RoundRectangle 110', Android='RoundRectangle 85', iOS='RoundRectangle 85'}" 
+                        
+                        <Border WidthRequest="{OnPlatform Default=200, Android=160, iOS=160}" 
+                                HeightRequest="{OnPlatform Default=200, Android=160, iOS=160}" 
+                                StrokeShape="{OnPlatform Default='RoundRectangle 100', Android='RoundRectangle 80', iOS='RoundRectangle 80'}" 
                                 BackgroundColor="#3D3D3D" 
                                 StrokeThickness="0" 
                                 HorizontalOptions="Center" 
-                                Margin="{OnPlatform Default='0,20', Android='0,35', iOS='0,20'}">
-                            <Image Source="pen_icon.svg" 
-                                   WidthRequest="{OnPlatform Default=85, Android=65, iOS=65}" 
-                                   HeightRequest="{OnPlatform Default=85, Android=65, iOS=65}"/>
+                                Margin="{OnPlatform Default='0,20', Android='0,25', iOS='0,20'}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding PickAvatarCommand}" />
+                            </Border.GestureRecognizers>
+                            <Grid>
+                                <Image Source="pen_icon.png" 
+                                       IsVisible="{Binding SelectedAvatarSource, Converter={StaticResource IsNullToBoolConverter}}" 
+                                       WidthRequest="{OnPlatform Default=80, Android=60, iOS=60}" 
+                                       HeightRequest="{OnPlatform Default=80, Android=60, iOS=60}"
+                                       HorizontalOptions="Center" VerticalOptions="Center"/>
+
+                                <Image Source="{Binding SelectedAvatarSource}" 
+                                       IsVisible="{Binding SelectedAvatarSource, Converter={StaticResource IsNotNullToBoolConverter}}" 
+                                       Aspect="AspectFill"
+                                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Grid>
                         </Border>
 
-                        <!-- Кнопка завершения -->
+                        <Label Text="Нажмите на круг, чтобы выбрать фото" 
+                               FontSize="14" 
+                               TextColor="Gray" 
+                               HorizontalOptions="Center" 
+                               Margin="0,-10,0,15"/>
+
                         <Border Style="{StaticResource ButtonContainer}">
-                            <Button Text="Начать общаться" 
-                                    Command="{Binding NextStepCommand}" 
-                                    Style="{StaticResource OnboardingButton}"/>
+                            <VerticalStackLayout Spacing="10">
+                                <Button Text="Начать общаться!" 
+                                        Command="{Binding NextStepCommand}" 
+                                        IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}"
+                                        Style="{StaticResource OnboardingButton}"/>         
+                            </VerticalStackLayout>
                         </Border>
+                        
                     </VerticalStackLayout>
 
                     <!-- Пятая страница - логин существует -->
@@ -366,6 +397,11 @@
                                        HorizontalOptions="Center"/>
 
                                 <BoxView HeightRequest="2" Color="#808080" Margin="0,15,0,30" HorizontalOptions="Center" WidthRequest="150"/>
+
+                                <Label Text="{Binding ValidationErrorMessage}"
+                                       IsVisible="{Binding ValidationErrorMessage, Converter={StaticResource IsNotNullOrEmptyStringConverter}}"
+                                       Style="{StaticResource ErrorMessageLabel}"
+                                       Margin="0,10,0,0"/>
 
                                 <Border Style="{StaticResource InputContainer}">
                                     <Entry Placeholder="Введите пароль" Text="{Binding Password}" IsPassword="True" Style="{StaticResource InputEntry}"/>

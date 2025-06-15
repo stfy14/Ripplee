@@ -6,22 +6,30 @@
     xmlns:converters="clr-namespace:Ripplee.Misc.UI">
 
     <converters:FirstLetterConverter x:Key="FirstLetterConverter" />
-    
+    <converters:GenderToBackgroundColorConverter x:Key="GenderToBackgroundColorConverterMaleActive" MaleActiveColor="#2c3e50" MaleInactiveColor="#2a2a2a" FemaleActiveColor="#4e2b4f" FemaleInactiveColor="#2a2a2a"/>
+    <converters:GenderToTextColorConverter x:Key="GenderToTextColorConverter"/>
+    <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
+    <converters:IsNotNullOrEmptyStringConverter x:Key="IsNotNullOrEmptyStringConverter" />
+    <converters:IsNullOrEmptyToBoolConverter x:Key="IsNullOrEmptyToBoolConverter" />
+    <converters:IsNotNullOrEmptyToBoolConverter x:Key="IsNotNullOrEmptyToBoolConverter" />
+    <converters:IsNullToBoolConverter x:Key="IsNullToBoolConverter" />
+    <converters:IsNotNullToBoolConverter x:Key="IsNotNullToBoolConverter" />
+
     <Style TargetType="Button">
         <Setter Property="TextColor" Value="#ebebeb"/>
         <Setter Property="FontFamily" Value="OpenSansRegular"/>
         <Setter Property="FontSize" Value="18"/>
         <Setter Property="CornerRadius" Value="10"/>
     </Style>
-    
+
     <Style TargetType="Label">
         <Setter Property="TextColor" Value="#ebebeb"/>
         <Setter Property="FontFamily" Value="OpenSansRegular"/>
         <Setter Property="FontSize" Value="24"/>
     </Style>
-    
+
     <Style TargetType="Picker">
-        <Setter Property="TitleColor" Value="{OnPlatform WinUI=White, Android=#202020}"/> 
+        <Setter Property="TitleColor" Value="{OnPlatform WinUI=White, Android=#A0A0A0, iOS=#A0A0A0}"/>
         <Setter Property="TextColor" Value="#CACACA"/>
         <Setter Property="FontFamily" Value="OpenSansRegular"/>
         <Setter Property="FontSize" Value="18"/>
@@ -48,10 +56,52 @@
         <Setter Property="BackgroundColor" Value="#4A4A4A"/>
         <Setter Property="TextColor" Value="#ebebeb"/>
         <Setter Property="PlaceholderColor" Value="#A0A0A0"/>
-        <Setter Property="TextColor" Value="#CACACA"/>
+        <!-- <Setter Property="TextColor" Value="#CACACA"/> Duplicate, using #ebebeb for consistency -->
         <Setter Property="HeightRequest" Value="55"/>
         <Setter Property="FontSize" Value="18"/>
         <Setter Property="FontFamily" Value="OpenSansRegular"/>
     </Style>
 
+    <!-- Стили для новых страниц -->
+    <Style x:Key="PageTitleLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="24"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+        <Setter Property="HorizontalOptions" Value="Center"/>
+        <Setter Property="Margin" Value="0,0,0,20"/>
+        <Setter Property="TextColor" Value="White"/>
+    </Style>
+
+    <Style x:Key="InputContainer" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="#4A4A4A"/>
+        <Setter Property="StrokeThickness" Value="0"/>
+        <Setter Property="StrokeShape" Value="RoundRectangle 10"/>
+        <Setter Property="Padding" Value="10,0"/>
+        <!-- Убрал VerticalPadding, Entry сам центрируется -->
+        <Setter Property="HeightRequest" Value="55"/>
+    </Style>
+
+    <Style x:Key="InputEntry" TargetType="Entry">
+        <Setter Property="PlaceholderColor" Value="#A0A0A0"/>
+        <Setter Property="BackgroundColor" Value="Transparent"/>
+        <Setter Property="TextColor" Value="#ebebeb" />
+        <Setter Property="FontSize" Value="18"/>
+        <Setter Property="VerticalOptions" Value="Center"/>
+    </Style>
+
+    <Style x:Key="SubmitButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="#2F4538"/>
+        <Setter Property="TextColor" Value="White"/>
+        <Setter Property="HeightRequest" Value="55"/>
+        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="Margin" Value="0,20,0,0"/>
+    </Style>
+
+    <Style x:Key="ErrorMessageLabel" TargetType="Label">
+        <Setter Property="TextColor" Value="Red"/>
+        <Setter Property="HorizontalOptions" Value="Center"/>
+        <Setter Property="Margin" Value="0,10,0,0"/>
+        <Setter Property="FontSize" Value="14"/>
+        <!-- Сделаем чуть меньше -->
+    </Style>
 </ResourceDictionary>
