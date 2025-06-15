@@ -14,6 +14,8 @@ namespace Ripplee.Services.Data
     {
         public int Id { get; set; }
         public string? Username { get; set; }
+        public string? MyGender { get; set; } 
+        public string? MyCity { get; set; }   
     }
     public class UserExistsResponse
     {
@@ -140,6 +142,30 @@ namespace Ripplee.Services.Data
             {
                 Debug.WriteLine($"GetProfileAsync failed: {ex.Message}");
                 return null;
+            }
+        }
+
+        public async Task<bool> UpdateUserCriteriaAsync(string gender, string city)
+        {
+            try
+            {
+                var token = await SecureStorage.Default.GetAsync("auth_token");
+                if (string.IsNullOrEmpty(token)) return false;
+
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                var request = new { MyGender = gender, MyCity = city };
+                var json = JsonSerializer.Serialize(request);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync("api/users/criteria", content);
+
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"UpdateUserCriteriaAsync failed: {ex.Message}");
+                return false;
             }
         }
     }

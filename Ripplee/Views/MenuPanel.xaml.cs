@@ -23,15 +23,9 @@ public partial class MenuPanel : ContentView
         TranslationY = -10000;
     }
 
-    // 2. —оздаем обработчик дл€ событи€ SizeChanged
     private void MenuPanel_SizeChanged(object? sender, EventArgs e)
     {
-        //  ак только размер стал известен, мы можем отписатьс€, 
-        // чтобы этот код не выполн€лс€ при каждом изменении размера окна.
         SizeChanged -= MenuPanel_SizeChanged;
-
-        // “еперь, зна€ реальную высоту, ставим меню в правильное начальное положение (за экраном)
-        // Ётот код выполнитс€ только один раз.
         TranslationY = -Height;
     }
 
@@ -45,7 +39,6 @@ public partial class MenuPanel : ContentView
 
     private void AnimateMenu(bool open)
     {
-        // ѕровер€ем, что высота уже была рассчитана, чтобы избежать анимации с высотой -1 или 0
         if (Height <= 0)
             return;
 

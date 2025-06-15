@@ -8,6 +8,7 @@ using Ripplee.Server.Data;
 using Ripplee.Server.Hubs;
 using System.Text;
 using Microsoft.AspNetCore.HttpOverrides;
+using Ripplee.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,16 +55,15 @@ builder.Services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationSc
 // --- КОНЕЦ БЛОКА НАСТРОЙКИ АУТЕНТИФИКАЦИИ ---
 
 
-// Регистрируем сервисы Авторизации.
+
 builder.Services.AddAuthorization();
 
-// Регистрируем контроллеры.
 builder.Services.AddControllers();
 
-// Регистрируем сервисы SignalR.
 builder.Services.AddSignalR();
 
-// Добавляем и настраиваем Swagger (OpenAPI) для документирования API.
+builder.Services.AddSingleton<IMatchmakingService, MatchmakingService>();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {

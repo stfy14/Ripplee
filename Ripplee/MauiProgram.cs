@@ -6,8 +6,9 @@ using Ripplee.Services.Interfaces;
 using Ripplee.Services.Services;
 using Ripplee.ViewModels;
 using Ripplee.Views;
-
 #if ANDROID
+using Microsoft.Maui.LifecycleEvents;
+using Android.Graphics.Drawables;
 using Android.Widget;
 using Microsoft.Maui.Handlers;
 #endif
@@ -50,19 +51,11 @@ namespace Ripplee
             builder.Logging.AddDebug();
 #endif
 
-            // --- НАЧАЛО БЛОКА РЕГИСТРАЦИИ HTTP-КЛИЕНТА (ИЗМЕНЕНО) ---
-
-            // Регистрируем ChatApiClient как "типизированный клиент".
-            // Это современный подход, который использует IHttpClientFactory для управления
-            // жизненным циклом HttpClient и его обработчиков.
+            // --- Блок регистрации HTTP-клиента (без изменений) ---
             builder.Services.AddHttpClient<ChatApiClient>(client =>
             {
-                // Устанавливаем базовый адрес для всех запросов этого клиента
                 client.BaseAddress = new Uri(GetApiBaseAdress());
             })
-            // В режиме DEBUG мы добавляем специальный обработчик,
-            // который разрешает использование самоподписанных или невалидных SSL-сертификатов.
-            // ВАЖНО: Это не используется в Release-сборке.
 #if DEBUG
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
             {
@@ -71,43 +64,31 @@ namespace Ripplee
 #endif
             ;
 
-            // --- КОНЕЦ БЛОКА РЕГИСТРАЦИИ HTTP-КЛИЕНТА ---
-
-
-            // --- Секция Dependency Injection (Остальные сервисы) ---
+            // --- Секция Dependency Injection (без изменений) ---
             builder.Services.AddSingleton<IUserService, UserService>();
             builder.Services.AddSingleton<IChatService, ChatService>();
-
-            // ViewModels лучше регистрировать как Transient, чтобы для каждой новой страницы
-            // создавался свой экземпляр ViewModel с чистым состоянием.
             builder.Services.AddTransient<MainViewModel>();
             builder.Services.AddTransient<SettingsViewModel>();
             builder.Services.AddTransient<VoiceChatViewModel>();
             builder.Services.AddTransient<OnboardingViewModel>();
-
-            // Страницы тоже регистрируем как Transient.
             builder.Services.AddTransient<LoadingPage>();
             builder.Services.AddTransient<MainPage>();
             builder.Services.AddTransient<SettingsPage>();
             builder.Services.AddTransient<VoiceChatPage>();
             builder.Services.AddTransient<OnboardingPage>();
-
-            // Shell обычно регистрируется как Singleton или Scoped, но для MAUI
-            // можно оставить и Transient, так как он создается один раз при старте.
             builder.Services.AddTransient<AppShell>();
-            // --- Конец секции DI ---
+            builder.Services.AddTransient<SearchingPage>();
+            builder.Services.AddTransient<SearchingViewModel>();
 
-            // --- Кастомизация нативных контролов ---
+            // --- Кастомизация нативных контролов (без изменений) ---
             builder.ConfigureMauiHandlers(handlers =>
             {
 #if ANDROID
-                // Кастомизация для Picker для удаления подчеркивания на Android
                 PickerHandler.Mapper.AppendToMapping("CustomPickerAppearance", (handler, view) =>
                 {
                     if (handler.PlatformView is EditText editText)
                     {
                         editText.Background = null;
-
                         var context = editText.Context;
                         if (context?.Resources?.DisplayMetrics != null)
                         {
@@ -121,13 +102,11 @@ namespace Ripplee
                     }
                 });
 
-                // Кастомизация для Entry для удаления подчеркивания на Android
                 EntryHandler.Mapper.AppendToMapping("NoUnderline", (handler, view) =>
                 {
                     if (handler.PlatformView is EditText editText)
                     {
                         editText.Background = null;
-
                         var context = editText.Context;
                         if (context?.Resources?.DisplayMetrics != null)
                         {

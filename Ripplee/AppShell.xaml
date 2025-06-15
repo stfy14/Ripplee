@@ -7,7 +7,7 @@
     Shell.FlyoutBehavior="Disabled"
     Title="Ripplee"
     BackgroundColor="#202020">
-
+    
     <!-- 
       Паттерн "Два Короля":
       Оба возможных стартовых экрана объявлены здесь.

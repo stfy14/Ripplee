@@ -16,7 +16,6 @@
                     StrokeShape="RoundRectangle 20,20,20,20"
                     HeightRequest="60">
                     <Label Text="Настройки"
-                        TextColor="White"
                         FontSize="24"
                         VerticalOptions="Center"
                         HorizontalOptions="Center"/>
@@ -46,26 +45,15 @@
         <Grid Grid.Row="1">
             <VerticalStackLayout Spacing="20" VerticalOptions="Center" HorizontalOptions="Center">
                 <Label Text="{Binding Username}" 
-                            TextColor="White"
                             FontSize="24"
                             VerticalOptions="Center"
                             HorizontalOptions="Center"/>
-                <Frame WidthRequest="120" 
-                            HeightRequest="120"
-                            CornerRadius="60" 
-                            HorizontalOptions="Center"
-                            BackgroundColor="#505050"
-                            IsClippedToBounds="True">
-                    <Label Text="A" 
-                                TextColor="WhiteSmoke"
-                                FontSize="48"
-                                HorizontalOptions="Center"
-                                VerticalOptions="Center"/>
-                </Frame>
+                
+                <Ellipse WidthRequest="120" HeightRequest="120" Fill="#505050" BindingContext="{Binding Username, Converter={StaticResource FirstLetterConverter}}"/>
+                
                 <Button Text="Поменять фото"
-                            BackgroundColor="#3a3a3a"
+                            BackgroundColor="#3b3b3b"
                             HorizontalOptions="Center"
-                            TextColor="WhiteSmoke"
                             CornerRadius="10"
                             HeightRequest="45"
                             WidthRequest="180"
@@ -77,30 +65,27 @@
             <Border BackgroundColor="#1B1B1B" StrokeShape="RoundRectangle 20,20,20,20" Margin="10">
                 <VerticalStackLayout Spacing="25" Margin="20,25,20,25">
                     <Button Text="Изменить пароль"
-                            BackgroundColor="#3a3a3a"
-                            TextColor="WhiteSmoke"
-                            CornerRadius="20"
+                            BackgroundColor="#2e2e2e"
+                            CornerRadius="15"
                             HeightRequest="55"
                             Command="{Binding ChangePasswordCommand}"/>
+
                     <Button Text="Изменить логин"
-                            BackgroundColor="#3a3a3a"
-                            TextColor="WhiteSmoke"
-                            CornerRadius="20"
+                            BackgroundColor="#2e2e2e"
+                            CornerRadius="15"
                             HeightRequest="55"
                             Command="{Binding ChangeEmailCommand}" />
 
                     <BoxView HeightRequest="1" Color="#404040" Margin="0,10,0,10"/>
                     
                     <Button Text="Выйти из аккаунта"
-                            BackgroundColor="#3a3a3a"
-                            TextColor="WhiteSmoke"
-                            CornerRadius="20"
+                            BackgroundColor="#2e2e2e"
+                            CornerRadius="15"
                             HeightRequest="55"
                             Command="{Binding LogoutCommand}"/>
                     <Button Text="Удалить аккаунт"
-                            BackgroundColor="#A00000"
-                            TextColor="WhiteSmoke"
-                            CornerRadius="20"
+                            BackgroundColor="#731e1e"
+                            CornerRadius="15"
                             HeightRequest="55"
                             Command="{Binding DeleteAccountCommand}"/>
                 </VerticalStackLayout>

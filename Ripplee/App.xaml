@@ -7,7 +7,7 @@
 
     <Application.Resources>
         <ResourceDictionary>
-            <miscui:GenderToBackgroundColorConverter x:Key="GenderToBgColorConverter" />
+            <miscui:GenderToBackgroundColorConverter x:Key="GenderToBackgroundColorConverter" />
             <miscui:GenderToTextColorConverter x:Key="GenderToTextColorConverter" />
             <miscui:InverseBoolConverter x:Key="InverseBoolConverter" />
 

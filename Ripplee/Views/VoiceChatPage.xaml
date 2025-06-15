@@ -42,7 +42,6 @@
         <Border BackgroundColor="#1B1B1B" Grid.Row="1" VerticalOptions="Center" Padding="0,40,0,30" StrokeShape="RoundRectangle 35,35,35,35">
             <VerticalStackLayout Spacing="40">
                 <Label Text="{Binding CompanionName}"
-                        TextColor="White"
                         FontSize="32"
                         FontAttributes="Bold"
                         HorizontalOptions="Center"/>

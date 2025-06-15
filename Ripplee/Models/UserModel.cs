@@ -8,13 +8,20 @@ namespace Ripplee.Models
         private string username = string.Empty;
 
         [ObservableProperty]
-        private string genderSelection = string.Empty;
+        private string myGender = string.Empty; 
 
         [ObservableProperty]
-        private string citySelection = string.Empty;
+        private string myCity = string.Empty; 
+
+        // --- КРИТЕРИИ ПОИСКА СОБЕСЕДНИКА ---
+        [ObservableProperty]
+        private string searchGender = string.Empty; 
 
         [ObservableProperty]
-        private string topicSelection = string.Empty;
+        private string searchCity = string.Empty; 
+
+        [ObservableProperty]
+        private string searchTopic = string.Empty; 
 
         [ObservableProperty]
         private string chatSelection = "Голосовой чат";

@@ -14,20 +14,20 @@
         <Border x:Name="menuPanel"
                 StrokeShape="RoundRectangle 0,0,30,30"
                 BackgroundColor="#181818"
-                HorizontalOptions="Fill"
-                Margin="20,0,20,0">
+                Padding="20,75,20,0">
 
-            <VerticalStackLayout Spacing="15" Margin="20,85,20,0">
+            <VerticalStackLayout Spacing="15">
                 <Button Text="Голосовой чат" Command="{Binding SelectChatCommand}" 
                         CommandParameter="Голосовой чат"
                         HeightRequest="50"
-                        BackgroundColor="#3b3b3b"/>
+                        BackgroundColor="#2e2e2e"/>
                 <Button Text="Текстовый чат" Command="{Binding SelectChatCommand}" 
                         CommandParameter="Текстовый чат"
                         HeightRequest="50"
-                        BackgroundColor="#3b3b3b"/>
+                        BackgroundColor="#2e2e2e"/>
                 <Button Text="Настройки" Command="{Binding GoToSettingsCommand}"
-                        Margin="0,90,0,0"
+                        Margin="0,15,0,0"
+                        HeightRequest="50"
                         BackgroundColor="#583535"/>
             </VerticalStackLayout>
         </Border>

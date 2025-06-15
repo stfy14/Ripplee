@@ -42,27 +42,23 @@
 
         <Style x:Key="OnboardingTitle" TargetType="Label">
             <Setter Property="FontSize" Value="{OnPlatform Default=32, Android=28, iOS=30}"/>
-            <Setter Property="TextColor" Value="White"/>
             <Setter Property="HorizontalOptions" Value="Center"/>
             <Setter Property="HorizontalTextAlignment" Value="Center"/>
         </Style>
 
         <Style x:Key="AppTitle" TargetType="Label">
             <Setter Property="FontSize" Value="{OnPlatform Default=38, Android=34, iOS=34}"/>
-            <Setter Property="TextColor" Value="White"/>
             <Setter Property="HorizontalOptions" Value="Center"/>
             <Setter Property="Padding" Value="5,10"/>
         </Style>
 
         <Style x:Key="FeatureLabel" TargetType="Label">
             <Setter Property="FontSize" Value="{OnPlatform Default=32, Android=28, iOS=28}"/>
-            <Setter Property="TextColor" Value="White"/>
             <Setter Property="HorizontalTextAlignment" Value="Center"/>
         </Style>
 
         <Style x:Key="HeaderTitle" TargetType="Label">
             <Setter Property="FontSize" Value="{OnPlatform Default=28, Android=28, iOS=28}"/>
-            <Setter Property="TextColor" Value="White"/>
             <Setter Property="HorizontalOptions" Value="End"/>
             <Setter Property="VerticalOptions" Value="Start"/>
             <Setter Property="Margin" Value="0,4,20,4"/>
@@ -72,20 +68,18 @@
             <Setter Property="BackgroundColor" Value="#2F4538"/>
             <Setter Property="HeightRequest" Value="{OnPlatform Default=55, Android=55, iOS=55}"/>
             <Setter Property="FontSize" Value="{OnPlatform Default=24, Android=20, iOS=20}"/>
-            <Setter Property="TextColor" Value="White"/>
         </Style>
 
         <Style x:Key="SecondaryButton" TargetType="Button">
             <Setter Property="BackgroundColor" Value="#333333"/>
             <Setter Property="HeightRequest" Value="{OnPlatform Default=55, Android=50, iOS=55}"/>
             <Setter Property="FontSize" Value="{OnPlatform Default=24, Android=20, iOS=20}"/>
-            <Setter Property="TextColor" Value="White"/>
         </Style>
 
         <Style x:Key="InputEntry" TargetType="Entry">
             <Setter Property="PlaceholderColor" Value="#A0A0A0"/>
             <Setter Property="BackgroundColor" Value="Transparent"/>
-            <Setter Property="TextColor" Value="White"/>
+            <Setter Property="TextColor" Value="#ebebeb" />
             <Setter Property="FontSize" Value="{OnPlatform Default=24, Android=20, iOS=20}"/>
         </Style>
 
@@ -392,12 +386,13 @@
                 </Grid>
             </ScrollView>
         </Grid>
-        <VerticalStackLayout IsVisible="{Binding IsLoading}" BackgroundColor="#222222" HorizontalOptions="Fill" VerticalOptions="Fill" Spacing="20">
-            <ActivityIndicator IsRunning="{Binding IsLoading}" Color="White" HorizontalOptions="Center" />
-            <Label Text="Загрузка..."
-                   TextColor="White"
-                   FontSize="18"
-                   HorizontalOptions="Center" />
-        </VerticalStackLayout>
+        <Grid IsVisible="{Binding IsLoading}" BackgroundColor="#222222" Padding="0,0,0,100">
+            <VerticalStackLayout Spacing="20" VerticalOptions="Center" HorizontalOptions="Center">
+                <ActivityIndicator IsRunning="{Binding IsLoading}" Color="White" HeightRequest="60"/>
+                <Label Text="Загрузка"
+                       TextColor="White"
+                       FontSize="24"/>
+            </VerticalStackLayout>
+        </Grid>
     </Grid>
 </ContentPage>

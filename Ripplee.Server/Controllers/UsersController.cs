@@ -9,6 +9,12 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
+public class UpdateUserCriteriaDto
+{
+    public required string MyGender { get; set; }
+    public required string MyCity { get; set; }
+}
+
 namespace Ripplee.Server.Controllers
 {
     [ApiController]
@@ -63,30 +69,61 @@ namespace Ripplee.Server.Controllers
             return Ok(new { Token = token });
         }
 
+        [HttpPost("criteria")]
+        [Authorize]
+        public async Task<IActionResult> UpdateCriteria([FromBody] UpdateUserCriteriaDto dto)
+        {
+            var username = User.Identity?.Name;
+            if (string.IsNullOrEmpty(username))
+            {
+                return Unauthorized();
+            }
+
+            var userFromDb = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            if (userFromDb == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            // Обновляем данные
+            userFromDb.MyGender = dto.MyGender;
+            userFromDb.MyCity = dto.MyCity;
+
+            // Сохраняем изменения в БД
+            await _context.SaveChangesAsync();
+
+            return Ok(new { Message = "Criteria updated successfully." });
+        }
+
         [HttpGet("profile")]
         [Authorize]
         public async Task<IActionResult> GetProfile()
         {
-            var username = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            //var username = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var username = User.Identity?.Name;
 
             if (string.IsNullOrEmpty(username))
             {
-                // Эта проверка теперь никогда не должна сработать, но мы оставим ее для надежности.
-                return Unauthorized("Could not find user identifier in token.");
+                return Unauthorized("Could not find username in token.");
             }
 
-            // Используем AsNoTracking(), т.к. мы только читаем данные. Это эффективнее.
             var userFromDb = await _context.Users
                 .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Username == username);
 
             if (userFromDb == null)
             {
-                // Это может произойти, если пользователя удалили, а токен еще жив
                 return NotFound("User not found in database.");
             }
 
-            return Ok(new { userFromDb.Id, userFromDb.Username });
+            // --- ДОБАВЛЯЕМ НОВЫЕ ПОЛЯ В ОТВЕТ ---
+            return Ok(new
+            {
+                userFromDb.Id,
+                userFromDb.Username,
+                userFromDb.MyGender, // <--- новое поле
+                userFromDb.MyCity    // <--- новое поле
+            });
         }
 
         // GET /api/users/exists/{username}
@@ -106,6 +143,8 @@ namespace Ripplee.Server.Controllers
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Username),
+                new Claim(ClaimTypes.Name, user.Username), // Этот клейм нужен для User.Identity.Name
+                new Claim("gender", user.MyGender ?? "Не указан"), // Сразу добавим пол, пригодится в хабе!
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 

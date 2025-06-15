@@ -12,58 +12,70 @@
         <Grid.GestureRecognizers>
             <TapGestureRecognizer Command="{Binding CloseMenuCommand}"/>
         </Grid.GestureRecognizers>
-        
-        <Grid Grid.Row="1" RowDefinitions="Auto,Auto,*" ColumnDefinitions="*" BackgroundColor="Transparent">
 
-            <Grid ZIndex="3" Margin="0,11,0,0">
+        <Grid Grid.Row="1" RowDefinitions="Auto,*,Auto" ColumnDefinitions="*" BackgroundColor="Transparent">
+
+            <Grid ZIndex="3" Padding="20,0,20,0">
                 <Border BackgroundColor="#202020" 
                         StrokeShape="RoundRectangle 0,0,40,40"
-                        Margin="15,-12,15,10"
+                        Margin="0,-15,0,0"
                         Grid.Row="0"/>
+
                 <Border BackgroundColor="#1B1B1B" 
                         StrokeShape="RoundRectangle 20,20,20,20"
-                        Margin="20,-1,20,10"/>
-                <Label Text="{Binding User.ChatSelection}" 
-                       TextColor="White" 
-                       HorizontalOptions="Start"
-                       Margin="55,11,0,0" 
-                       VerticalOptions="Start"
-                       Grid.Row="0"/>
-                <ImageButton x:Name="menuButton"
-                             Source="menu_icon.svg"
-                             Command="{Binding ToggleMenuCommand}"
-                             HeightRequest="40"
-                             WidthRequest="40"
-                             HorizontalOptions="End"
-                             VerticalOptions="Start"
-                             Margin="0,9,30,20"
-                             BackgroundColor="#131313"
-                             CornerRadius="10"
-                             Padding="5">
-                </ImageButton>
+                        HeightRequest="60">
+                    <Grid ColumnDefinitions="Auto,*">
+                        <Label Text="{Binding User.ChatSelection}" 
+                                    Margin="30,0,0,0" 
+                                    VerticalOptions="Center"
+                                    HorizontalOptions="Start"
+                                    Grid.Column="0"/>
+                        <ImageButton x:Name="menuButton"
+                                         Source="menu_icon.svg"
+                                         Command="{Binding ToggleMenuCommand}"
+                                         HeightRequest="40"
+                                         WidthRequest="40"
+                                         VerticalOptions="Center"
+                                         HorizontalOptions="End"
+                                         Margin="0,0,10,0"
+                                         BackgroundColor="#131313"
+                                         CornerRadius="10"
+                                         Padding="5"
+                                         Grid.Column="1">
+                        </ImageButton>
+                    </Grid>
+                </Border>
+
             </Grid>
 
-            <controls:MenuPanel x:Name="menuControl" Grid.RowSpan="2" ZIndex="2" BindingContext="{Binding .}"/>
+            <controls:MenuPanel x:Name="menuControl" Grid.RowSpan="3" ZIndex="2" BindingContext="{Binding .}"
+                                Margin="20.5,0,20.5,525"/>
 
-            <Grid Grid.Row="1" Margin="0,60,0,50" ZIndex="1">
-                <Ellipse WidthRequest="100" HeightRequest="100" Fill="Gray"/>
-                <Label Text="{Binding User.Username}" TextColor="White" HorizontalOptions="Center" Margin="0,150,0,0"/>
+            <Grid Grid.Row="1" Margin="0,0,0,0" ZIndex="1">
+                <VerticalStackLayout Spacing="20" HorizontalOptions="Center" Padding="0,70,0,0">
+                    <Ellipse WidthRequest="125" HeightRequest="125" Fill="#505050"/>
+                    <Label Text="{Binding User.Username}" HorizontalTextAlignment="Center"/>
+                </VerticalStackLayout>
             </Grid>
 
-            <Border VerticalOptions="End" Grid.Row="2" BackgroundColor="#1B1B1B" StrokeShape="RoundRectangle 30,30,30,30" Margin="20,30,20,0">
-                <ContentView>
-                    <OnPlatform x:TypeArguments="View">
-                        <On Platform="Android">
-                            <controls:FilterControlsView Padding="30,30,30,20" />
-                        </On>
-                        <On Platform="UWP, WinUI">
-                            <ScrollView>
-                                <controls:FilterControlsView Padding="30,30,30,20"/>
-                            </ScrollView>
-                        </On>
-                    </OnPlatform>
-                </ContentView>
-            </Border>
+            <Grid Grid.Row="2" Margin="20,0,20,20">
+               
+                <Border x:Name="FilterBorder"
+                        BackgroundColor="#1B1B1B"
+                        Padding="20,20,20,20"
+                        StrokeShape="RoundRectangle 30,30,30,30">
+                    <controls:FilterControlsView/>
+                </Border>
+               
+                <Border x:Name="UserCriteriaBorder"
+                        BackgroundColor="#1B1B1B"
+                        Padding="20,20,20,20"
+                        StrokeShape="RoundRectangle 30,30,30,30"
+                        IsVisible="False">
+                    <controls:UserCriteriaView/>
+                </Border>
+
+            </Grid>
         </Grid>
     </Grid>
 </ContentPage>

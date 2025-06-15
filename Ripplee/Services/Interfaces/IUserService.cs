@@ -13,5 +13,6 @@ namespace Ripplee.Services.Interfaces
         Task<bool> LoginAsync(string username, string password);
         Task<bool> TryAutoLoginAsync();
         Task LogoutAsync();
+        Task<bool> UpdateMyCriteriaAsync();
     }
 }

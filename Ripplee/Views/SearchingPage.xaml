@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Ripplee.ViewModels"	
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:ui="clr-namespace:Ripplee.Misc.UI"
+             x:Class="Ripplee.Views.SearchingPage"
+             x:DataType="vm:SearchingViewModel"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#202020">
+
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding PageAppearingCommand}" />
+        <toolkit:EventToCommandBehavior EventName="Disappearing" Command="{Binding PageDisappearingCommand}" />
+    </ContentPage.Behaviors>
+    <ContentPage.Resources>
+        <ui:BoolToOpacityConverter x:Key="BoolToOpacityConverter" />
+        <ui:InverseBoolConverter x:Key="InverseBoolConverter" />
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*" HorizontalOptions="Center">
+        
+        <Label Text="Поиск" HorizontalOptions="Center" VerticalOptions="Start" Grid.Row="0" Margin="0,20,0,0"
+               FontSize="28" FontAttributes="Bold"/>
+        
+        <Grid VerticalOptions="Center" HorizontalOptions="Center" RowSpacing="30" Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Label Grid.Row="0"
+                   Text="{Binding TimeElapsed}"
+                   TextColor="White"
+                   FontSize="64"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"/>
+
+            <Label Grid.Row="1"
+                   Text="{Binding StatusMessage}"
+                   TextColor="#A0A0A0"
+                   FontSize="18"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"/>
+
+            <ActivityIndicator Grid.Row="2" IsRunning="True" Color="White" Margin="0,20"/>
+
+            <VerticalStackLayout Grid.Row="3" Spacing="15" Margin="0,40,0,0">
+                <Button Text="Искать любого"
+                        Opacity="{Binding IsFindAnyoneButtonVisible, Converter={StaticResource BoolToOpacityConverter}}"
+                        InputTransparent="{Binding IsFindAnyoneButtonVisible, Converter={StaticResource InverseBoolConverter}}"
+                        Command="{Binding FindAnyoneCommand}"
+                        BackgroundColor="#3a3a3a"
+                        WidthRequest="250"
+                        HeightRequest="55"/>
+
+                <Button Text="Отменить поиск"
+                        Command="{Binding CancelSearchCommand}"
+                        BackgroundColor="#583535"
+                        WidthRequest="250"
+                        HeightRequest="55"/>
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>

@@ -8,14 +8,14 @@
     <converters:FirstLetterConverter x:Key="FirstLetterConverter" />
     
     <Style TargetType="Button">
-        <Setter Property="TextColor" Value="White"/>
+        <Setter Property="TextColor" Value="#ebebeb"/>
         <Setter Property="FontFamily" Value="OpenSansRegular"/>
         <Setter Property="FontSize" Value="18"/>
         <Setter Property="CornerRadius" Value="10"/>
     </Style>
     
     <Style TargetType="Label">
-        <Setter Property="TextColor" Value="White"/>
+        <Setter Property="TextColor" Value="#ebebeb"/>
         <Setter Property="FontFamily" Value="OpenSansRegular"/>
         <Setter Property="FontSize" Value="24"/>
     </Style>
@@ -29,17 +29,16 @@
     </Style>
 
     <Style x:Key="PickerBorderStyle" TargetType="Border">
-        <Setter Property="BackgroundColor" Value="#2A2A2A" />
-        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="BackgroundColor" Value="#2e2e2e" />
         <Setter Property="StrokeShape">
-            <RoundRectangle CornerRadius="10"/>
+            <RoundRectangle CornerRadius="10" />
         </Setter>
         <Setter Property="HeightRequest" Value="50" />
         <Setter Property="VerticalOptions" Value="Center" />
     </Style>
 
     <Style x:Key="CustomPickerStyle" TargetType="Picker">
-        <Setter Property="TextColor" Value="White" />
+        <Setter Property="TextColor" Value="#ebebeb" />
         <Setter Property="TitleColor" Value="Gray" />
         <Setter Property="BackgroundColor" Value="{OnPlatform Android=Transparent, iOS=Transparent, WinUI=#2a2a2a}"/>
         <Setter Property="HorizontalOptions" Value="Fill" />
@@ -47,7 +46,7 @@
 
     <Style x:Key="CustomPlaceHolder" TargetType="Entry">
         <Setter Property="BackgroundColor" Value="#4A4A4A"/>
-        <Setter Property="TextColor" Value="White"/>
+        <Setter Property="TextColor" Value="#ebebeb"/>
         <Setter Property="PlaceholderColor" Value="#A0A0A0"/>
         <Setter Property="TextColor" Value="#CACACA"/>
         <Setter Property="HeightRequest" Value="55"/>
