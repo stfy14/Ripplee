@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.SignalR;
 using Ripplee.Server.Models;
 using Ripplee.Server.Services;
-using System.Diagnostics;
-using System.Security.Claims;
+using System; 
+using System.Security.Claims; 
+using System.Threading.Tasks; 
+using Microsoft.Extensions.Logging; 
 
 namespace Ripplee.Server.Hubs
 {
@@ -11,46 +13,94 @@ namespace Ripplee.Server.Hubs
     public class MatchmakingHub : Hub
     {
         private readonly IMatchmakingService _matchmakingService;
-        private const string ANY_CRITERIA_HUB = "Любой"; // Можно вынести в константу сервиса или общую
+        private readonly ILogger<MatchmakingHub> _logger;
 
-        public MatchmakingHub(IMatchmakingService matchmakingService)
+        private string ANY_CRITERIA_HUB = string.Empty;
+        private string DEFAULT_GENDER_IF_NOT_SET = string.Empty;
+
+        public MatchmakingHub(IMatchmakingService matchmakingService, ILogger<MatchmakingHub> logger)
         {
             _matchmakingService = matchmakingService;
+            _logger = logger;
         }
 
         public async Task FindCompanion(string userCity, string searchGender, string searchCity, string searchTopic)
         {
-            var username = Context.User.Identity?.Name ?? "Unknown";
-            string userGenderClaim = Context.User.FindFirst(ClaimTypes.Gender)?.Value;
-            // userCity уже передается и должен быть актуальным городом пользователя
+            var username = Context.User.Identity?.Name ?? "UnknownUser";
+            string actualUserGender = Context.User.FindFirst(ClaimTypes.Gender)?.Value;
+            string? userAvatarUrlFromClaim = Context.User.FindFirst("avatar_url")?.Value; // Получаем аватар
+
+            _logger.LogInformation("MatchmakingHub: User {Username} (ConnId: {ConnectionId}) called FindCompanion. Token Gender: '{TokenGender}', AvatarUrl: '{TokenAvatarUrl}'. Passed UserCity: {UserCity}",
+                username, Context.ConnectionId, actualUserGender, userAvatarUrlFromClaim, userCity);
+
+            if (string.IsNullOrEmpty(actualUserGender) || actualUserGender.Equals(DEFAULT_GENDER_IF_NOT_SET, StringComparison.OrdinalIgnoreCase))
+            {
+                actualUserGender = DEFAULT_GENDER_IF_NOT_SET;
+            }
+            _logger.LogInformation("MatchmakingHub: Effective UserGender for {Username}: '{EffectiveGender}'", username, actualUserGender);
 
             var waitingUser = new WaitingUser
             {
                 ConnectionId = Context.ConnectionId,
                 Username = username,
-                UserGender = userGenderClaim,
-                UserCity = userCity, // Это город самого пользователя
+                UserGender = actualUserGender,
+                UserCity = string.IsNullOrEmpty(userCity) ? DEFAULT_GENDER_IF_NOT_SET : userCity, // Город самого пользователя
+                UserAvatarUrl = string.IsNullOrEmpty(userAvatarUrlFromClaim) ? null : userAvatarUrlFromClaim, // Передаем аватар
                 SearchGender = string.IsNullOrEmpty(searchGender) ? ANY_CRITERIA_HUB : searchGender,
-                SearchCity = string.IsNullOrEmpty(searchCity) ? ANY_CRITERIA_HUB : searchCity, // Добавим обработку пустого значения
-                SearchTopic = string.IsNullOrEmpty(searchTopic) ? ANY_CRITERIA_HUB : searchTopic, // Добавим обработку пустого значения
+                SearchCity = string.IsNullOrEmpty(searchCity) ? ANY_CRITERIA_HUB : searchCity,
+                SearchTopic = string.IsNullOrEmpty(searchTopic) ? ANY_CRITERIA_HUB : searchTopic,
             };
-
             await _matchmakingService.AddUserToQueueAndTryMatchAsync(waitingUser);
         }
+
         public async Task FindAnyone()
         {
+            _logger.LogInformation("MatchmakingHub: User {ConnectionId} called FindAnyone.", Context.ConnectionId);
             await _matchmakingService.FindAnyMatchForUserAsync(Context.ConnectionId);
+        }
+
+        public async Task EndCallNotification()
+        {
+            _logger.LogInformation("MatchmakingHub: User {ConnectionId} initiated EndCallNotification.", Context.ConnectionId);
+            await _matchmakingService.NotifyCallEndedByPartnerAsync(Context.ConnectionId);
+            await _matchmakingService.LeaveCallGroupAsync(Context.ConnectionId); 
+        }
+
+        // Новый метод: клиент сообщает об изменении своего статуса мьюта
+        public async Task ToggleMuteStatus(bool isMuted, string callGroupId)
+        {
+            // Проверка, что callGroupId не пустой
+            if (string.IsNullOrEmpty(callGroupId))
+            {
+                _logger.LogWarning("MatchmakingHub: ToggleMuteStatus received with empty callGroupId from {ConnectionId}.", Context.ConnectionId);
+                return;
+            }
+            
+            // Можно добавить проверку, состоит ли ConnectionId в этой группе, если есть доступ к этой информации
+            // из _matchmakingService или если MatchmakingService хранит _userCallGroups публично (не рекомендуется).
+            // Пока доверяем, что клиент отправляет свой актуальный callGroupId.
+
+            _logger.LogInformation("MatchmakingHub: User {ConnectionId} in group {CallGroupId} toggled mute status to {IsMuted}", 
+                Context.ConnectionId, callGroupId, isMuted);
+
+            // Отправляем статус мьюта другому участнику(ам) в группе
+            await Clients.GroupExcept(callGroupId, Context.ConnectionId).SendAsync("PartnerMuteStatusChanged", isMuted);
         }
 
         public override async Task OnConnectedAsync()
         {
-            var username = Context.User?.Identity?.Name ?? "Unknown";
-            Debug.WriteLine($"--> User connected to MatchmakingHub: {username} ({Context.ConnectionId})");
+            var username = Context.User?.Identity?.Name ?? "UnknownUser";
+            _logger.LogInformation("--> User connected to MatchmakingHub: {Username} ({ConnectionId})", username, Context.ConnectionId);
             await base.OnConnectedAsync();
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
+            var username = Context.User?.Identity?.Name ?? "UnknownUser"; 
+            _logger.LogInformation("<-- User {Username} ({ConnectionId}) disconnected from MatchmakingHub. Exception: {ExceptionMessage}", 
+                username, Context.ConnectionId, exception?.Message ?? "N/A");
+            
+            await _matchmakingService.LeaveCallGroupAsync(Context.ConnectionId); 
             await _matchmakingService.RemoveUserFromQueueAsync(Context.ConnectionId);
             await base.OnDisconnectedAsync(exception);
         }

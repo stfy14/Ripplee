@@ -24,7 +24,7 @@ namespace Ripplee.ViewModels
         public SettingsViewModel(IUserService userService)
         {
             _userService = userService;
-            CurrentUser = _userService.CurrentUser; // Инициализация начальным значением
+            CurrentUser = _userService.CurrentUser; 
             WeakReferenceMessenger.Default.Register<UserChangedMessage>(this);
         }
 

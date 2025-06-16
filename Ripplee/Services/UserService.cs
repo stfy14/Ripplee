@@ -44,9 +44,9 @@ namespace Ripplee.Services.Services
 
             CurrentUser = new UserModel
             {
-                Username = profile.Username ?? "Unknown",
-                MyGender = profile.MyGender ?? "Не указан",
-                MyCity = profile.MyCity ?? "Не указан"
+                Username = profile.Username ?? string.Empty,
+                MyGender = profile.MyGender ?? string.Empty,
+                MyCity = profile.MyCity ?? string.Empty
             };
 
             if (!string.IsNullOrEmpty(profile.AvatarUrl))

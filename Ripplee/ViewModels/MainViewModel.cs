@@ -136,7 +136,7 @@ namespace Ripplee.ViewModels
                 await Shell.Current.DisplayAlert("Ошибка", "Пожалуйста, выберите город и тему для поиска.", "OK");
                 return;
             }
-            if (string.IsNullOrEmpty(User.MyCity) || User.MyCity == "Не указан") // Проверка, что город пользователя задан
+            if (string.IsNullOrEmpty(User.MyCity) || User.MyCity == string.Empty) // Проверка, что город пользователя задан
             {
                 await Shell.Current.DisplayAlert("Профиль не заполнен", "Пожалуйста, укажите ваш город в настройках профиля (иконка справа от 'Кого сегодня ищем?').", "OK");
                 return;

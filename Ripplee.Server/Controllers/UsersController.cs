@@ -44,8 +44,8 @@ namespace Ripplee.Server.Controllers
             {
                 Username = dto.Username,
                 PasswordHash = passwordHash,
-                MyGender = "Не указан", // Значение по умолчанию
-                MyCity = "Не указан"   // Значение по умолчанию
+                MyGender = string.Empty, // Значение по умолчанию
+                MyCity = string.Empty   // Значение по умолчанию
             };
 
             _context.Users.Add(user);
@@ -326,8 +326,9 @@ namespace Ripplee.Server.Controllers
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()), // Sub теперь ID пользователя
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Gender, user.MyGender ?? "Не указан"),
-                new Claim("city", user.MyCity ?? "Не указан"),
+                new Claim(ClaimTypes.Gender, user.MyGender ?? string.Empty),
+                new Claim("city", user.MyCity ?? string.Empty),
+                new Claim("avatar_url", user.AvatarUrl ?? string.Empty),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
