@@ -77,23 +77,18 @@ namespace Ripplee.ViewModels
             }
         }
 
-        // Добавляем пустой обработчик для Mute Status, т.к. SearchingViewModel в этом не участвует
         private Task OnPartnerMuteStatusChanged_NotInCall(bool isMuted)
         {
             Debug.WriteLine("SearchingViewModel: Received OnPartnerMuteStatusChanged, but not in a call state. Ignoring.");
             return Task.CompletedTask;
         }
 
-        // ... (остальные методы SearchingViewModel остаются такими же, как в предыдущем полном ответе)
-        // OnCompanionFound, OnSearchStatusUpdate, OnCallEndedByPartner_NotInCall
-        // PageDisappearing, StartTimer, StopTimer, OnTimerTick, FindAnyone, CancelSearch
-        // Не забудь IDispatcher для UI обновлений в этих методах
         private async Task OnCompanionFound(string name, string city, string topic, string callGroupId, string? companionAvatarUrl)
         {
             IsSearching = false;
             StopTimer();
 
-            string? fullAvatarUrl = null; // Используем nullable string
+            string? fullAvatarUrl = null; 
             if (!string.IsNullOrEmpty(companionAvatarUrl))
             {
                 string baseAddress = MauiProgram.GetApiBaseAdress();
@@ -108,7 +103,7 @@ namespace Ripplee.ViewModels
                     { "name", name },
                     { "city", city },
                     { "topic", topic },
-                    { "avatarUrl", fullAvatarUrl } // Передаем nullable URL
+                    { "avatarUrl", fullAvatarUrl } 
                 };
                 await Shell.Current.GoToAsync(nameof(Views.VoiceChatPage), true, navigationParameters);
             });
@@ -169,7 +164,7 @@ namespace Ripplee.ViewModels
         {
             if (!_signalRService.IsConnected)
             {
-                StatusMessage = "Нет подключения к серверу."; // Обновляем статус через свойство
+                StatusMessage = "Нет подключения к серверу."; 
                 return;
             }
             FindAnyoneActivated = true; 

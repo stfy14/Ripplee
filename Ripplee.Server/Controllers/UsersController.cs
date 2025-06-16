@@ -4,13 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Ripplee.Server.Data;
 using Ripplee.Server.Models;
-using System; // Для Path, Directory, Guid, FileStream, FileMode, IOException
 using System.IdentityModel.Tokens.Jwt;
-using System.IO; // Для Path, Directory, FileStream, FileMode, IOException
-using System.Linq; // Для .Contains()
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks; // Для Task
 
 namespace Ripplee.Server.Controllers
 {
@@ -44,8 +40,8 @@ namespace Ripplee.Server.Controllers
             {
                 Username = dto.Username,
                 PasswordHash = passwordHash,
-                MyGender = string.Empty, // Значение по умолчанию
-                MyCity = string.Empty   // Значение по умолчанию
+                MyGender = string.Empty, 
+                MyCity = string.Empty   
             };
 
             _context.Users.Add(user);
@@ -68,7 +64,6 @@ namespace Ripplee.Server.Controllers
             return Ok(new { Token = token });
         }
 
-        // Ripplee.Server/Controllers/UsersController.cs
         [HttpPost("criteria")]
         [Authorize]
         public async Task<IActionResult> UpdateCriteria([FromBody] UpdateUserCriteriaDto dto)
@@ -218,7 +213,7 @@ namespace Ripplee.Server.Controllers
                 return BadRequest(new { Message = "No file uploaded." });
             }
 
-            if (file.Length > 5 * 1024 * 1024) // 5 MB лимит
+            if (file.Length > 5 * 1024 * 1024) 
             {
                 return BadRequest(new { Message = "File size exceeds limit (5MB)." });
             }
@@ -230,7 +225,7 @@ namespace Ripplee.Server.Controllers
                 return BadRequest(new { Message = "Invalid file type. Only JPG, JPEG, PNG are allowed." });
             }
 
-            // Используем _webHostEnvironment.WebRootPath для получения пути к wwwroot
+            // Используем для получения пути к wwwroot
             var uploadsFolderPath = Path.Combine(_webHostEnvironment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "avatars");
             if (!Directory.Exists(uploadsFolderPath))
             {
@@ -268,7 +263,7 @@ namespace Ripplee.Server.Controllers
 
         [HttpPost("delete-account")]
         [Authorize]
-        public async Task<IActionResult> DeleteAccount([FromBody] DeleteAccountDto dto) // DTO для подтверждения паролем
+        public async Task<IActionResult> DeleteAccount([FromBody] DeleteAccountDto dto) 
         {
             var username = User.Identity?.Name;
             if (string.IsNullOrEmpty(username))
@@ -282,13 +277,11 @@ namespace Ripplee.Server.Controllers
                 return NotFound(new { Message = "User not found." });
             }
 
-            // Проверка пароля перед удалением
             if (!BCrypt.Net.BCrypt.Verify(dto.Password, userFromDb.PasswordHash))
             {
                 return BadRequest(new { Message = "Invalid password. Account deletion denied." });
             }
 
-            // Опционально: Удаление аватара пользователя с сервера, если он есть
             if (!string.IsNullOrEmpty(userFromDb.AvatarUrl))
             {
                 var uploadsFolderPath = Path.Combine(_webHostEnvironment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "avatars");
@@ -304,15 +297,9 @@ namespace Ripplee.Server.Controllers
                 }
             }
 
-            // Опционально: Можно не удалять пользователя физически, а помечать как удаленного (soft delete)
-            // userFromDb.IsDeleted = true;
-            // userFromDb.DeletedAt = DateTime.UtcNow;
-            // Вместо этого, для полного удаления:
             _context.Users.Remove(userFromDb);
 
             await _context.SaveChangesAsync();
-
-            // Опционально: можно добавить логику для инвалидации всех активных токенов пользователя, если есть такая система.
 
             return Ok(new { Message = "Account deleted successfully." });
         }
@@ -324,7 +311,7 @@ namespace Ripplee.Server.Controllers
 
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()), // Sub теперь ID пользователя
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()), 
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.Gender, user.MyGender ?? string.Empty),
                 new Claim("city", user.MyCity ?? string.Empty),
@@ -336,7 +323,7 @@ namespace Ripplee.Server.Controllers
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddDays(30), // Увеличим срок жизни токена
+                expires: DateTime.Now.AddDays(30), 
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);

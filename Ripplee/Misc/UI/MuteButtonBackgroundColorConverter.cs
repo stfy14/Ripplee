@@ -16,7 +16,7 @@ namespace Ripplee.Misc.UI
             {
                 return isMuted ? MicOffBackgroundColor : MicOnBackgroundColor;
             }
-            return MicOnBackgroundColor; // По умолчанию
+            return MicOnBackgroundColor; 
         }
 
         public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

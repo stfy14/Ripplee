@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using Ripplee.Server.Hubs; // Убедись, что путь к хабу правильный
+using Ripplee.Server.Hubs; 
 using Ripplee.Server.Models;
-using System;
 using System.Collections.Concurrent;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Ripplee.Server.Services
 {
@@ -14,7 +11,7 @@ namespace Ripplee.Server.Services
         Task FindAnyMatchForUserAsync(string connectionId);
         Task NotifyCallEndedByPartnerAsync(string connectionIdOfUserWhoEndedCall);
         Task LeaveCallGroupAsync(string connectionId);
-        Task RemoveUserFromQueueAsync(string connectionId); // Используется при дисконнекте из очереди
+        Task RemoveUserFromQueueAsync(string connectionId); 
     }
 
     public class MatchmakingService : IMatchmakingService
@@ -22,9 +19,8 @@ namespace Ripplee.Server.Services
         private static readonly ConcurrentDictionary<string, WaitingUser> _waitingUsers = new();
         private static readonly ConcurrentDictionary<string, string> _userCallGroups = new();
         private readonly IHubContext<MatchmakingHub> _hubContext;
-        private readonly ILogger<MatchmakingService> _logger; // Добавим логгер
+        private readonly ILogger<MatchmakingService> _logger; 
 
-        // Убедись, что эти константы согласованы с теми, что в MatchmakingHub
         private string ANY_CRITERIA = string.Empty;
         private string DEFAULT_GENDER_IF_NOT_SET = string.Empty;
 
@@ -58,7 +54,7 @@ namespace Ripplee.Server.Services
         private WaitingUser? FindMatch(WaitingUser currentUser)
         {
             _logger.LogDebug("MatchmakingService: FindMatch called for User {Username} (ConnId: {ConnectionId})", currentUser.Username, currentUser.ConnectionId);
-            foreach (var otherUser in _waitingUsers.Values.ToList()) // ToList для безопасности при возможном удалении
+            foreach (var otherUser in _waitingUsers.Values.ToList()) 
             {
                 if (currentUser.ConnectionId == otherUser.ConnectionId) continue;
 
@@ -118,16 +114,16 @@ namespace Ripplee.Server.Services
             await _hubContext.Clients.Client(user1.ConnectionId).SendAsync("CompanionFound",
                 user2.Username,
                 user2.UserCity,
-                user2.SearchTopic, // Это тема, которую искал user2 (может совпадать с темой user1)
+                user2.SearchTopic, 
                 callGroupId,
-                user2.UserAvatarUrl); // Аватар user2
+                user2.UserAvatarUrl); 
 
             await _hubContext.Clients.Client(user2.ConnectionId).SendAsync("CompanionFound",
                 user1.Username,
                 user1.UserCity,
-                user1.SearchTopic, // Это тема, которую искал user1
+                user1.SearchTopic, 
                 callGroupId,
-                user1.UserAvatarUrl); // Аватар user1
+                user1.UserAvatarUrl); 
         }
 
         public async Task FindAnyMatchForUserAsync(string connectionId)
@@ -163,7 +159,6 @@ namespace Ripplee.Server.Services
                 _logger.LogInformation("MatchmakingService: Notifying call ended by partner for ConnId {ConnectionId} in group {CallGroupId}",
                     connectionIdOfUserWhoEndedCall, callGroupId);
 
-                // Уведомляем другого участника в группе
                 await _hubContext.Clients.GroupExcept(callGroupId, connectionIdOfUserWhoEndedCall).SendAsync("CallEndedByPartner");
             }
             else
@@ -181,7 +176,7 @@ namespace Ripplee.Server.Services
             }
         }
 
-        public Task RemoveUserFromQueueAsync(string connectionId) // Используется при дисконнекте, если пользователь был в очереди
+        public Task RemoveUserFromQueueAsync(string connectionId) 
         {
             if (_waitingUsers.TryRemove(connectionId, out var user))
             {

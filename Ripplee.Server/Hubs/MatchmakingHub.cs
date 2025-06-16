@@ -28,7 +28,7 @@ namespace Ripplee.Server.Hubs
         {
             var username = Context.User.Identity?.Name ?? "UnknownUser";
             string actualUserGender = Context.User.FindFirst(ClaimTypes.Gender)?.Value;
-            string? userAvatarUrlFromClaim = Context.User.FindFirst("avatar_url")?.Value; // Получаем аватар
+            string? userAvatarUrlFromClaim = Context.User.FindFirst("avatar_url")?.Value; 
 
             _logger.LogInformation("MatchmakingHub: User {Username} (ConnId: {ConnectionId}) called FindCompanion. Token Gender: '{TokenGender}', AvatarUrl: '{TokenAvatarUrl}'. Passed UserCity: {UserCity}",
                 username, Context.ConnectionId, actualUserGender, userAvatarUrlFromClaim, userCity);
@@ -44,8 +44,8 @@ namespace Ripplee.Server.Hubs
                 ConnectionId = Context.ConnectionId,
                 Username = username,
                 UserGender = actualUserGender,
-                UserCity = string.IsNullOrEmpty(userCity) ? DEFAULT_GENDER_IF_NOT_SET : userCity, // Город самого пользователя
-                UserAvatarUrl = string.IsNullOrEmpty(userAvatarUrlFromClaim) ? null : userAvatarUrlFromClaim, // Передаем аватар
+                UserCity = string.IsNullOrEmpty(userCity) ? DEFAULT_GENDER_IF_NOT_SET : userCity, 
+                UserAvatarUrl = string.IsNullOrEmpty(userAvatarUrlFromClaim) ? null : userAvatarUrlFromClaim, 
                 SearchGender = string.IsNullOrEmpty(searchGender) ? ANY_CRITERIA_HUB : searchGender,
                 SearchCity = string.IsNullOrEmpty(searchCity) ? ANY_CRITERIA_HUB : searchCity,
                 SearchTopic = string.IsNullOrEmpty(searchTopic) ? ANY_CRITERIA_HUB : searchTopic,
@@ -66,24 +66,17 @@ namespace Ripplee.Server.Hubs
             await _matchmakingService.LeaveCallGroupAsync(Context.ConnectionId); 
         }
 
-        // Новый метод: клиент сообщает об изменении своего статуса мьюта
         public async Task ToggleMuteStatus(bool isMuted, string callGroupId)
         {
-            // Проверка, что callGroupId не пустой
             if (string.IsNullOrEmpty(callGroupId))
             {
                 _logger.LogWarning("MatchmakingHub: ToggleMuteStatus received with empty callGroupId from {ConnectionId}.", Context.ConnectionId);
                 return;
             }
-            
-            // Можно добавить проверку, состоит ли ConnectionId в этой группе, если есть доступ к этой информации
-            // из _matchmakingService или если MatchmakingService хранит _userCallGroups публично (не рекомендуется).
-            // Пока доверяем, что клиент отправляет свой актуальный callGroupId.
 
             _logger.LogInformation("MatchmakingHub: User {ConnectionId} in group {CallGroupId} toggled mute status to {IsMuted}", 
                 Context.ConnectionId, callGroupId, isMuted);
 
-            // Отправляем статус мьюта другому участнику(ам) в группе
             await Clients.GroupExcept(callGroupId, Context.ConnectionId).SendAsync("PartnerMuteStatusChanged", isMuted);
         }
 

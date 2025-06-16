@@ -7,11 +7,11 @@ namespace Ripplee.Misc.UI
 {
     public class GenderToBackgroundColorConverter : IValueConverter
     {
-        public Color MaleActiveColor { get; set; } = Color.FromArgb("#2c3e50");     // Активный: Яркий синий
-        public Color MaleInactiveColor { get; set; } = Color.FromArgb("#2a2a2a");   // Неактивный: Темный сине-серый
+        public Color MaleActiveColor { get; set; } = Color.FromArgb("#2c3e50");     
+        public Color MaleInactiveColor { get; set; } = Color.FromArgb("#2a2a2a");   
 
-        public Color FemaleActiveColor { get; set; } = Color.FromArgb("#4e2b4f");   // Активный: Яркий розовый
-        public Color FemaleInactiveColor { get; set; } = Color.FromArgb("#2a2a2a"); // Неактивный: Глубокий бордовый
+        public Color FemaleActiveColor { get; set; } = Color.FromArgb("#4e2b4f");   
+        public Color FemaleInactiveColor { get; set; } = Color.FromArgb("#2a2a2a"); 
 
         private readonly Color _fallbackColor = Color.FromArgb("#2a2a2a");
 

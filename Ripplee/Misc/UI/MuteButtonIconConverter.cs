@@ -6,7 +6,6 @@ namespace Ripplee.Misc.UI
 {
     public class MuteButtonIconConverter : IValueConverter
     {
-        // Убедись, что имена файлов иконок соответствуют твоим реальным файлам
         public string MicOnIconSource { get; set; } = "mic_on_icon.svg";
         public string MicOffIconSource { get; set; } = "mic_off_icon.svg";
 
@@ -16,7 +15,7 @@ namespace Ripplee.Misc.UI
             {
                 return isMuted ? MicOffIconSource : MicOnIconSource;
             }
-            return MicOnIconSource; // По умолчанию - микрофон включен
+            return MicOnIconSource; 
         }
 
         public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

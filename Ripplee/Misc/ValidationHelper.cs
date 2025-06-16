@@ -6,16 +6,9 @@ namespace Ripplee.Misc
 {
     public static class ValidationHelper
     {
-        // --- Username Validation ---
         private const int MinUsernameLength = 3;
         private const int MaxUsernameLength = 50;
-        // Regex:
-        // 1. (?=.*[a-zA-Zа-яА-ЯёЁ])   - Positive lookahead: ensures at least one letter (Eng or Rus)
-        // 2. (?!.*[_-]{2})           - Negative lookahead: no two consecutive underscores or hyphens
-        // 3. [a-zA-Zа-яА-ЯёЁ0-9]     - Starts with a letter or digit
-        // 4. (?:[a-zA-Zа-яА-ЯёЁ0-9_-]*[a-zA-Zа-яА-ЯёЁ0-9])? - Optional middle and ensures ends with letter/digit if longer than 1 char
-        // 5. {MinUsernameLength-1,MaxUsernameLength-1} - This part is tricky if combined with start/end.
-        // Let's simplify and check length separately.
+
         private static readonly Regex UsernamePatternRegex =
             new Regex(@"^(?=.*[a-zA-Zа-яА-ЯёЁ])(?!.*[_-]{2})[a-zA-Zа-яА-ЯёЁ0-9][a-zA-Zа-яА-ЯёЁ0-9_-]*[a-zA-Zа-яА-ЯёЁ0-9]$");
         private static readonly Regex UsernameAllowedCharsRegex = new Regex(@"^[a-zA-Zа-яА-ЯёЁ0-9_-]+$");
@@ -65,8 +58,7 @@ namespace Ripplee.Misc
             return true;
         }
 
-        // --- Password Validation ---
-        private const int MinPasswordLength = 8; // Рекомендуемая минимальная длина
+        private const int MinPasswordLength = 8; 
 
         public static bool ValidatePassword(string? password, out string errorMessage)
         {

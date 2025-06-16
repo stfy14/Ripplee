@@ -2,10 +2,7 @@
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using Microsoft.Maui.ApplicationModel; // Для SecureStorage
-using Microsoft.Maui.Networking; // Для Connectivity
 
-// Вспомогательные DTO
 namespace Ripplee.Services.Data
 {
     internal class ErrorResponseMessageDto
@@ -25,22 +22,21 @@ namespace Ripplee.Services.Data
     }
 }
 
-// Основной класс ChatApiClient
 namespace Ripplee.Services.Data
 {
-    public class ProfileResponse // Этот DTO должен быть public, так как используется в UserService
+    public class ProfileResponse // public, так как используется в UserService
     {
         public int Id { get; set; }
         public string? Username { get; set; }
         public string? MyGender { get; set; }
         public string? MyCity { get; set; }
-        public string? AvatarUrl { get; set; } // Добавлено
+        public string? AvatarUrl { get; set; } 
     }
-    public class UserExistsResponse // Этот DTO должен быть public, так как используется в UserService
+    public class UserExistsResponse 
     {
         public bool Exists { get; set; }
     }
-    public class LoginResponse // Этот DTO должен быть public, так как используется в UserService
+    public class LoginResponse 
     {
         public string? Token { get; set; }
     }
@@ -119,7 +115,7 @@ namespace Ripplee.Services.Data
                 if (string.IsNullOrEmpty(token)) return null;
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
                 var response = await _httpClient.GetAsync("api/users/profile");
-                _httpClient.DefaultRequestHeaders.Authorization = null; // Очищаем после запроса
+                _httpClient.DefaultRequestHeaders.Authorization = null; 
                 if (!response.IsSuccessStatusCode) return null;
                 var responseContent = await response.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<ProfileResponse>(responseContent, _serializerOptions);
@@ -144,8 +140,7 @@ namespace Ripplee.Services.Data
                 if (response.IsSuccessStatusCode)
                 {
                     var responseContent = await response.Content.ReadAsStringAsync();
-                    // Используем тот же DTO, что и для смены имени пользователя, если структура ответа похожа
-                    var result = JsonSerializer.Deserialize<ChangeUsernameResponseDto>(responseContent, _serializerOptions); // Предполагаем, что ответ содержит Token
+                    var result = JsonSerializer.Deserialize<ChangeUsernameResponseDto>(responseContent, _serializerOptions); 
                     return (true, result?.Token);
                 }
                 return (false, null);
@@ -251,12 +246,10 @@ namespace Ripplee.Services.Data
 
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-                // Используем HttpMethod.Delete или Post, если Delete не подходит (например, из-за тела запроса)
-                // Для POST с телом:
                 var request = new { password };
                 var json = JsonSerializer.Serialize(request);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
-                var response = await _httpClient.PostAsync("api/users/delete-account", content); // Или HttpRequestMessage с HttpMethod.Delete и Content
+                var response = await _httpClient.PostAsync("api/users/delete-account", content); 
 
                 _httpClient.DefaultRequestHeaders.Authorization = null;
 

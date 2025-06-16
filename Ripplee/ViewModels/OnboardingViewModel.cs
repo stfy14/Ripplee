@@ -1,10 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Ripplee.Misc; // Для ValidationHelper
-using Ripplee.Misc.UI; // Для KeyboardHelper
+using Ripplee.Misc; 
+using Ripplee.Misc.UI; 
 using Ripplee.Services.Data;
 using Ripplee.Services.Interfaces;
-using System.Threading.Tasks;
 
 namespace Ripplee.ViewModels
 {
@@ -36,7 +35,7 @@ namespace Ripplee.ViewModels
 
 
         [ObservableProperty]
-        private string greetingMessage = "С возвращением!"; // Инициализируем
+        private string greetingMessage = "С возвращением!"; 
 
         public OnboardingViewModel(IUserService userService, ChatApiClient apiClient)
         {
@@ -73,7 +72,7 @@ namespace Ripplee.ViewModels
         [RelayCommand]
         private void StartFlow()
         {
-            ValidationErrorMessage = null; // Сброс ошибки при переходе
+            ValidationErrorMessage = null; 
             CurrentStepIndex = 1;
         }
 
@@ -87,58 +86,53 @@ namespace Ripplee.ViewModels
         private async Task NextStep()
         {
             KeyboardHelper.HideKeyboard();
-            ValidationErrorMessage = null; // Сброс предыдущей ошибки
+            ValidationErrorMessage = null; 
 
-            if (CurrentStepIndex == 1) // Ввод логина
+            if (CurrentStepIndex == 1) 
             {
                 if (!ValidationHelper.ValidateUsername(Username, out string userError))
                 {
                     ValidationErrorMessage = userError;
-                    // await Shell.Current.DisplayAlert("Ошибка логина", userError, "OK"); // Можно заменить на Label
                     return;
                 }
 
-                IsLoading = true; // Показываем индикатор на время проверки
+                IsLoading = true; 
                 bool userExists = await _apiClient.CheckUserExistsAsync(Username!);
                 IsLoading = false;
 
-                Password = string.Empty; // Сбрасываем поле пароля на всякий случай
+                Password = string.Empty; 
                 if (userExists)
                 {
                     GreetingMessage = $"С возвращением, {Username}!";
-                    CurrentStepIndex = 4; // Переход к вводу пароля для существующего пользователя
+                    CurrentStepIndex = 4; 
                 }
                 else
                 {
-                    CurrentStepIndex = 2; // Переход к созданию пароля для нового пользователя
+                    CurrentStepIndex = 2; 
                 }
             }
-            else if (CurrentStepIndex == 2) // Ввод пароля (регистрация)
+            else if (CurrentStepIndex == 2) 
             {
                 if (!ValidationHelper.ValidatePassword(Password, out string passError))
                 {
                     ValidationErrorMessage = passError;
-                    // await Shell.Current.DisplayAlert("Ошибка пароля", passError, "OK");
                     return;
                 }
-                CurrentStepIndex = 3; // Переход к выбору аватара
+                CurrentStepIndex = 3; 
             }
-            else if (CurrentStepIndex == 3) // Шаг выбора аватара и завершения регистрации
+            else if (CurrentStepIndex == 3) 
             {
                 IsLoading = true;
-                // Сначала регистрируем пользователя и логинимся
                 bool registrationSuccess = await _userService.RegisterAndLoginAsync(Username!, Password!);
 
                 if (registrationSuccess)
                 {
-                    // Если пользователь зарегистрирован и залогинен, и выбран аватар, загружаем его
                     if (PickedAvatarFile != null)
                     {
                         using var stream = await PickedAvatarFile.OpenReadAsync();
                         bool avatarUploadSuccess = await _userService.UploadAvatarAsync(stream, PickedAvatarFile.FileName);
                         if (!avatarUploadSuccess)
                         {
-                            // Можно показать некритичную ошибку, что аватар не загрузился, но регистрация прошла
                             await Shell.Current.DisplayAlert("Информация", "Регистрация прошла успешно, но не удалось загрузить аватар. Вы можете сделать это позже в настройках.", "OK");
                         }
                     }
@@ -153,7 +147,7 @@ namespace Ripplee.ViewModels
         }
 
         [RelayCommand]
-        private async Task Login() // Для шага 4 (вход существующего пользователя)
+        private async Task Login() 
         {
             KeyboardHelper.HideKeyboard();
             ValidationErrorMessage = null;
@@ -161,7 +155,6 @@ namespace Ripplee.ViewModels
             if (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password))
             {
                 ValidationErrorMessage = "Введите пароль.";
-                // await Shell.Current.DisplayAlert("Ошибка", "Введите пароль.", "OK");
                 return;
             }
 
@@ -176,7 +169,6 @@ namespace Ripplee.ViewModels
             else
             {
                 ValidationErrorMessage = "Неверный логин или пароль.";
-                // await Shell.Current.DisplayAlert("Ошибка входа", "Неверный пароль.", "OK");
             }
         }
 
@@ -198,10 +190,10 @@ namespace Ripplee.ViewModels
 
                 if (photoResult != null)
                 {
-                    PickedAvatarFile = photoResult; // Сохраняем результат для последующей загрузки
-                                                    // Отображаем выбранное изображение
+                    PickedAvatarFile = photoResult; 
+
                     SelectedAvatarSource = ImageSource.FromFile(photoResult.FullPath);
-                    ValidationErrorMessage = null; // Сбрасываем ошибку, если была
+                    ValidationErrorMessage = null; 
                 }
             }
             catch (Exception ex)
@@ -217,11 +209,11 @@ namespace Ripplee.ViewModels
             KeyboardHelper.HideKeyboard();
             ValidationErrorMessage = null;
 
-            if (CurrentStepIndex == 4) // Если были на вводе пароля для существующего, возвращаемся к вводу логина
+            if (CurrentStepIndex == 4) 
             {
                 CurrentStepIndex = 1;
             }
-            else if (CurrentStepIndex == 1) // С логина на главный
+            else if (CurrentStepIndex == 1) 
             {
                 CurrentStepIndex = 0;
             }

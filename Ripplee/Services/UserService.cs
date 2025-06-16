@@ -131,7 +131,7 @@ namespace Ripplee.Services.Services
             if (!string.IsNullOrEmpty(newAvatarRelativeUrl))
             {
                 string baseAddress = MauiProgram.GetApiBaseAdress();
-                CurrentUser.AvatarUrl = baseAddress.TrimEnd('/') + newAvatarRelativeUrl + $"?v={Guid.NewGuid()}"; // Cache buster
+                CurrentUser.AvatarUrl = baseAddress.TrimEnd('/') + newAvatarRelativeUrl + $"?v={Guid.NewGuid()}"; 
                 WeakReferenceMessenger.Default.Send(new UserChangedMessage(CurrentUser));
                 return true;
             }
@@ -160,7 +160,7 @@ namespace Ripplee.Services.Services
             var (success, errorMessage) = await _apiClient.DeleteAccountOnServerAsync(password);
             if (success)
             {
-                await LogoutAsync(); // Разлогиниваем пользователя после успешного удаления
+                await LogoutAsync(); 
             }
             return (success, errorMessage);
         }

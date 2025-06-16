@@ -1,9 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Ripplee.Misc; // Для ValidationHelper
-using Ripplee.Misc.UI; // Для KeyboardHelper
+using Ripplee.Misc; 
+using Ripplee.Misc.UI;
 using Ripplee.Services.Interfaces;
-using System.Threading.Tasks;
 
 namespace Ripplee.ViewModels
 {
@@ -32,7 +31,7 @@ namespace Ripplee.ViewModels
         private async Task SubmitChangeUsername()
         {
             KeyboardHelper.HideKeyboard();
-            GeneralErrorMessage = null; // Сброс ошибки
+            GeneralErrorMessage = null; 
 
             if (string.IsNullOrWhiteSpace(CurrentPassword))
             {

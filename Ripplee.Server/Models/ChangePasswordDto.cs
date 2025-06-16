@@ -8,7 +8,7 @@ namespace Ripplee.Server.Models
         public required string OldPassword { get; set; }
 
         [Required]
-        [MinLength(6, ErrorMessage = "New password must be at least 6 characters long.")] // Добавим валидацию длины
+        [MinLength(6, ErrorMessage = "Пароль должен быть из 6 символов и больше")] 
         public required string NewPassword { get; set; }
     }
 }

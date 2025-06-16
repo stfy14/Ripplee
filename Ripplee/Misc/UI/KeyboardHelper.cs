@@ -11,8 +11,6 @@ namespace Ripplee.Misc.UI
     {
         public static void HideKeyboard()
         {
-            // Вызываем метод HideKeyboard() для текущего потока,
-            // чтобы избежать проблем с вызовом из фоновых потоков.
             MainThread.InvokeOnMainThreadAsync(() =>
             {
 #if ANDROID
@@ -27,8 +25,6 @@ namespace Ripplee.Misc.UI
                     activity?.Window?.DecorView.ClearFocus(); // Снимаем фокус с поля ввода
                 }
 #elif IOS || MACCATALYST
-                // Код для iOS и MacCatalyst
-                // Находим активное окно и просим его завершить редактирование (спрятать клавиатуру)
                 UIApplication.SharedApplication.KeyWindow?.EndEditing(true);
 #endif
             });

@@ -1,13 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.Maui.Media; // Для MediaPicker
 using Ripplee.Models;
 using Ripplee.Services.Interfaces;
-using Ripplee.Services.Services; // Для UserChangedMessage
+using Ripplee.Services.Services; 
 using System.Diagnostics;
 using Ripplee.Views;
-using System.Threading.Tasks; // Для Task
 
 namespace Ripplee.ViewModels
 {
@@ -32,17 +30,16 @@ namespace Ripplee.ViewModels
         {
             if (message.NewUser != null)
             {
-                // Важно обновлять на UI потоке
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
                     CurrentUser = message.NewUser;
                 });
             }
-            else // Если пришел null, значит пользователь разлогинился
+            else 
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    CurrentUser = new UserModel(); // Сбрасываем пользователя
+                    CurrentUser = new UserModel(); 
                 });
             }
         }
@@ -102,7 +99,7 @@ namespace Ripplee.ViewModels
         }
 
         [RelayCommand]
-        private async Task ChangeUsername() // Переименовано из ChangeEmail
+        private async Task ChangeUsername()
         {
             await Shell.Current.GoToAsync(nameof(Views.ChangeUsernamePage));
         }

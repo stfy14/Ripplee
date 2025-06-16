@@ -5,7 +5,6 @@
              BackgroundColor="#202020"
              Shell.NavBarIsVisible="False">
 
-    <!-- Эта страница может быть пустой или содержать индикатор загрузки -->
     <ActivityIndicator IsRunning="True"
                        HorizontalOptions="Center"
                        VerticalOptions="Center"

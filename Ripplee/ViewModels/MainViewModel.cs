@@ -19,8 +19,6 @@ namespace Ripplee.ViewModels
         [ObservableProperty]
         private UserModel user;
 
-        // --- НОВАЯ МОДЕЛЬ ДЛЯ РЕДАКТИРОВАНИЯ ---
-        // UI в панели критериев будет привязан к этой временной модели.
         [ObservableProperty]
         private UserModel? userCriteriaEditModel;
 
@@ -47,47 +45,36 @@ namespace Ripplee.ViewModels
             IsMenuOpen = !IsMenuOpen;
         }
 
-        // Команда для открытия/закрытия панели критериев
         [RelayCommand]
         private void ToggleCriteriaView()
         {
-            // Если мы собираемся ОТКРЫТЬ панель...
             if (IsShowingFilterControls)
             {
-                // ...создаем временную копию актуальных данных пользователя.
                 UserCriteriaEditModel = new UserModel
                 {
                     MyGender = User.MyGender,
                     MyCity = User.MyCity
                 };
             }
-            // Переключаем флаг, который запускает анимацию
             IsShowingFilterControls = !IsShowingFilterControls;
         }
 
-        // Команда для кнопки "Готово" - СОХРАНЯЕМ ИЗМЕНЕНИЯ
         [RelayCommand]
         private async Task SaveAndCloseCriteriaPanel()
         {
             if (UserCriteriaEditModel == null) return;
 
-            // Шаг 1: Копируем данные из временной модели в основную
             User.MyGender = UserCriteriaEditModel.MyGender;
             User.MyCity = UserCriteriaEditModel.MyCity;
 
-            // Шаг 2: Сохраняем основную модель на сервер
             await _userService.UpdateMyCriteriaAsync();
 
-            // Шаг 3: Закрываем панель
             IsShowingFilterControls = true;
         }
 
-        // Команда для кнопки "Назад" - ОТМЕНЯЕМ ИЗМЕНЕНИЯ
         [RelayCommand]
         private void CancelAndCloseCriteriaPanel()
         {
-            // Просто закрываем панель. Временная модель UserCriteriaEditModel будет "забыта".
-            // Основная модель User не была затронута, поэтому все вернется как было.
             IsShowingFilterControls = true;
         }
 
@@ -95,8 +82,6 @@ namespace Ripplee.ViewModels
 
         #region Selections and Matchmaking Logic
 
-        // --- НОВАЯ КОМАНДА ---
-        // Эта команда изменяет пол во ВРЕМЕННОЙ модели
         [RelayCommand]
         private void SelectMyGenderInEdit(string gender)
         {
@@ -106,14 +91,12 @@ namespace Ripplee.ViewModels
             }
         }
 
-        // Эта команда изменяет пол для ПОИСКА, она работает с основной моделью
         [RelayCommand]
         private void SelectSearchGender(string gender)
         {
             User.SearchGender = gender;
         }
 
-        // Остальные команды без изменений...
         [RelayCommand]
         private void SelectChat(string chat)
         {
@@ -136,7 +119,7 @@ namespace Ripplee.ViewModels
                 await Shell.Current.DisplayAlert("Ошибка", "Пожалуйста, выберите город и тему для поиска.", "OK");
                 return;
             }
-            if (string.IsNullOrEmpty(User.MyCity) || User.MyCity == string.Empty) // Проверка, что город пользователя задан
+            if (string.IsNullOrEmpty(User.MyCity) || User.MyCity == string.Empty) 
             {
                 await Shell.Current.DisplayAlert("Профиль не заполнен", "Пожалуйста, укажите ваш город в настройках профиля (иконка справа от 'Кого сегодня ищем?').", "OK");
                 return;
@@ -147,7 +130,7 @@ namespace Ripplee.ViewModels
                 { "gender", User.SearchGender },
                 { "city", User.SearchCity },
                 { "topic", User.SearchTopic },
-                { "userCity", User.MyCity } // <--- ПЕРЕДАЕМ ГОРОД ТЕКУЩЕГО ПОЛЬЗОВАТЕЛЯ
+                { "userCity", User.MyCity } 
             };
 
             await Shell.Current.GoToAsync(nameof(Views.SearchingPage), true, navigationParameters);

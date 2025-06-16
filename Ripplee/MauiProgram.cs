@@ -1,6 +1,4 @@
-﻿// Файл: MauiProgram.cs
-using CommunityToolkit.Maui;
-using Microsoft.Extensions.Logging;
+﻿using CommunityToolkit.Maui;
 using Ripplee.Services.Data;
 using Ripplee.Services.Interfaces;
 using Ripplee.Services.Services;
@@ -19,8 +17,7 @@ namespace Ripplee
     {
         public static string GetApiBaseAdress()
         {
-            // Используем http для локального дебага, так как настроили Android
-            // на прием cleartext-трафика для нашего IP.
+
 #if DEBUG
 #if ANDROID
             return "http://10.0.2.2:5142";
@@ -30,7 +27,6 @@ namespace Ripplee
 #endif
 
 #else
-    // Адрес вашего реального сервера для Release-сборки
     return "http://91.192.168.52";
 #endif
         }
@@ -51,7 +47,6 @@ namespace Ripplee
             builder.Logging.AddDebug();
 #endif
 
-            // --- Блок регистрации HTTP-клиента (без изменений) ---
             builder.Services.AddHttpClient<ChatApiClient>(client =>
             {
                 client.BaseAddress = new Uri(GetApiBaseAdress());
@@ -64,7 +59,6 @@ namespace Ripplee
 #endif
             ;
 
-            // --- Секция Dependency Injection ---
             builder.Services.AddSingleton<IUserService, UserService>();
             builder.Services.AddSingleton<IChatService, ChatService>();
             builder.Services.AddSingleton<ISignalRService, SignalRService>();
@@ -73,8 +67,8 @@ namespace Ripplee
             builder.Services.AddTransient<VoiceChatViewModel>();
             builder.Services.AddTransient<OnboardingViewModel>();
             builder.Services.AddTransient<SearchingViewModel>();
-            builder.Services.AddTransient<ChangePasswordViewModel>(); // Добавлено
-            builder.Services.AddTransient<ChangeUsernameViewModel>(); // Добавлено
+            builder.Services.AddTransient<ChangePasswordViewModel>(); 
+            builder.Services.AddTransient<ChangeUsernameViewModel>(); 
 
             builder.Services.AddTransient<LoadingPage>();
             builder.Services.AddTransient<MainPage>();
@@ -82,12 +76,11 @@ namespace Ripplee
             builder.Services.AddTransient<VoiceChatPage>();
             builder.Services.AddTransient<OnboardingPage>();
             builder.Services.AddTransient<SearchingPage>();
-            builder.Services.AddTransient<ChangePasswordPage>(); // Добавлено
-            builder.Services.AddTransient<ChangeUsernamePage>(); // Добавлено
+            builder.Services.AddTransient<ChangePasswordPage>(); 
+            builder.Services.AddTransient<ChangeUsernamePage>(); 
 
             builder.Services.AddTransient<AppShell>();
 
-            // --- Кастомизация нативных контролов (без изменений) ---
             builder.ConfigureMauiHandlers(handlers =>
             {
 #if ANDROID

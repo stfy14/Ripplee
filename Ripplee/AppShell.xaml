@@ -7,22 +7,12 @@
     Shell.FlyoutBehavior="Disabled"
     Title="Ripplee"
     BackgroundColor="#202020">
-    
-    <!-- 
-      Паттерн "Два Короля":
-      Оба возможных стартовых экрана объявлены здесь.
-      OnboardingPage - это маршрут по умолчанию, который загрузится первым.
-    -->
 
     <ShellContent
         Title="Welcome"
         ContentTemplate="{DataTemplate local:OnboardingPage}"
         Route="OnboardingPage" />
 
-    <!-- 
-      MainPage (внутри FlyoutItem) - это второй "король".
-      Он скрыт, но Shell знает о его существовании как об официальном маршруте.
-    -->
     <FlyoutItem Route="MainApp" FlyoutItemIsVisible="False">
         <ShellContent
             Title="Home"

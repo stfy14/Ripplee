@@ -1,5 +1,4 @@
-﻿// Ripplee.Server/Models/LoginUserDto.cs
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Ripplee.Server.Models
 {

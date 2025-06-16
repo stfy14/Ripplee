@@ -6,7 +6,7 @@
         public required string Username { get; set; }
         public required string UserGender { get; set; }
         public required string UserCity { get; set; }
-        public string? UserAvatarUrl { get; set; } // URL аватара самого пользователя
+        public string? UserAvatarUrl { get; set; } 
 
         public required string SearchGender { get; set; }
         public required string SearchCity { get; set; }

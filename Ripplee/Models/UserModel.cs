@@ -14,9 +14,8 @@ namespace Ripplee.Models
         private string myCity = string.Empty;
 
         [ObservableProperty]
-        private string? avatarUrl; // Добавлено
+        private string? avatarUrl; 
 
-        // --- КРИТЕРИИ ПОИСКА СОБЕСЕДНИКА ---
         [ObservableProperty]
         private string searchGender = string.Empty;
 

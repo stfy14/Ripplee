@@ -23,14 +23,12 @@ namespace Ripplee.ViewModels
         [ObservableProperty] private string? topic;
         [ObservableProperty] private string? companionAvatarUrl;
         [ObservableProperty] private string callDuration = "0:00";
-        // [ObservableProperty] private bool isMuted = false; // Будет заменено свойством с сеттером
         [ObservableProperty] private bool isCompanionMuted = false;
-        [ObservableProperty] private bool isCompanionSpeaking = false; // Уже было
+        [ObservableProperty] private bool isCompanionSpeaking = false; 
 
         private bool _isClosing = false;
         private bool _currentUserInitiatedEndCall = false;
 
-        // Замена для IsMuted с логикой отправки статуса
         private bool _isMuted = false;
         public bool IsMuted
         {
@@ -39,13 +37,10 @@ namespace Ripplee.ViewModels
             {
                 if (SetProperty(ref _isMuted, value))
                 {
-                    // Отправляем статус на сервер только если мы подключены и в звонке
                     if (_signalRService.IsConnected && !string.IsNullOrEmpty(_signalRService.CurrentCallGroupId))
                     {
-                        // Не блокируем UI поток для отправки, делаем это асинхронно "в фоне"
                         Task.Run(async () => await _signalRService.SendMuteStatusAsync(value));
                     }
-                    // Здесь будет логика реального мьюта микрофона
                     Debug.WriteLine($"VoiceChatViewModel: Own Mute status changed to: {value}");
                 }
             }
@@ -82,7 +77,6 @@ namespace Ripplee.ViewModels
         {
             Debug.WriteLine($"VoiceChatViewModel: HandleCallEndedByPartner called. _currentUserInitiatedEndCall: {_currentUserInitiatedEndCall}");
             if (!_currentUserInitiatedEndCall) {
-                // Показываем сообщение, если это не мы инициировали выход
                  await _dispatcher.DispatchAsync(async () => {
                     await Shell.Current.DisplayAlert("Звонок завершен", "Ваш собеседник завершил звонок.", "OK");
                  });
@@ -91,7 +85,7 @@ namespace Ripplee.ViewModels
         }
 
         [RelayCommand]
-        private void ToggleMute() // Команда для кнопки пользователя
+        private void ToggleMute() 
         {
             IsMuted = !IsMuted; 
         }
@@ -112,15 +106,14 @@ namespace Ripplee.ViewModels
             _isClosing = false;
             _currentUserInitiatedEndCall = false;
             IsCompanionMuted = false;
-            // CompanionAvatarUrl уже должен быть установлен через QueryProperty при навигации.
             Debug.WriteLine($"VoiceChatViewModel Appearing: CompanionName={CompanionName}, AvatarUrl={CompanionAvatarUrl}");
 
 
             StartCallTimer();
 
             await _signalRService.ConnectAsync(
-                async (n, c, t, id, avatar) => { /* Этот OnCompanionFound здесь не релевантен */ await Task.CompletedTask; },
-                async (s) => { /* Этот OnSearchStatus здесь не релевантен */ await Task.CompletedTask; },
+                async (n, c, t, id, avatar) => { await Task.CompletedTask; },
+                async (s) => { await Task.CompletedTask; },
                 HandleCallEndedByPartner,
                 HandlePartnerMuteStatusChanged
             );
@@ -136,7 +129,7 @@ namespace Ripplee.ViewModels
             {
                 if (!string.IsNullOrEmpty(_signalRService.CurrentCallGroupId))
                 {
-                    await _signalRService.SendMuteStatusAsync(IsMuted); // Отправляем свой текущий статус мьюта
+                    await _signalRService.SendMuteStatusAsync(IsMuted); 
                 }
             }
         }
@@ -149,9 +142,9 @@ namespace Ripplee.ViewModels
                 Debug.WriteLine("VoiceChatViewModel: Page disappearing (e.g. back nav) without explicit EndCall by this user, notifying partner.");
                 await _signalRService.NotifyEndCallAsync(); 
             }
-            if (!_isClosing) { // Если еще не закрывается, то закрыть
+            if (!_isClosing) { 
                 await CloseCallPage();
-            } else { // Если уже закрывается, просто остановить таймер
+            } else { 
                  StopCallTimer();
             }
         }
@@ -176,13 +169,12 @@ namespace Ripplee.ViewModels
             _elapsedTime = _elapsedTime.Add(TimeSpan.FromSeconds(1));
             CallDuration = _elapsedTime.ToString(@"m\:ss");
             int seconds = _elapsedTime.Seconds % 10;
-            // Эту логику для IsCompanionSpeaking нужно будет заменить на реальную,
-            // когда будет передача аудио и определение, говорит ли собеседник.
-            if (!IsCompanionMuted) // Только если собеседник не замьючен, показываем "говорение"
+
+            if (!IsCompanionMuted) 
             {
                 IsCompanionSpeaking = seconds is > 5 and < 8; 
             } else {
-                IsCompanionSpeaking = false; // Если замьючен, то не говорит
+                IsCompanionSpeaking = false; 
             }
         }
     }

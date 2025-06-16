@@ -17,7 +17,6 @@
         <converters:StepToVisibilityConverter x:Key="StepToVisibilityConverter" />
         <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
 
-        <!-- Адаптивные стили -->
         <Style x:Key="HeaderContainer" TargetType="Border">
             <Setter Property="BackgroundColor" Value="#1B1B1B"/>
             <Setter Property="StrokeShape" Value="RoundRectangle 25"/>

@@ -14,20 +14,20 @@ namespace Ripplee.Services.Services
         public bool IsConnected => _hubConnection?.State == HubConnectionState.Connected;
         public string? CurrentCallGroupId { get; private set; }
 
-        private Func<string, string, string, string, string?, Task>? _onCompanionFoundHandler; // Обновлен тип
+        private Func<string, string, string, string, string?, Task>? _onCompanionFoundHandler; 
         private Func<string, Task>? _onSearchStatusHandler;
         private Func<Task>? _onCallEndedByPartnerHandler;
-        private Func<bool, Task>? _onPartnerMuteStatusChangedHandler; // Добавлен
+        private Func<bool, Task>? _onPartnerMuteStatusChangedHandler; 
 
         public SignalRService() { }
 
         public async Task ConnectAsync(
-            Func<string, string, string, string, string?, Task> onCompanionFound, // Обновлен тип
+            Func<string, string, string, string, string?, Task> onCompanionFound, 
             Func<string, Task> onSearchStatus,
             Func<Task> onCallEndedByPartner,
             Func<bool, Task> onPartnerMuteStatusChanged)
         {
-            _onCompanionFoundHandler = onCompanionFound; // Сохраняем обновленный тип
+            _onCompanionFoundHandler = onCompanionFound; 
             _onSearchStatusHandler = onSearchStatus;
             _onCallEndedByPartnerHandler = onCallEndedByPartner;
             _onPartnerMuteStatusChangedHandler = onPartnerMuteStatusChanged;
@@ -35,7 +35,7 @@ namespace Ripplee.Services.Services
             if (IsConnected && _hubConnection != null)
             {
                 Debug.WriteLine("SignalRService: Already connected. Re-registering handlers.");
-                RegisterHubEventHandlers(); // Перерегистрируем на случай, если коллбэки изменились
+                RegisterHubEventHandlers(); 
                 return;
             }
 
@@ -77,7 +77,6 @@ namespace Ripplee.Services.Services
         {
             if (_hubConnection == null) return;
 
-            // Обновлена сигнатура для CompanionFound
             _hubConnection.On<string, string, string, string, string?>("CompanionFound",
                 async (name, city, topic, callGroupId, companionAvatarUrl) =>
                 {
@@ -115,7 +114,7 @@ namespace Ripplee.Services.Services
             _onCompanionFoundHandler = null;
             _onSearchStatusHandler = null;
             _onCallEndedByPartnerHandler = null;
-            _onPartnerMuteStatusChangedHandler = null; // Очистка
+            _onPartnerMuteStatusChangedHandler = null; 
         }
 
         public async Task FindCompanionAsync(string userCity, string searchGender, string searchCity, string searchTopic)
@@ -167,8 +166,6 @@ namespace Ripplee.Services.Services
             }
             return Task.CompletedTask;
         }
-
-        // Новая реализация
         public async Task SendMuteStatusAsync(bool isMuted)
         {
             if (!IsConnected || _hubConnection == null || string.IsNullOrEmpty(CurrentCallGroupId))

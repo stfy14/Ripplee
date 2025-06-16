@@ -5,7 +5,7 @@ namespace Ripplee.Server.Models
     public class ChangeUsernameDto
     {
         [Required]
-        [StringLength(50, MinimumLength = 3, ErrorMessage = "New username must be between 3 and 50 characters.")]
+        [StringLength(50, MinimumLength = 3, ErrorMessage = "Логин дожнен содержать от 3 до 50 символов")]
         public required string NewUsername { get; set; }
 
         [Required]

@@ -46,7 +46,6 @@
                         <Ellipse.Style>
                             <Style TargetType="Ellipse">
                                 <Setter Property="Fill" Value="#404040"/>
-                                <!-- Default color -->
                                 <Style.Triggers>
                                     <MultiTrigger TargetType="Ellipse">
                                         <MultiTrigger.Conditions>
