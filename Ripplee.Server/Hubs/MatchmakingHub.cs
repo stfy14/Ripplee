@@ -24,32 +24,37 @@ namespace Ripplee.Server.Hubs
             _logger = logger;
         }
 
-        public async Task FindCompanion(string userCity, string searchGender, string searchCity, string searchTopic)
+        public async Task FindCompanion(string userCity, string userGender, string searchGender, string searchCity, string searchTopic, string chatType) 
         {
             var username = Context.User.Identity?.Name ?? "UnknownUser";
-            string actualUserGender = Context.User.FindFirst(ClaimTypes.Gender)?.Value;
-            string? userAvatarUrlFromClaim = Context.User.FindFirst("avatar_url")?.Value; 
+            string? userAvatarUrlFromClaim = Context.User.FindFirst("avatar_url")?.Value;
 
-            _logger.LogInformation("MatchmakingHub: User {Username} (ConnId: {ConnectionId}) called FindCompanion. Token Gender: '{TokenGender}', AvatarUrl: '{TokenAvatarUrl}'. Passed UserCity: {UserCity}",
-                username, Context.ConnectionId, actualUserGender, userAvatarUrlFromClaim, userCity);
+            _logger.LogInformation("MatchmakingHub: User {Username} (ConnId: {ConnectionId}) called FindCompanion. " +
+                                 "Client-Side UserGender: '{ClientUserGender}', Client-Side UserCity: {UserCity}, ChatType: {ChatType}. " +
+                                 "SearchCriteria: Gender='{SearchGender}', City='{SearchCity}', Topic='{SearchTopic}'",
+                username, Context.ConnectionId, userGender, userCity, chatType, searchGender, searchCity, searchTopic);
 
-            if (string.IsNullOrEmpty(actualUserGender) || actualUserGender.Equals(DEFAULT_GENDER_IF_NOT_SET, StringComparison.OrdinalIgnoreCase))
-            {
-                actualUserGender = DEFAULT_GENDER_IF_NOT_SET;
-            }
-            _logger.LogInformation("MatchmakingHub: Effective UserGender for {Username}: '{EffectiveGender}'", username, actualUserGender);
+            // Валидация полученного userGender
+            string validatedUserGender = (string.IsNullOrEmpty(userGender) || userGender.Equals(DEFAULT_GENDER_IF_NOT_SET, StringComparison.OrdinalIgnoreCase))
+                                         ? DEFAULT_GENDER_IF_NOT_SET
+                                         : userGender;
 
             var waitingUser = new WaitingUser
             {
                 ConnectionId = Context.ConnectionId,
                 Username = username,
-                UserGender = actualUserGender,
-                UserCity = string.IsNullOrEmpty(userCity) ? DEFAULT_GENDER_IF_NOT_SET : userCity, 
-                UserAvatarUrl = string.IsNullOrEmpty(userAvatarUrlFromClaim) ? null : userAvatarUrlFromClaim, 
+                UserGender = validatedUserGender, // Используем переданный и провалидированный пол
+                UserCity = string.IsNullOrEmpty(userCity) ? DEFAULT_GENDER_IF_NOT_SET : userCity,
+                UserAvatarUrl = string.IsNullOrEmpty(userAvatarUrlFromClaim) ? null : userAvatarUrlFromClaim,
                 SearchGender = string.IsNullOrEmpty(searchGender) ? ANY_CRITERIA_HUB : searchGender,
                 SearchCity = string.IsNullOrEmpty(searchCity) ? ANY_CRITERIA_HUB : searchCity,
                 SearchTopic = string.IsNullOrEmpty(searchTopic) ? ANY_CRITERIA_HUB : searchTopic,
+                // ChatType можно добавить в WaitingUser, если логика подбора в MatchmakingService будет от него зависеть
+                // public string ChatType { get; set; }
             };
+            // Если ChatType важен для MatchmakingService, передай его:
+            // await _matchmakingService.AddUserToQueueAndTryMatchAsync(waitingUser, chatType);
+            // Иначе, если MatchmakingService не учитывает тип чата при подборе, то он просто для информации.
             await _matchmakingService.AddUserToQueueAndTryMatchAsync(waitingUser);
         }
 
@@ -96,6 +101,25 @@ namespace Ripplee.Server.Hubs
             await _matchmakingService.LeaveCallGroupAsync(Context.ConnectionId); 
             await _matchmakingService.RemoveUserFromQueueAsync(Context.ConnectionId);
             await base.OnDisconnectedAsync(exception);
+        }
+
+        public async Task SendTextMessage(string callGroupId, string messageText, string senderAvatarUrl) // Добавили senderAvatarUrl
+        {
+            if (string.IsNullOrEmpty(callGroupId) || string.IsNullOrEmpty(messageText))
+            {
+                _logger.LogWarning("MatchmakingHub: SendTextMessage received with empty callGroupId or messageText from {ConnectionId}.", Context.ConnectionId);
+                return;
+            }
+
+            var senderUsername = Context.User.Identity?.Name ?? "UnknownUser";
+            // string? senderAvatarUrl = Context.User.FindFirst("avatar_url")?.Value; // Уже получаем от клиента
+
+            _logger.LogInformation("MatchmakingHub: User {Username} ({ConnectionId}) in group {CallGroupId} sent message: '{MessageText}' (Avatar: {Avatar})",
+                senderUsername, Context.ConnectionId, callGroupId, messageText, senderAvatarUrl);
+
+            // Отправляем сообщение другому участнику(ам) в группе
+            // Вместе с сообщением передаем имя отправителя и его аватар
+            await Clients.GroupExcept(callGroupId, Context.ConnectionId).SendAsync("ReceiveTextMessage", senderUsername, messageText, senderAvatarUrl);
         }
     }
 }

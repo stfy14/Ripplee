@@ -3,37 +3,61 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Ripplee.ViewModels"
              xmlns:controls="clr-namespace:Ripplee.Views"
-             xmlns:converters="clr-namespace:Ripplee.Misc.UI" 
+             xmlns:converters="clr-namespace:Ripplee.Misc.UI"
              x:Class="Ripplee.Views.MainPage"
-             BackgroundColor="#202020"
+             x:DataType="vm:MainViewModel" 
+    BackgroundColor="#202020"
              Shell.NavBarIsVisible="False">
     <ContentPage.Resources>
         <ResourceDictionary>
             <converters:FirstLetterConverter x:Key="FirstLetterConverter" />
             <converters:IsNullOrEmptyToBoolConverter x:Key="IsNullOrEmptyToBoolConverter" />
             <converters:IsNotNullOrEmptyToBoolConverter x:Key="IsNotNullOrEmptyToBoolConverter" />
+            <converters:GenderToBackgroundColorConverter x:Key="GenderToBackgroundColorConverter" />
+            <converters:GenderToTextColorConverter x:Key="GenderToTextColorConverter"/>
         </ResourceDictionary>
     </ContentPage.Resources>
+
     <Grid RowDefinitions="Auto,*" x:Name="RootLayout">
-        <Grid.GestureRecognizers>
-            <TapGestureRecognizer Command="{Binding CloseMenuCommand}"/>
-        </Grid.GestureRecognizers>
 
         <Grid Grid.Row="1" RowDefinitions="Auto,*,Auto" ColumnDefinitions="*" BackgroundColor="Transparent">
+
             <Grid ZIndex="3" Padding="20,0,20,0">
-                <Border BackgroundColor="#202020" StrokeShape="RoundRectangle 0,0,40,40" Margin="0,-15,0,0" Grid.Row="0"/>
-                <Border BackgroundColor="#1B1B1B" StrokeShape="RoundRectangle 20,20,20,20" HeightRequest="60">
-                    <Grid ColumnDefinitions="Auto,*">
-                        <Label Text="{Binding User.ChatSelection}" Margin="30,0,0,0" VerticalOptions="Center" HorizontalOptions="Start" Grid.Column="0" TextColor="White"/>
-                        <ImageButton x:Name="menuButton" Source="menu_icon.svg" Command="{Binding ToggleMenuCommand}"
-                                     HeightRequest="40" WidthRequest="40" VerticalOptions="Center" HorizontalOptions="End"
-                                     Margin="0,0,10,0" BackgroundColor="#131313" CornerRadius="10" Padding="5" Grid.Column="1"/>
+                <Border BackgroundColor="#202020" 
+                        StrokeShape="RoundRectangle 0,0,40,40"
+                        Margin="0,-15,0,0"
+                        Grid.Row="0"/>
+
+                <Border BackgroundColor="#1B1B1B" 
+                        StrokeShape="RoundRectangle 20,20,20,20"
+                        HeightRequest="60">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="{Binding User.ChatSelection}" 
+                               Margin="30,0,0,0" 
+                               VerticalOptions="Center"
+                               HorizontalOptions="Start"
+                               FontSize="22" 
+                            TextColor="White"
+                               Grid.Column="0"/>
+                        <ImageButton x:Name="settingsButton" 
+                                Source="settings_icon.svg"
+                                Command="{Binding GoToSettingsCommand}"
+                                     HeightRequest="40"
+                                     WidthRequest="40"
+                                     VerticalOptions="Center"
+                                     HorizontalOptions="End"
+                                     Margin="0,0,10,0"
+                                     BackgroundColor="#131313"
+                                     CornerRadius="10"
+                                     Padding="7"
+                                Grid.Column="1"/>
                     </Grid>
                 </Border>
             </Grid>
 
-            <controls:MenuPanel x:Name="menuControl" Grid.RowSpan="3" ZIndex="2" BindingContext="{Binding .}" Margin="20.5,0,20.5,525"/>
+            <!-- Удален controls:MenuPanel -->
 
+            <!-- Аватар и имя пользователя -->
             <Grid Grid.Row="1" Margin="0,0,0,0" ZIndex="1">
                 <VerticalStackLayout Spacing="20" HorizontalOptions="Center" Padding="0,70,0,0">
                     <Grid WidthRequest="125" HeightRequest="125" HorizontalOptions="Center">
@@ -49,18 +73,30 @@
                         <Border StrokeShape="Ellipse" Stroke="#404040" StrokeThickness="2"
                                 BackgroundColor="Transparent" 
                                 IsVisible="{Binding User.AvatarUrl, Converter={StaticResource IsNotNullOrEmptyToBoolConverter}}">
-                            <Image Aspect="AspectFill" Source="{Binding User.AvatarUrl}" />
+                            <Image Aspect="AspectFill" Source="{Binding User.AvatarUrl}">
+                                <Image.Clip>
+                                    <EllipseGeometry Center="62.5,62.5" RadiusX="62.5" RadiusY="62.5" />
+                                </Image.Clip>
+                            </Image>
                         </Border>
                     </Grid>
                     <Label Text="{Binding User.Username}" HorizontalTextAlignment="Center" TextColor="White"/>
                 </VerticalStackLayout>
             </Grid>
 
+            <!-- Панели фильтров и критериев пользователя -->
             <Grid Grid.Row="2" Margin="20,0,20,20">
-                <Border x:Name="FilterBorder" BackgroundColor="#1B1B1B" Padding="20,20,20,20" StrokeShape="RoundRectangle 30,30,30,30">
+                <Border x:Name="FilterBorder"
+                        BackgroundColor="#1B1B1B"
+                        Padding="20,20,20,20"
+                        StrokeShape="RoundRectangle 30,30,30,30">
                     <controls:FilterControlsView/>
                 </Border>
-                <Border x:Name="UserCriteriaBorder" BackgroundColor="#1B1B1B" Padding="20,20,20,20" StrokeShape="RoundRectangle 30,30,30,30" IsVisible="False">
+                <Border x:Name="UserCriteriaBorder"
+                        BackgroundColor="#1B1B1B"
+                        Padding="20,20,20,20"
+                        StrokeShape="RoundRectangle 30,30,30,30"
+                        IsVisible="False">
                     <controls:UserCriteriaView/>
                 </Border>
             </Grid>

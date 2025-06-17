@@ -26,6 +26,6 @@ namespace Ripplee.Models
         private string searchTopic = string.Empty;
 
         [ObservableProperty]
-        private string chatSelection = "Голосовой чат";
+        private string chatSelection = "Текстовый чат";
     }
 }

@@ -115,7 +115,9 @@ namespace Ripplee.ViewModels
                 async (n, c, t, id, avatar) => { await Task.CompletedTask; },
                 async (s) => { await Task.CompletedTask; },
                 HandleCallEndedByPartner,
-                HandlePartnerMuteStatusChanged
+                HandlePartnerMuteStatusChanged,
+                async (sender, msg, avatarUrl) => { /* VoiceChat не обрабатывает текстовые сообщения напрямую */ await Task.CompletedTask; }
+
             );
 
             if (!_signalRService.IsConnected)

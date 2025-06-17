@@ -12,6 +12,8 @@ namespace Ripplee
         {
             base.OnCreate(savedInstanceState);
 
+            Window?.SetSoftInputMode(SoftInput.AdjustResize);
+
             if (Window != null)
             {
                 Window.SetStatusBarColor(Android.Graphics.Color.ParseColor("#202020"));

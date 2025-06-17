@@ -33,7 +33,6 @@ namespace Ripplee.Views
             base.OnSizeAllocated(width, height);
             if (!_isInitialPositionSet && width > 0)
             {
-                // При первой загрузке ставим панель критериев за экран
                 UserCriteriaBorder.TranslationX = this.Width;
                 _isInitialPositionSet = true;
             }
@@ -46,19 +45,19 @@ namespace Ripplee.Views
                 if (_isAnimatingPanels) return;
                 await AnimatePanels();
             }
-            else if (e.PropertyName == nameof(MainViewModel.IsMenuOpen))
-            {
-                await AnimateMenuButton();
-            }
+            //else if (e.PropertyName == nameof(MainViewModel.IsMenuOpen))
+            //{
+            //    await AnimateMenuButton();
+            //}
         }
 
-        private async Task AnimateMenuButton()
-        {
-            uint duration = 250;
-            var easing = _viewModel.IsMenuOpen ? Easing.CubicOut : Easing.CubicIn;
-            double rotation = _viewModel.IsMenuOpen ? 90 : 0;
-            await menuButton.RotateTo(rotation, duration, easing);
-        }
+        //private async Task AnimateMenuButton()
+        //{
+        //    uint duration = 250;
+        //    var easing = _viewModel.IsMenuOpen ? Easing.CubicOut : Easing.CubicIn;
+        //    double rotation = _viewModel.IsMenuOpen ? 90 : 0;
+        //    await menuButton.RotateTo(rotation, duration, easing);
+        //}
 
         private async Task AnimatePanels()
         {

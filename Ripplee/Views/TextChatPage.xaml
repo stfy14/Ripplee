@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Ripplee.ViewModels"
+             xmlns:model="clr-namespace:Ripplee.Models"
+             xmlns:converters="clr-namespace:Ripplee.Misc.UI"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="Ripplee.Views.TextChatPage"
+             x:DataType="vm:TextChatViewModel"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#202020">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:FirstLetterConverter x:Key="FirstLetterConverter" />
+            <converters:IsNullOrEmptyToBoolConverter x:Key="IsNullOrEmptyToBoolConverter" />
+            <converters:IsNotNullOrEmptyToBoolConverter x:Key="IsNotNullOrEmptyToBoolConverter" />
+            <converters:MessageSenderTypeToAlignmentConverter x:Key="MessageAlignmentConverter" />
+            <converters:MessageSenderTypeToColorConverter x:Key="MessageBubbleColorConverter" />
+
+            <!-- Стиль для контейнера сообщения -->
+            <Style x:Key="MessageBubbleStyle" TargetType="Border">
+                <Setter Property="Padding" Value="10,8"/>
+                <Setter Property="Margin" Value="5,3"/>
+                <Setter Property="MaximumWidthRequest" Value="{OnPlatform Android=280, iOS=280, WinUI=400}"/>
+                <Setter Property="StrokeShape" Value="RoundRectangle 15"/>
+                <Setter Property="HorizontalOptions" Value="{Binding SenderType, Converter={StaticResource MessageAlignmentConverter}}"/>
+                <Setter Property="BackgroundColor" Value="{Binding SenderType, Converter={StaticResource MessageBubbleColorConverter}}"/>
+            </Style>
+
+            <!-- Стиль для текста сообщения -->
+            <Style x:Key="MessageTextStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="15"/>
+                <Setter Property="LineBreakMode" Value="WordWrap"/>
+            </Style>
+
+            <!-- Стиль для аватарки в сообщении -->
+            <Style x:Key="MessageAvatarStyle" TargetType="Border">
+                <Setter Property="WidthRequest" Value="36"/>
+                <Setter Property="HeightRequest" Value="36"/>
+                <Setter Property="StrokeShape" Value="Ellipse"/>
+                <Setter Property="VerticalOptions" Value="Start"/>
+                <Setter Property="Margin" Value="5,0"/>
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="StrokeThickness" Value="0"/>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding PageAppearingCommand}" />
+        <toolkit:EventToCommandBehavior EventName="Disappearing" Command="{Binding PageDisappearingCommand}" />
+    </ContentPage.Behaviors>
+
+    <Grid RowDefinitions="Auto, *, Auto" BackgroundColor="#202020">
+
+        <!-- 1. Верхний хедер: Имя собеседника, город/тема, кнопка Завершить -->
+        <Border Grid.Row="0" BackgroundColor="#1B1B1B" Padding="10,5,10,10">
+            <Grid ColumnDefinitions="*,Auto">
+                <VerticalStackLayout Grid.Column="0" Spacing="2" VerticalOptions="Center">
+                    <Label Text="{Binding CompanionName}" FontSize="18" FontAttributes="Bold" MaxLines="1" LineBreakMode="TailTruncation"/>
+                    <HorizontalStackLayout Spacing="5">
+                        <Label Text="{Binding ChatCity}" TextColor="#A0A0A0" FontSize="12"/>
+                        <Label Text="/" TextColor="#A0A0A0" FontSize="12" IsVisible="{Binding ChatCity, Converter={StaticResource IsNotNullOrEmptyToBoolConverter}, ConverterParameter={Binding ChatTopic, Converter={StaticResource IsNotNullOrEmptyToBoolConverter}}}"/>
+                        <Label Text="{Binding ChatTopic}" TextColor="#A0A0A0" FontSize="12"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
+                <Button Grid.Column="1" Text="Завершить" Command="{Binding EndChatCommand}" 
+                        BackgroundColor="#E74C3C" FontAttributes="Bold"
+                        HeightRequest="40" Padding="15,0" CornerRadius="20"
+                        VerticalOptions="Center"/>
+            </Grid>
+        </Border>
+
+        <!-- 2. Область сообщений (CollectionView) -->
+        <CollectionView Grid.Row="1" 
+                        ItemsSource="{Binding Messages}"
+                        VerticalOptions="Fill"
+                        x:Name="MessagesCollectionView"
+                        SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="model:ChatMessageModel">
+                    <Grid Padding="5,3" ColumnSpacing="5"
+                          HorizontalOptions="{Binding SenderType, Converter={StaticResource MessageAlignmentConverter}, ConverterParameter='Grid'}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <!-- Для аватара собеседника -->
+                            <ColumnDefinition Width="*"/>
+                            <!-- Для бабла сообщения -->
+                            <ColumnDefinition Width="Auto"/>
+                            <!-- Для аватара текущего пользователя -->
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Аватар собеседника (слева) -->
+                        <Border Grid.Column="0" Style="{StaticResource MessageAvatarStyle}" 
+                                IsVisible="{Binding SenderType, Converter={StaticResource IsCompanionMessageConverter}}">
+                            <Frame CornerRadius="18" BackgroundColor="#606060" Padding="0" BorderColor="Transparent" IsClippedToBounds="True">
+                                <Grid>
+                                    <!-- Обертка для Image и Label -->
+                                    <Image Source="{Binding AvatarUrl}" Aspect="AspectFill"
+                                           IsVisible="{Binding AvatarUrl, Converter={StaticResource IsNotNullOrEmptyToBoolConverter}}"/>
+                                    <Label Text="{Binding SenderUsername, Converter={StaticResource FirstLetterConverter}}" 
+                                           FontSize="16" FontAttributes="Bold" 
+                                           HorizontalOptions="Center" VerticalOptions="Center"
+                                           IsVisible="{Binding AvatarUrl, Converter={StaticResource IsNullOrEmptyToBoolConverter}}"/>
+                                </Grid>
+                            </Frame>
+                        </Border>
+
+                        <!-- Бабл сообщения -->
+                        <Border Grid.Column="1" Style="{StaticResource MessageBubbleStyle}">
+                            <Label Text="{Binding Text}" Style="{StaticResource MessageTextStyle}" />
+                        </Border>
+
+                        <!-- Аватар текущего пользователя (справа) -->
+                        <Border Grid.Column="2" Style="{StaticResource MessageAvatarStyle}"
+                            IsVisible="{Binding SenderType, Converter={StaticResource IsCurrentUserMessageConverter}}">
+                            <Frame CornerRadius="18" BackgroundColor="#404040" Padding="0" BorderColor="Transparent" IsClippedToBounds="True">
+                                <Grid>
+                                    <!-- Обертка для Image и Label -->
+                                    <Image Source="{Binding AvatarUrl}" Aspect="AspectFill"
+                                       IsVisible="{Binding AvatarUrl, Converter={StaticResource IsNotNullOrEmptyToBoolConverter}}"/>
+                                    <Label Text="{Binding SenderUsername, Converter={StaticResource FirstLetterConverter}}" 
+                                       FontSize="16" FontAttributes="Bold" 
+                                       HorizontalOptions="Center" VerticalOptions="Center"
+                                       IsVisible="{Binding AvatarUrl, Converter={StaticResource IsNullOrEmptyToBoolConverter}}"/>
+                                </Grid>
+                            </Frame>
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+
+        <!-- 3. Поле ввода сообщения и кнопка отправки -->
+        <Border Grid.Row="2" BackgroundColor="#1B1B1B" Padding="10,8" 
+                MinimumHeightRequest="50" StrokeThickness="0"
+                StrokeShape="RoundRectangle 20,20,0,0">
+            <Grid ColumnDefinitions="*,Auto" VerticalOptions="End">
+                <Border Grid.Column="0" BackgroundColor="#2C2C2C" StrokeShape="RoundRectangle 15" Padding="0">
+                    <!-- Editor для многострочного ввода, AutoSize для автоматического изменения высоты -->
+                    <Editor Text="{Binding CurrentMessageText}"
+                            Placeholder="Сообщение..."
+                            PlaceholderColor="#808080"
+                            AutoSize="TextChanges" TextColor="#ebebeb"
+                            MaximumHeightRequest="120" 
+                            VerticalOptions="Center" Margin="10,0"
+                            BackgroundColor="Transparent"/>
+                        <!-- Для Editor нет прямого аналога ScrollView внутри, если текст превысит MaxHeightRequest, 
+                                 он станет прокручиваемым внутри себя, если платформа поддерживает. 
+                                 Или можно обернуть в ScrollView, но тогда AutoSize может конфликтовать. -->
+                </Border>
+
+                <Button Grid.Column="1" Text="Отправить" Command="{Binding SendMessageCommand}" 
+                        BackgroundColor="#2ECC71" TextColor="White" 
+                        HeightRequest="40" Padding="15,0" CornerRadius="15"
+                        Margin="8,0,0,0" VerticalOptions="End"
+                        IsEnabled="{Binding CurrentMessageText, Converter={StaticResource IsNotNullOrEmptyToBoolConverter}}"/>
+            </Grid>
+        </Border>
+    </Grid>
+</ContentPage>

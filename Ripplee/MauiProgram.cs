@@ -4,7 +4,9 @@ using Ripplee.Services.Interfaces;
 using Ripplee.Services.Services;
 using Ripplee.ViewModels;
 using Ripplee.Views;
+using Microsoft.Extensions.Logging;
 #if ANDROID
+using Microsoft.Maui.Controls.Compatibility.Platform.Android; 
 using Microsoft.Maui.LifecycleEvents;
 using Android.Graphics.Drawables;
 using Android.Widget;
@@ -77,7 +79,9 @@ namespace Ripplee
             builder.Services.AddTransient<OnboardingPage>();
             builder.Services.AddTransient<SearchingPage>();
             builder.Services.AddTransient<ChangePasswordPage>(); 
-            builder.Services.AddTransient<ChangeUsernamePage>(); 
+            builder.Services.AddTransient<ChangeUsernamePage>();
+            builder.Services.AddTransient<TextChatViewModel>();
+            builder.Services.AddTransient<TextChatPage>();
 
             builder.Services.AddTransient<AppShell>();
 
@@ -117,6 +121,15 @@ namespace Ripplee
                             int bottomPadding = editText.PaddingBottom;
                             editText.SetPadding(leftPadding, topPadding, rightPadding, bottomPadding);
                         }
+                    }
+                });
+
+                EditorHandler.Mapper.AppendToMapping("NoUnderlineAndCustomPadding", (handler, view) => // Изменил имя маппинга для ясности
+                {
+                    if (handler.PlatformView is EditText editText)
+                    {
+                        editText.Background = null; // Убираем фон, включая подчеркивание
+
                     }
                 });
 #endif

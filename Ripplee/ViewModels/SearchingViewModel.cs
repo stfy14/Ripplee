@@ -10,7 +10,9 @@ namespace Ripplee.ViewModels
     [QueryProperty(nameof(SearchGender), "gender")]
     [QueryProperty(nameof(SearchCity), "city")]
     [QueryProperty(nameof(SearchTopic), "topic")]
-    [QueryProperty(nameof(UserCity), "userCity")] 
+    [QueryProperty(nameof(UserCity), "userCity")]
+    [QueryProperty(nameof(UserGender), "userGender")] 
+    [QueryProperty(nameof(ChatType), "chatType")]
     public partial class SearchingViewModel : ObservableObject
     {
         private readonly ISignalRService _signalRService;
@@ -22,7 +24,9 @@ namespace Ripplee.ViewModels
         [ObservableProperty] private string searchGender = string.Empty;
         [ObservableProperty] private string searchCity = string.Empty;
         [ObservableProperty] private string searchTopic = string.Empty;
-        [ObservableProperty] private string userCity = string.Empty; 
+        [ObservableProperty] private string userCity = string.Empty;
+        [ObservableProperty] private string userGender = string.Empty; // <--- НОВОЕ свойство
+        [ObservableProperty] private string chatType = string.Empty;   // <--- НОВОЕ свойство
 
         [ObservableProperty] private string timeElapsed = "0:00";
         [ObservableProperty] private string statusMessage = "Подключаемся к серверу...";
@@ -48,12 +52,16 @@ namespace Ripplee.ViewModels
             StatusMessage = "Подключение к серверу...";
 
 
-            if (string.IsNullOrEmpty(UserCity)) UserCity = _userService.CurrentUser.MyCity;
-            if (string.IsNullOrEmpty(UserCity) || UserCity == string.Empty)
+            if (string.IsNullOrEmpty(UserCity) || UserCity == "Не указан" ||
+                        string.IsNullOrEmpty(UserGender) || UserGender == "Не указан")
             {
-                await Shell.Current.DisplayAlert("Ошибка", "Ваш город не указан. Пожалуйста, укажите его в профиле.", "OK");
+                await Shell.Current.DisplayAlert("Ошибка", "Ваш город и пол не указаны. Пожалуйста, укажите их в профиле.", "OK");
                 await CancelSearch();
                 return;
+            }
+            if (string.IsNullOrEmpty(ChatType)) // Если тип чата не передан, по умолчанию
+            {
+                ChatType = "Текстовый чат";
             }
 
             // Обновляем вызов ConnectAsync
@@ -61,13 +69,14 @@ namespace Ripplee.ViewModels
                 OnCompanionFound,
                 OnSearchStatusUpdate,
                 OnCallEndedByPartner_NotInCall,
-                OnPartnerMuteStatusChanged_NotInCall
+                OnPartnerMuteStatusChanged_NotInCall,
+                OnReceiveTextMessage_NotInSearch
             );
 
             if (_signalRService.IsConnected)
             {
                 StatusMessage = "Ищем идеального собеседника...";
-                await _signalRService.FindCompanionAsync(UserCity, SearchGender, SearchCity, SearchTopic);
+                await _signalRService.FindCompanionAsync(UserCity, UserGender, SearchGender, SearchCity, SearchTopic, ChatType);
                 StartTimer();
             }
             else
@@ -75,6 +84,12 @@ namespace Ripplee.ViewModels
                 StatusMessage = "Не удалось подключиться к серверу поиска.";
                 IsSearching = false;
             }
+        }
+
+        private Task OnReceiveTextMessage_NotInSearch(string sender, string msg, string? avatarUrl)
+        {
+            Debug.WriteLine("SearchingViewModel: Received OnReceiveTextMessage, but not in a chat state. Ignoring.");
+            return Task.CompletedTask;
         }
 
         private Task OnPartnerMuteStatusChanged_NotInCall(bool isMuted)
@@ -101,11 +116,17 @@ namespace Ripplee.ViewModels
                 var navigationParameters = new Dictionary<string, object>
                 {
                     { "name", name },
-                    { "city", city },
-                    { "topic", topic },
-                    { "avatarUrl", fullAvatarUrl } 
+                    { "city", city }, // Это город, по которому сошлись (может быть город собеседника или общий)
+                    { "topic", topic },// Это тема, по которой сошлись
+                    { "avatarUrl", fullAvatarUrl },
+                    { "chatType", ChatType } // Передаем тип чата дальше на страницу чата
                 };
-                await Shell.Current.GoToAsync(nameof(Views.VoiceChatPage), true, navigationParameters);
+                // Определяем, на какую страницу чата переходить
+                string targetPage = ChatType == "Текстовый чат" ? nameof(Views.TextChatPage) : nameof(Views.VoiceChatPage);
+                // Пока VoiceChatPage не готова, можно всегда на TextChatPage
+                // targetPage = nameof(Views.TextChatPage); 
+
+                await Shell.Current.GoToAsync(targetPage, true, navigationParameters);
             });
         }
 
