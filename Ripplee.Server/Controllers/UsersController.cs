@@ -31,7 +31,7 @@ namespace Ripplee.Server.Controllers
             var userExists = await _context.Users.AnyAsync(u => u.Username == dto.Username);
             if (userExists)
             {
-                return BadRequest(new { Message = "Username is already taken." });
+                return BadRequest(new { Message = "Это имя уже занято" });
             }
 
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
@@ -47,7 +47,7 @@ namespace Ripplee.Server.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return Ok(new { Message = "User registered successfully!" });
+            return Ok(new { Message = "Пользователь успешно зарегистрировался!" });
         }
 
         [HttpPost("login")]
@@ -57,7 +57,7 @@ namespace Ripplee.Server.Controllers
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
             {
-                return Unauthorized(new { Message = "Invalid credentials." });
+                return Unauthorized(new { Message = "Пользователя не сузществует" });
             }
 
             var token = GenerateJwtToken(user);
@@ -77,7 +77,7 @@ namespace Ripplee.Server.Controllers
             var userFromDb = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
             if (userFromDb == null)
             {
-                return NotFound(new { Message = "User not found." });
+                return NotFound(new { Message = "Пользователь не найден" });
             }
 
             userFromDb.MyGender = dto.MyGender;
@@ -88,7 +88,7 @@ namespace Ripplee.Server.Controllers
             // Генерируем новый токен с обновленными данными
             var newToken = GenerateJwtToken(userFromDb);
 
-            return Ok(new { Message = "Criteria updated successfully.", Token = newToken }); // Возвращаем новый токен
+            return Ok(new { Message = "Критерии успешно обновлены", Token = newToken }); // Возвращаем новый токен
         }
 
         [HttpGet("profile")]
@@ -98,7 +98,7 @@ namespace Ripplee.Server.Controllers
             var username = User.Identity?.Name;
             if (string.IsNullOrEmpty(username))
             {
-                return Unauthorized(new { Message = "Could not find username in token." });
+                return Unauthorized(new { Message = "Не удается найти токен пользователя" });
             }
 
             var userFromDb = await _context.Users
@@ -107,7 +107,7 @@ namespace Ripplee.Server.Controllers
 
             if (userFromDb == null)
             {
-                return NotFound(new { Message = "User not found in database." });
+                return NotFound(new { Message = "Пользователь не найден в базе данных" });
             }
 
             return Ok(new
@@ -134,24 +134,24 @@ namespace Ripplee.Server.Controllers
             var username = User.Identity?.Name;
             if (string.IsNullOrEmpty(username))
             {
-                return Unauthorized(new { Message = "User identity not found in token." });
+                return Unauthorized(new { Message = "Пользователь не идентифицирован" });
             }
 
             var userFromDb = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
             if (userFromDb == null)
             {
-                return NotFound(new { Message = "User not found." });
+                return NotFound(new { Message = "Пользователь не найден" });
             }
 
             if (!BCrypt.Net.BCrypt.Verify(dto.OldPassword, userFromDb.PasswordHash))
             {
-                return BadRequest(new { Message = "Invalid old password." });
+                return BadRequest(new { Message = "Некорректный старый пароль" });
             }
 
             userFromDb.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
             await _context.SaveChangesAsync();
 
-            return Ok(new { Message = "Password changed successfully." });
+            return Ok(new { Message = "Пароль успешно изменен!" });
         }
 
         [HttpPost("change-username")]
@@ -161,35 +161,35 @@ namespace Ripplee.Server.Controllers
             var currentUsernameFromToken = User.Identity?.Name;
             if (string.IsNullOrEmpty(currentUsernameFromToken))
             {
-                return Unauthorized(new { Message = "User identity not found in token." });
+                return Unauthorized(new { Message = "Пользователь не идентифицирован" });
             }
 
             var userFromDb = await _context.Users.FirstOrDefaultAsync(u => u.Username == currentUsernameFromToken);
             if (userFromDb == null)
             {
-                return NotFound(new { Message = "Current user not found." });
+                return NotFound(new { Message = "Пользователь не найден" });
             }
 
             if (!BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, userFromDb.PasswordHash))
             {
-                return BadRequest(new { Message = "Invalid current password." });
+                return BadRequest(new { Message = "Некорректный текущий пароль" });
             }
 
             if (string.IsNullOrWhiteSpace(dto.NewUsername) || dto.NewUsername.Length < 3)
             {
-                return BadRequest(new { Message = "New username is invalid (minimum 3 characters)." });
+                return BadRequest(new { Message = "Новый логин должен содержать не менее 3 символов" });
             }
 
             if (await _context.Users.AnyAsync(u => u.Username.ToLower() == dto.NewUsername.ToLower() && u.Id != userFromDb.Id))
             {
-                return BadRequest(new { Message = "New username is already taken." });
+                return BadRequest(new { Message = "Этот логин уже занято" });
             }
 
             userFromDb.Username = dto.NewUsername;
             await _context.SaveChangesAsync();
 
             var newToken = GenerateJwtToken(userFromDb);
-            return Ok(new { Token = newToken, Message = "Username changed successfully." });
+            return Ok(new { Token = newToken, Message = "Логин успешно изменен" });
         }
 
         [HttpPost("avatar")]
@@ -199,30 +199,30 @@ namespace Ripplee.Server.Controllers
             var username = User.Identity?.Name;
             if (string.IsNullOrEmpty(username))
             {
-                return Unauthorized(new { Message = "User identity not found in token." });
+                return Unauthorized(new { Message = "Пользователь не идентифицирован" });
             }
 
             var userFromDb = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
             if (userFromDb == null)
             {
-                return NotFound(new { Message = "User not found." });
+                return NotFound(new { Message = "Пользователь не найден" });
             }
 
             if (file == null || file.Length == 0)
             {
-                return BadRequest(new { Message = "No file uploaded." });
+                return BadRequest(new { Message = "Аватар не удалось обновить" });
             }
 
             if (file.Length > 5 * 1024 * 1024) 
             {
-                return BadRequest(new { Message = "File size exceeds limit (5MB)." });
+                return BadRequest(new { Message = "Файл превышает лимит в 5МБ" });
             }
 
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
             var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
             if (string.IsNullOrEmpty(extension) || !allowedExtensions.Contains(extension))
             {
-                return BadRequest(new { Message = "Invalid file type. Only JPG, JPEG, PNG are allowed." });
+                return BadRequest(new { Message = "Некорректный тип файла. Только JPG, JPEG, PNG форматы поддерживаются." });
             }
 
             // Используем для получения пути к wwwroot
@@ -241,7 +241,7 @@ namespace Ripplee.Server.Controllers
                     if (System.IO.File.Exists(oldFilePath))
                     {
                         try { System.IO.File.Delete(oldFilePath); }
-                        catch (IOException ex) { Console.WriteLine($"Error deleting old avatar for user {userFromDb.Username}: {ex.Message}"); }
+                        catch (IOException ex) { Console.WriteLine($"Ошибка при удалении старого аватара {userFromDb.Username}: {ex.Message}"); }
                     }
                 }
             }
@@ -268,18 +268,18 @@ namespace Ripplee.Server.Controllers
             var username = User.Identity?.Name;
             if (string.IsNullOrEmpty(username))
             {
-                return Unauthorized(new { Message = "User identity not found in token." });
+                return Unauthorized(new { Message = "Пользователь не идентифицирован" });
             }
 
             var userFromDb = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
             if (userFromDb == null)
             {
-                return NotFound(new { Message = "User not found." });
+                return NotFound(new { Message = "Пользователь не найден" });
             }
 
             if (!BCrypt.Net.BCrypt.Verify(dto.Password, userFromDb.PasswordHash))
             {
-                return BadRequest(new { Message = "Invalid password. Account deletion denied." });
+                return BadRequest(new { Message = "Некорректный пароль. В удалении отказано" });
             }
 
             if (!string.IsNullOrEmpty(userFromDb.AvatarUrl))
@@ -292,7 +292,7 @@ namespace Ripplee.Server.Controllers
                     if (System.IO.File.Exists(filePath))
                     {
                         try { System.IO.File.Delete(filePath); }
-                        catch (IOException ex) { Console.WriteLine($"Error deleting avatar for user {userFromDb.Username} during account deletion: {ex.Message}"); }
+                        catch (IOException ex) { Console.WriteLine($"Ошибка удаления аватара {userFromDb.Username} при удалении аккаунта: {ex.Message}"); }
                     }
                 }
             }
@@ -301,7 +301,7 @@ namespace Ripplee.Server.Controllers
 
             await _context.SaveChangesAsync();
 
-            return Ok(new { Message = "Account deleted successfully." });
+            return Ok(new { Message = "Аккаунт успешно удален!" });
         }
 
         private string GenerateJwtToken(User user)

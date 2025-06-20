@@ -192,44 +192,43 @@
                                          VerticalOptions="Start" Padding="0,10,0,20"
                                          IsVisible="True"
                                          x:Name="Step0Layout">
+                        <Grid RowDefinitions="Auto, *">
 
-                        <Border Style="{StaticResource ContentContainer}">
-                            <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}">
-                                <BoxView HeightRequest="2" Color="#808080" HorizontalOptions="Center" 
-                                         WidthRequest="{OnPlatform Default=120, Android=100, iOS=120}"
-                                         Margin="0,15,0,15"/>
+                            <Border Style="{StaticResource ContentContainer}" Grid.Row="0">
+                                <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}">
 
-                                <Label Text="Темы" Style="{StaticResource FeatureLabel}"/>
+                                    <BoxView HeightRequest="2" Color="#808080" HorizontalOptions="Center" 
+                                             WidthRequest="{OnPlatform Default=120, Android=100, iOS=120}"
+                                             Margin="0,15,0,15"/>
 
-                                <BoxView HeightRequest="2" Color="#808080" HorizontalOptions="Center" 
-                                         WidthRequest="{OnPlatform Default=200, Android=180, iOS=200}"
-                                         Margin="0,15,0,15"/>
+                                    <Label Text="Темы" Style="{StaticResource FeatureLabel}"/>
 
-                                <Label Text="Быстрый поиск" Style="{StaticResource FeatureLabel}"/>
+                                    <BoxView HeightRequest="2" Color="#808080" HorizontalOptions="Center" 
+                                             WidthRequest="{OnPlatform Default=200, Android=180, iOS=200}"
+                                             Margin="0,15,0,15"/>
 
-                                <BoxView HeightRequest="2" Color="#808080" HorizontalOptions="Center" 
-                                         WidthRequest="{OnPlatform Default=200, Android=180, iOS=200}"
-                                         Margin="0,15,0,15"/>
+                                    <Label Text="Быстрый поиск" Style="{StaticResource FeatureLabel}"/>
 
-                                <Label Text="Города" Style="{StaticResource FeatureLabel}"/>
+                                    <BoxView HeightRequest="2" Color="#808080" HorizontalOptions="Center" 
+                                             WidthRequest="{OnPlatform Default=200, Android=180, iOS=200}"
+                                             Margin="0,15,0,15"/>
 
-                                <BoxView HeightRequest="2" Color="#808080" HorizontalOptions="Center" 
-                                         WidthRequest="{OnPlatform Default=120, Android=100, iOS=120}"
-                                         Margin="0,15,0,15"/>
-                            </VerticalStackLayout>
-                        </Border>
+                                    <Label Text="Города" Style="{StaticResource FeatureLabel}"/>
 
-                        <Border Style="{StaticResource ButtonContainer}">
-                            <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}">
-                                <Button Text="Продолжить" 
-                                        Command="{Binding StartFlowCommand}" 
-                                        Style="{StaticResource OnboardingButton}"/>
+                                    <BoxView HeightRequest="2" Color="#808080" HorizontalOptions="Center" 
+                                             WidthRequest="{OnPlatform Default=120, Android=100, iOS=120}"
+                                             Margin="0,15,0,15"/>
+                                </VerticalStackLayout>
+                            </Border>
 
-                                <Button Text="Как гость" 
-                                        Command="{Binding StartGuestFlowCommand}" 
-                                        Style="{StaticResource SecondaryButton}"/>
-                            </VerticalStackLayout>
-                        </Border>
+                            <Border Style="{StaticResource ButtonContainer}" Grid.Row="1">
+                                <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}">
+                                    <Button Text="Начать общаться!" 
+                                            Command="{Binding StartFlowCommand}" 
+                                            Style="{StaticResource OnboardingButton}"/>
+                                </VerticalStackLayout>
+                            </Border>
+                        </Grid>
                     </VerticalStackLayout>
 
                     <!-- Вторая страница - Ввод логина -->
@@ -240,8 +239,11 @@
 
                         <Border Style="{StaticResource ContentContainer}">
                             <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}">
-                                <Label Text="Осталось совсем" Style="{StaticResource OnboardingTitle}"/>
-                                <Label Text="чуть-чуть" Style="{StaticResource OnboardingTitle}"/>
+                                <Label Text="Введите логин" Style="{StaticResource OnboardingTitle}"/>
+                                <Label Text="Осталось совсем чуть-чуть" 
+                                       FontSize="{OnPlatform Default=18, Android=16, iOS=16}" 
+                                       TextColor="Gray" 
+                                       HorizontalOptions="Center"/>
 
                                 <BoxView HeightRequest="2" Color="#808080" 
                                          Margin="{OnPlatform Default='0,30,0,30', Android='0,20,0,20', iOS='0,25,0,25'}" 
@@ -280,11 +282,14 @@
 
                         <Border Style="{StaticResource ContentContainer}">
                             <VerticalStackLayout Spacing="{OnPlatform Default=15, Android=12, iOS=15}">
-                                <Label Text="Ты же не хочешь" Style="{StaticResource OnboardingTitle}"/>
-                                <Label Text="потерять данные?" Style="{StaticResource OnboardingTitle}"/>
+                                <Label Text="Введите пароль" Style="{StaticResource OnboardingTitle}"/>
+                                <Label Text="Ты же не хочешь потерять данные?" 
+                                       FontSize="{OnPlatform Default=18, Android=16, iOS=16}" 
+                                       TextColor="Gray" 
+                                       HorizontalOptions="Center"/>
 
                                 <BoxView HeightRequest="2" Color="#808080" 
-                                         Margin="{OnPlatform Default='0,30,0,30', Android='0,20,0,20', iOS='0,25,0,25'}" 
+                                         Margin="{OnPlatform Default='0,30,0,30', Android='0,25,0,25', iOS='0,25,0,25'}" 
                                          HorizontalOptions="Center" 
                                          WidthRequest="{OnPlatform Default=150, Android=120, iOS=150}"/>
 
@@ -390,7 +395,7 @@
                                 <!-- Приветствуем существующего пользователя -->
                                 <Label Text="{Binding GreetingMessage}" Style="{StaticResource OnboardingTitle}"/>
 
-                                <Label Text="Введите пароль" 
+                                <Label Text="Введите ваш пароль" 
                                        FontSize="{OnPlatform Default=18, Android=16, iOS=16}" 
                                        TextColor="Gray" 
                                        HorizontalOptions="Center"/>
